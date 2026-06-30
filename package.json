@@ -1,0 +1,14 @@
+{
+  "name": "pentest-pro",
+  "version": "1.0.0",
+  "description": "Elite penetration testing reference framework — standalone PWA build pipeline",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "test": "node tests/run.js",
+    "verify": "npm run build && npm run test"
+  },
+  "devDependencies": {
+    "jsdom": "^24.1.3"
+  }
+}

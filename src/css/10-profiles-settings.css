@@ -1,0 +1,15 @@
+/* PROFILES */
+.profile-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.profile-item{background:var(--s2);border:1px solid var(--bdr);border-radius:7px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s}
+.profile-item:hover{border-color:var(--bdr2)}
+.profile-item.on{border-color:#3b5bdb;background:#1e1e3a}
+.profile-name{font-size:13px;font-weight:600;color:var(--t1);flex:1}
+.profile-meta{font-size:10px;color:var(--t2)}
+
+/* SETTINGS / AI */
+.settings-section{margin-bottom:16px}
+.settings-lbl{font-size:11px;font-weight:700;color:var(--t1);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.api-status{font-size:10px;color:var(--t3)}
+.api-status.ok{color:#22c55e}
+.api-status.err{color:#f87171}
+.code-block{background:#060912;border:1px solid var(--bdr);border-radius:7px;padding:12px 14px;font-size:10px;font-family:'SF Mono','Fira Code',Menlo,monospace;color:#86efac;white-space:pre-wrap;overflow-x:auto;line-height:1.6}

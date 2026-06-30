@@ -1,0 +1,13 @@
+/* PAYLOADS TAB */
+.payload-cat{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin-bottom:9px}
+.payload-cat-hdr{padding:11px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .15s}
+.payload-cat-hdr:hover{background:var(--s3)}
+.payload-group{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.03)}
+.payload-group:last-child{border-bottom:none}
+.payload-grp-name{font-size:11px;font-weight:600;color:var(--t1);margin-bottom:6px}
+.payload-notes{font-size:10px;color:var(--t2);margin-bottom:8px;line-height:1.5;font-style:italic}
+.payload-item{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.02)}
+.payload-item:last-child{border-bottom:none}
+.payload-val{font-size:11px;color:#7dd3fc;font-family:'SF Mono','Fira Code',Menlo,monospace;flex:1;min-width:0;word-break:break-all}
+.payload-copy{background:none;border:none;color:var(--t3);cursor:pointer;font-size:11px;padding:2px;flex-shrink:0;transition:color .15s}
+.payload-copy:hover{color:#a3e635}

@@ -1,0 +1,6 @@
+/* REPORT SECTION */
+.report-preview{background:var(--s2);border:1px solid var(--bdr);border-radius:9px;padding:16px;font-size:12px;line-height:1.8;color:var(--t2);font-family:'SF Mono','Fira Code',Menlo,monospace;overflow-x:auto;white-space:pre-wrap;word-break:break-word;flex:1;min-height:300px}
+.report-preview h1,.report-preview h2,.report-preview h3{color:var(--t1);font-family:inherit;margin-bottom:4px}
+.report-ctrls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--bdr);margin-bottom:12px}
+.report-field{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t2)}
+.report-field input{background:var(--s2);border:1px solid var(--bdr);border-radius:5px;padding:4px 8px;color:var(--t1);font-size:11px;font-family:inherit;outline:none;width:140px}

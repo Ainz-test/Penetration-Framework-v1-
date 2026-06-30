@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PenTest Pro">
+<meta name="theme-color" content="#09090f">
+<title>PenTest Pro — Elite Framework</title>
+<style>
+{{CSS}}
+</style>
+</head>
+<body>
+<div id="err"></div>
+<div id="root">
+  <div id="topbar">
+    <button id="hambtn" onclick="toggleDrawer()">&#9776;</button>
+    <div class="dots">
+      <div class="dot" style="background:#ef4444"></div>
+      <div class="dot" style="background:#eab308"></div>
+      <div class="dot" style="background:#22c55e"></div>
+    </div>
+    <button id="engbtn" onclick="startEditEng()">&#128193; <span id="engname">Loading...</span></button>
+    <div id="searchbox">
+      <span class="srchico">&#128269;</span>
+      <input id="searchinp" type="search" placeholder="Search commands..." oninput="handleSearch(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
+      <button id="clrbtn" onclick="clearSearch()">&#10005;</button>
+    </div>
+    <span id="totalring" style="flex-shrink:0;display:inline-flex"></span>
+    <button id="resetbtn" onclick="doReset()">&#8635;</button>
+  </div>
+  <div id="secnav">
+    <button class="secbtn on" data-sec="framework" onclick="setSection('framework')"><span class="sico">&#128221;</span>Framework</button>
+    <button class="secbtn" data-sec="findings" onclick="setSection('findings')"><span class="sico">&#128300;</span>Findings</button>
+    <button class="secbtn" data-sec="scope" onclick="setSection('scope')"><span class="sico">&#127919;</span>Scope</button>
+    <button class="secbtn" data-sec="tools" onclick="setSection('tools')"><span class="sico">&#128295;</span>Tools</button>
+    <button class="secbtn" data-sec="payloads" onclick="setSection('payloads')"><span class="sico">&#128299;</span>Payloads</button>
+    <button class="secbtn" data-sec="report" onclick="setSection('report')"><span class="sico">&#128202;</span>Report</button>
+    <button class="secbtn" data-sec="killchain" onclick="setSection('killchain')"><span class="sico">&#128279;</span>Kill Chain</button>
+    <button class="secbtn" data-sec="timer" onclick="setSection('timer')"><span class="sico">&#9203;</span>Timer</button>
+    <button class="secbtn" data-sec="profiles" onclick="setSection('profiles')"><span class="sico">&#128100;</span>Profiles</button>
+    <button class="secbtn" data-sec="settings" onclick="setSection('settings')"><span class="sico">&#9881;</span>AI + Settings</button>
+  </div>
+  <div id="phasenav"></div>
+  <div id="wrap">
+    <div id="mask" onclick="closeDrawer()"></div>
+    <div id="drawer"></div>
+    <div id="main">
+      <div id="stephdr"></div>
+      <div id="tabbar"></div>
+      <div id="content"></div>
+      <div id="stepnav"></div>
+    </div>
+  </div>
+  <div id="secbody" style="display:none"></div>
+  <div id="bottomnav"></div>
+</div>
+<div id="findingPanel" class="detail-panel"></div>
+<script>
+{{JS}}
+</script>
+</body>
+</html>

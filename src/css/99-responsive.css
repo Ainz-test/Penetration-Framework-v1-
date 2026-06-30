@@ -1,0 +1,39 @@
+/* SCROLLBARS */
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* RESPONSIVE */
+@media (min-width: 640px) {
+  #drawer{width:300px}
+  #bottomnav{display:none}
+  .sec-body{padding:18px 24px}
+  .scope-grid{padding:18px 24px}
+}
+@media (min-width: 1024px) {
+  #hambtn{display:none !important}
+  #phasenav{display:none !important}
+  #bottomnav{display:none !important}
+  #mask{display:none !important}
+  #drawer{position:relative !important;transform:none !important;width:260px !important;transition:none !important;flex-shrink:0;height:100%;display:flex;flex-direction:column}
+  .sidebar-phases{display:flex !important}
+  #content{padding:20px 24px}
+  .cmdcard:hover{box-shadow:0 4px 20px rgba(0,0,0,.4);border-color:var(--bdr2)}
+  .chklist{display:grid;grid-template-columns:1fr 1fr}
+  .chkitem{border-right:1px solid rgba(255,255,255,.03)}
+  .chkitem:nth-child(2n){border-right:none}
+  .deblk{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .notebox,.outbox{grid-column:1/-1}
+  .detail-panel{width:520px}
+  .scope-grid{grid-template-columns:1fr 1fr 1fr}
+}
+@media (min-width: 1280px) {
+  #drawer{width:280px !important}
+  #content{padding:22px 28px}
+}
+
+/* ACCESSIBILITY: keyboard focus + reduced motion */
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid #4f6ef7;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
+}

