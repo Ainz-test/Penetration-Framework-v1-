@@ -17,8 +17,14 @@ var APP={
 };
 
 function pkey(k){return 'apt_'+APP.profile+'_'+k;}
-function psave(k,v){try{localStorage.setItem(pkey(k),JSON.stringify(v));}catch(e){}}
-function pload(k,d){try{var v=localStorage.getItem(pkey(k));return v!==null?JSON.parse(v):d;}catch(e){return d;}}
+// psave is fire-and-forget (callers never await it) so every existing call
+// site throughout the app keeps working unchanged. The encrypt+write (if
+// encryption is enabled) happens in the background — see 00b-crypto.js.
+function psave(k,v){secureSet(pkey(k),v);}
+// pload is async because decryption is async. It has exactly one call site
+// (loadProfile, below) plus a couple of direct localStorage reads elsewhere
+// that route through secureGet directly — see 12-profiles.js/13-settings.js.
+function pload(k,d){return secureGet(pkey(k),d);}
 
 function initData(){
   try{
@@ -36,24 +42,21 @@ function initData(){
 
 function loadProfile(){
   APP.lang=localStorage.getItem('apt_lang')||'en';
-  APP.ck=pload('ck',{});
-  APP.notes=pload('notes',{});
-  APP.eng=pload('eng','New Engagement');
-  APP.phase=pload('phase','pre')||'pre';
-  APP.step=pload('step','p1')||'p1';
-  APP.findings=pload('findings',[]);
-  var ds={targets:[],oot:[],windows:[],contacts:[],type:'Black Box',start:'',end:'',client:''};
-  APP.scope=pload('scope',ds);
-  APP.timerSessions=pload('timer_sessions',[]);
-  APP.kc=pload('kc',[]);
-  APP.kcNarr=pload('kc_narr','');
-  APP.apiKey=localStorage.getItem('api_key')||'';
-  APP.apiEndpoint=localStorage.getItem('api_endpoint')||'/api/chat';
-  APP.profiles=JSON.parse(localStorage.getItem('apt_profiles')||'[]');
-  if(!APP.profiles.length){
-    APP.profiles=[{id:'default',name:'Default Engagement',created:Date.now()}];
-    localStorage.setItem('apt_profiles',JSON.stringify(APP.profiles));
-  }
+  return Promise.all([
+    pload('ck',{}), pload('notes',{}), pload('eng','New Engagement'),
+    pload('phase','pre'), pload('step','p1'), pload('findings',[]),
+    pload('scope',{targets:[],oot:[],windows:[],contacts:[],type:'Black Box',start:'',end:'',client:''}),
+    pload('timer_sessions',[]), pload('kc',[]), pload('kc_narr',''),
+    secureGet('api_key',''), secureGet('api_endpoint','/api/chat'), secureGet('apt_profiles',[])
+  ]).then(function(r){
+    APP.ck=r[0]; APP.notes=r[1]; APP.eng=r[2]; APP.phase=r[3]||'pre'; APP.step=r[4]||'p1';
+    APP.findings=r[5]; APP.scope=r[6]; APP.timerSessions=r[7]; APP.kc=r[8]; APP.kcNarr=r[9];
+    APP.apiKey=r[10]; APP.apiEndpoint=r[11]; APP.profiles=r[12];
+    if(!APP.profiles.length){
+      APP.profiles=[{id:'default',name:'Default Engagement',created:Date.now()}];
+      secureSet('apt_profiles',APP.profiles);
+    }
+  });
 }
 
 function getPhase(id){for(var i=0;i<PHASES.length;i++){if(PHASES[i].id===id)return PHASES[i];}return PHASES[0];}

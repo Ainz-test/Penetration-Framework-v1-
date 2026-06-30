@@ -1,0 +1,15 @@
+#lockscreen{position:fixed;inset:0;z-index:10000;background:var(--bg);display:none;align-items:center;justify-content:center;padding:20px;padding-top:calc(20px + var(--sat));padding-bottom:calc(20px + var(--sab))}
+.lock-card{width:100%;max-width:360px;background:var(--s1);border:1px solid var(--bdr);border-radius:14px;padding:28px 24px;display:flex;flex-direction:column;animation:fadeup .25s ease both}
+.lock-brand{font-size:13px;font-weight:700;color:var(--t2);text-align:center;letter-spacing:.04em;margin-bottom:18px}
+.lock-title{font-size:17px;font-weight:700;color:var(--t1);text-align:center;margin-bottom:8px}
+.lock-body{font-size:12px;color:var(--t2);text-align:center;line-height:1.6;margin-bottom:18px}
+.lock-body.lock-danger{color:#fca5a5}
+.lock-input{width:100%;background:var(--s2);border:1px solid var(--bdr);border-radius:8px;padding:11px 13px;color:var(--t1);font-size:14px;font-family:inherit;outline:none;margin-bottom:9px;transition:border-color .2s}
+.lock-input:focus{border-color:#3b5bdb}
+.lock-error{font-size:11px;color:#f87171;min-height:14px;margin-bottom:6px;text-align:center}
+.lock-btn{width:100%;justify-content:center;padding:11px;font-size:13px;margin-top:4px}
+.lock-btn-secondary{width:100%;justify-content:center;padding:9px;font-size:12px;margin-top:8px;background:none;border:1px solid var(--bdr);border-radius:8px;color:var(--t2);cursor:pointer;font-family:inherit;transition:all .15s}
+.lock-btn-secondary:hover{background:var(--s3);color:var(--t1)}
+.lock-note{font-size:10px;color:var(--t3);text-align:center;margin-top:10px}
+.lock-forgot{background:none;border:none;color:var(--t3);font-size:11px;cursor:pointer;font-family:inherit;text-align:center;margin-top:14px;width:100%;text-decoration:underline;text-underline-offset:2px;transition:color .15s}
+.lock-forgot:hover{color:var(--t2)}

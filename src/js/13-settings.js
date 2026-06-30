@@ -9,6 +9,22 @@ function renderSettings(el){
     +'<button class="btn'+(APP.lang==='ar'?' primary':'')+'" onclick="setLang(\'ar\')" style="flex:1;justify-content:center">العربية</button>'
     +'</div></div></div>';
 
+  // Security
+  h+='<div class="card"><div class="card-hdr"><div class="card-title">&#128274; '+t('security_title')+'</div>'
+    +'<span class="api-status'+(CRYPTO_ENABLED?' ok':'')+'">'+(CRYPTO_ENABLED?'&#10003; '+t('security_enc_on'):t('security_enc_off'))+'</span>'
+    +'</div><div class="card-body">';
+  if(CRYPTO_ENABLED){
+    h+='<div style="font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:12px">'+t('security_enc_on_body')+'</div>';
+  }else{
+    h+='<div style="font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:12px">'+t('security_enc_off_body')+'</div>'
+      +'<button class="btn primary" onclick="startEncryptionSetupFromSettings()" style="width:100%;justify-content:center;margin-bottom:10px">&#128274; '+t('security_setup_btn')+'</button>';
+  }
+  h+='<div class="notebox" style="margin-bottom:10px"><span class="ni">'+t('tip_lbl')+'</span> '+t('security_no_recovery_warn')+'</div>';
+  if(CRYPTO_ENABLED){
+    h+='<button class="btn danger" onclick="resetEncryptedDataFromSettings()" style="width:100%;justify-content:center">&#8635; '+t('security_reset_btn')+'</button>';
+  }
+  h+='</div></div>';
+
   // AI Setup
   h+='<div class="card"><div class="card-hdr"><div class="card-title">&#129302; '+t('ai_features_title')+'</div>'
     +'<span id="ai_status" class="api-status'+(APP.apiKey?' ok':'')+'">'+( APP.apiKey?'&#10003; '+t('key_saved'):t('no_key_disabled'))+'</span>'
@@ -50,10 +66,25 @@ function renderSettings(el){
     +'<div style="display:flex;flex-direction:column;gap:8px">'
     +'<button class="btn danger" onclick="doReset()" style="width:100%;justify-content:center">&#8635; '+t('reset_progress_btn')+'</button>'
     +'<button class="btn" onclick="exportAllData()" style="width:100%;justify-content:center">&#128229; '+t('export_backup_btn')+'</button>'
+    +'<div style="font-size:10px;color:var(--t3);text-align:center">'+t('export_unencrypted_warn')+'</div>'
     +'</div></div></div>';
 
   h+='</div>';
   el.innerHTML=h;
+}
+
+function startEncryptionSetupFromSettings(){
+  renderFirstRunScreen(function(){
+    renderSettings(document.getElementById('secbody'));
+  });
+}
+
+function resetEncryptedDataFromSettings(){
+  renderResetConfirm(function(){
+    // after a reset triggered from inside the app, reload to restart cleanly
+    // through the normal lock-screen flow rather than trying to patch live state
+    location.reload();
+  });
 }
 
 function saveApiKey(){
@@ -61,15 +92,15 @@ function saveApiKey(){
   var endpoint=document.getElementById('set_endpoint').value.trim()||'/api/chat';
   APP.apiKey=key;
   APP.apiEndpoint=endpoint;
-  localStorage.setItem('api_key',key);
-  localStorage.setItem('api_endpoint',endpoint);
+  secureSet('api_key',key);
+  secureSet('api_endpoint',endpoint);
   var st=document.getElementById('ai_status');
   if(st){st.innerHTML=key?'&#10003; '+t('key_saved'):t('no_key_disabled');st.className='api-status '+(key?'ok':'');}
 }
 
 function clearApiKey(){
   APP.apiKey='';
-  localStorage.removeItem('api_key');
+  secureSet('api_key','');
   document.getElementById('set_apikey').value='';
   var st=document.getElementById('ai_status');
   if(st){st.textContent=t('no_key_disabled');st.className='api-status';}
@@ -89,19 +120,23 @@ function copyVercelFn(){
 }
 
 function exportAllData(){
-  var data={profiles:APP.profiles,current:APP.profile,data:{}};
-  APP.profiles.forEach(function(p){
-    var keys=['ck','notes','eng','phase','step','findings','scope','timer_sessions','kc','kc_narr'];
-    data.data[p.id]={};
-    keys.forEach(function(k){
-      var v=localStorage.getItem('apt_'+p.id+'_'+k);
-      if(v)try{data.data[p.id][k]=JSON.parse(v);}catch(e){}
+  var keys=['ck','notes','eng','phase','step','findings','scope','timer_sessions','kc','kc_narr'];
+  var profilePromises=APP.profiles.map(function(p){
+    var fieldPromises=keys.map(function(k){return secureGet('apt_'+p.id+'_'+k,null);});
+    return Promise.all(fieldPromises).then(function(vals){
+      var obj={};
+      keys.forEach(function(k,i){if(vals[i]!==null)obj[k]=vals[i];});
+      return obj;
     });
   });
-  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;a.download='pentest-pro-backup-'+(new Date().toISOString().split('T')[0])+'.json';
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  Promise.all(profilePromises).then(function(profileResults){
+    var data={profiles:APP.profiles,current:APP.profile,data:{}};
+    APP.profiles.forEach(function(p,i){data.data[p.id]=profileResults[i];});
+    var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;a.download='pentest-pro-backup-'+(new Date().toISOString().split('T')[0])+'.json';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
 }

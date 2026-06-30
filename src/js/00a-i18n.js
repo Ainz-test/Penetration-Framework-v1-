@@ -243,7 +243,40 @@ var I18N = {
   ai_error_prefix:{en:'AI Error:',ar:'خطأ في الذكاء الاصطناعي:'},
   add_title_desc_first:{en:'Add a title and description first.',ar:'أضف عنواناً ووصفاً أولاً.'},
   add_title_first:{en:'Add a finding title first.',ar:'أضف عنوان الثغرة أولاً.'},
-  add_kc_stages_first:{en:'Add some kill chain stages first.',ar:'أضف بعض مراحل سلسلة الهجوم أولاً.'}
+  add_kc_stages_first:{en:'Add some kill chain stages first.',ar:'أضف بعض مراحل سلسلة الهجوم أولاً.'},
+
+  // lock screen / encryption
+  lock_app_name:{en:'PenTest Pro',ar:'بن تست برو'},
+  lock_setup_title:{en:'Protect your data',ar:'احمِ بياناتك'},
+  lock_setup_body:{en:'Set a master password to encrypt everything stored on this device — findings, scope, client names, notes. Nothing leaves your browser; nothing is recoverable if you forget it.',ar:'حدّد كلمة مرور رئيسية لتشفير كل ما يُخزَّن على هذا الجهاز — الثغرات، النطاق، أسماء العملاء، الملاحظات. لا شيء يغادر متصفحك، ولا يمكن استرجاع البيانات إن نسيت كلمة المرور.'},
+  lock_unlock_title:{en:'Enter your master password',ar:'أدخل كلمة المرور الرئيسية'},
+  lock_unlock_body:{en:'Your data on this device is encrypted.',ar:'بياناتك على هذا الجهاز مشفّرة.'},
+  lock_password_ph:{en:'Master password',ar:'كلمة المرور الرئيسية'},
+  lock_password_confirm_ph:{en:'Confirm password',ar:'تأكيد كلمة المرور'},
+  lock_set_password_btn:{en:'Set password and continue',ar:'تعيين كلمة المرور والمتابعة'},
+  lock_unlock_btn:{en:'Unlock',ar:'فتح القفل'},
+  lock_skip_btn:{en:'Skip for now',ar:'تخطّي الآن'},
+  lock_skip_note:{en:'You can turn this on anytime in Settings.',ar:'يمكنك تفعيل هذا في أي وقت من الإعدادات.'},
+  lock_mismatch_error:{en:'Passwords do not match.',ar:'كلمتا المرور غير متطابقتين.'},
+  lock_too_short_error:{en:'Use at least 8 characters.',ar:'استخدم 8 أحرف على الأقل.'},
+  lock_wrong_password:{en:'Incorrect password. Try again.',ar:'كلمة مرور غير صحيحة. حاول مجدداً.'},
+  lock_forgot_link:{en:'Forgot password? Reset all data',ar:'نسيت كلمة المرور؟ إعادة تعيين كل البيانات'},
+  lock_reset_confirm1:{en:"This permanently deletes ALL encrypted data on this device — every profile, every finding, everything. There is no recovery. Type RESET to confirm.",ar:'سيؤدي هذا لحذف كل البيانات المشفّرة على هذا الجهاز نهائياً — كل ملف، كل ثغرة، كل شيء. لا يمكن الاسترجاع. اكتب RESET للتأكيد.'},
+  lock_reset_type_confirm:{en:'RESET',ar:'RESET'},
+  lock_resetting:{en:'Resetting...',ar:'جارٍ إعادة التعيين...'},
+  lock_unlocking:{en:'Unlocking...',ar:'جارٍ فتح القفل...'},
+
+  // settings: security section
+  security_title:{en:'Security',ar:'الأمان'},
+  security_enc_on:{en:'Encryption is on',ar:'التشفير مُفعَّل'},
+  security_enc_off:{en:'Encryption is off',ar:'التشفير معطَّل'},
+  security_enc_off_body:{en:'Your findings, scope, and notes are currently stored as plain text on this device. Set a master password to encrypt them.',ar:'ثغراتك ونطاقك وملاحظاتك مخزَّنة حالياً كنص عادي على هذا الجهاز. حدّد كلمة مرور رئيسية لتشفيرها.'},
+  security_enc_on_body:{en:'Everything you save is encrypted before it touches storage. The key only ever lives in memory for this session.',ar:'كل ما تحفظه يُشفَّر قبل أن يلمس وحدة التخزين. المفتاح يعيش في الذاكرة فقط خلال هذه الجلسة.'},
+  security_setup_btn:{en:'Set up encryption',ar:'إعداد التشفير'},
+  security_no_recovery_warn:{en:'There is no password recovery. If you forget it, the only option is wiping the data and starting over — write it down somewhere safe.',ar:'لا توجد طريقة لاسترجاع كلمة المرور. إن نسيتها، الخيار الوحيد هو مسح البيانات والبدء من جديد — احتفظ بنسخة في مكان آمن.'},
+  security_reset_btn:{en:'Reset all encrypted data',ar:'إعادة تعيين كل البيانات المشفّرة'},
+  cancel_btn:{en:'Cancel',ar:'إلغاء'},
+  export_unencrypted_warn:{en:'This backup file is not encrypted — store it somewhere secure.',ar:'ملف النسخ الاحتياطي هذا غير مشفّر — احفظه في مكان آمن.'},
 };
 
 function t(key){

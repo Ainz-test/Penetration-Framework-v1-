@@ -54,6 +54,19 @@ dom.window.URL.createObjectURL = () => 'blob:test';
 dom.window.URL.revokeObjectURL = () => {};
 dom.window.alert = () => {};
 
+// Web Crypto isn't fully implemented in jsdom — patch in Node's native
+// implementation so any crypto-dependent code path doesn't explode.
+const nodeCrypto = require('crypto').webcrypto;
+Object.defineProperty(dom.window.crypto, 'subtle', { value: nodeCrypto.subtle, configurable: true });
+dom.window.TextEncoder = TextEncoder;
+dom.window.TextDecoder = TextDecoder;
+
+// This suite tests pre-existing functionality, not the lock screen itself
+// (that has its own dedicated test file: tests/lockscreen.js). Pre-set the
+// "dismissed" flag so app init proceeds straight through, matching what a
+// user who skips encryption setup would see.
+dom.window.localStorage.setItem('apt_crypto_dismissed', '1');
+
 setTimeout(() => {
   const w = dom.window, doc = w.document;
 

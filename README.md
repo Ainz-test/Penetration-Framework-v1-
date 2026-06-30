@@ -76,6 +76,50 @@ Then deploy `dist/pentest-standalone.html` exactly like before: rename to
 `index.html`, put it plus `api/` in a folder, drag to vercel.com, set the
 `ANTHROPIC_API_KEY` environment variable for the AI features to work.
 
+## Data encryption
+
+Everything written to localStorage — findings, scope, notes, client names,
+the Anthropic API key — is encrypted at rest behind a master password,
+using AES-256-GCM with a PBKDF2-SHA256 (250k iterations) derived key. The
+key lives in memory only for the session; it's never persisted or sent
+anywhere.
+
+**Opt-in, not forced.** First run shows a setup-or-skip screen so existing
+unencrypted usage isn't disrupted. Encryption can be turned on later anytime
+from AI + Settings → Security, which migrates any existing plaintext data
+automatically — nothing is lost by enabling it after the fact.
+
+**No recovery by design.** This is local-only, client-side encryption with
+no server and no password reset. Forgetting the password means wiping the
+data (Settings → Security → reset, or the "forgot password" link on the
+unlock screen) and starting over. The UI says this plainly in two places so
+it isn't a surprise.
+
+**Architecture** (`src/js/00b-crypto.js`, `src/js/00c-lockscreen.js`):
+- `secureSet(key, value)` / `secureGet(key, default)` replace direct
+  localStorage access everywhere. `psave`/`pload` (profile-scoped) and the
+  few global keys (`api_key`, `apt_profiles`) all route through these.
+- `secureSet` is fire-and-forget — it doesn't return a Promise callers need
+  to await, so all 20+ existing call sites needed zero changes. The actual
+  encrypt+write happens in the background (sub-millisecond for these data
+  sizes).
+- `secureGet` is async (decryption is inherently async) but has exactly one
+  real call site (`loadProfile`), which was already a natural async
+  boundary.
+- Values are tagged `ENC1:<iv>:<ciphertext>` when encrypted. Anything
+  without that prefix is read as legacy plaintext and silently upgraded to
+  encrypted form on its next write — this is what makes turning encryption
+  on after the fact safe.
+- `tests/lockscreen.js` covers the full lifecycle end-to-end through the
+  real app (not hand-rolled fixtures): first-run, skip, weak/mismatched
+  passwords, successful setup, reload-shows-unlock, wrong password, correct
+  password decrypting real data, legacy migration, and reset.
+
+**Known gap**: the "export all data" backup (Settings → Framework Settings)
+decrypts everything and writes a plain JSON file — by design, so the backup
+is portable without needing the password, but worth knowing if encryption
+is the reason you're using this. The UI flags this next to the button.
+
 ## Bilingual support (Arabic/English)
 
 The whole app — chrome, framework content, tools, payloads, MITRE mapping,

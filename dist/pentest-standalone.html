@@ -17,6 +17,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 #root{height:100dvh;height:-webkit-fill-available;display:flex;flex-direction:column;overflow:hidden;padding-left:var(--sal)}
 
 
+#lockscreen{position:fixed;inset:0;z-index:10000;background:var(--bg);display:none;align-items:center;justify-content:center;padding:20px;padding-top:calc(20px + var(--sat));padding-bottom:calc(20px + var(--sab))}
+.lock-card{width:100%;max-width:360px;background:var(--s1);border:1px solid var(--bdr);border-radius:14px;padding:28px 24px;display:flex;flex-direction:column;animation:fadeup .25s ease both}
+.lock-brand{font-size:13px;font-weight:700;color:var(--t2);text-align:center;letter-spacing:.04em;margin-bottom:18px}
+.lock-title{font-size:17px;font-weight:700;color:var(--t1);text-align:center;margin-bottom:8px}
+.lock-body{font-size:12px;color:var(--t2);text-align:center;line-height:1.6;margin-bottom:18px}
+.lock-body.lock-danger{color:#fca5a5}
+.lock-input{width:100%;background:var(--s2);border:1px solid var(--bdr);border-radius:8px;padding:11px 13px;color:var(--t1);font-size:14px;font-family:inherit;outline:none;margin-bottom:9px;transition:border-color .2s}
+.lock-input:focus{border-color:#3b5bdb}
+.lock-error{font-size:11px;color:#f87171;min-height:14px;margin-bottom:6px;text-align:center}
+.lock-btn{width:100%;justify-content:center;padding:11px;font-size:13px;margin-top:4px}
+.lock-btn-secondary{width:100%;justify-content:center;padding:9px;font-size:12px;margin-top:8px;background:none;border:1px solid var(--bdr);border-radius:8px;color:var(--t2);cursor:pointer;font-family:inherit;transition:all .15s}
+.lock-btn-secondary:hover{background:var(--s3);color:var(--t1)}
+.lock-note{font-size:10px;color:var(--t3);text-align:center;margin-top:10px}
+.lock-forgot{background:none;border:none;color:var(--t3);font-size:11px;cursor:pointer;font-family:inherit;text-align:center;margin-top:14px;width:100%;text-decoration:underline;text-underline-offset:2px;transition:color .15s}
+.lock-forgot:hover{color:var(--t2)}
+
+
 /* TOPBAR */
 #topbar{background:var(--s1);border-bottom:1px solid var(--bdr);padding:0 12px;padding-top:var(--sat);display:flex;align-items:center;gap:8px;flex-shrink:0;min-height:calc(50px + var(--sat));position:relative;z-index:20}
 #hambtn{background:none;border:1px solid var(--bdr);border-radius:7px;color:var(--t2);width:32px;height:32px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
@@ -460,6 +477,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 </head>
 <body>
 <div id="err"></div>
+<div id="lockscreen" style="display:none"></div>
 <div id="root">
   <div id="topbar">
     <button id="hambtn" onclick="toggleDrawer()">&#9776;</button>
@@ -525,8 +543,14 @@ var APP={
 };
 
 function pkey(k){return 'apt_'+APP.profile+'_'+k;}
-function psave(k,v){try{localStorage.setItem(pkey(k),JSON.stringify(v));}catch(e){}}
-function pload(k,d){try{var v=localStorage.getItem(pkey(k));return v!==null?JSON.parse(v):d;}catch(e){return d;}}
+// psave is fire-and-forget (callers never await it) so every existing call
+// site throughout the app keeps working unchanged. The encrypt+write (if
+// encryption is enabled) happens in the background — see 00b-crypto.js.
+function psave(k,v){secureSet(pkey(k),v);}
+// pload is async because decryption is async. It has exactly one call site
+// (loadProfile, below) plus a couple of direct localStorage reads elsewhere
+// that route through secureGet directly — see 12-profiles.js/13-settings.js.
+function pload(k,d){return secureGet(pkey(k),d);}
 
 function initData(){
   try{
@@ -544,24 +568,21 @@ function initData(){
 
 function loadProfile(){
   APP.lang=localStorage.getItem('apt_lang')||'en';
-  APP.ck=pload('ck',{});
-  APP.notes=pload('notes',{});
-  APP.eng=pload('eng','New Engagement');
-  APP.phase=pload('phase','pre')||'pre';
-  APP.step=pload('step','p1')||'p1';
-  APP.findings=pload('findings',[]);
-  var ds={targets:[],oot:[],windows:[],contacts:[],type:'Black Box',start:'',end:'',client:''};
-  APP.scope=pload('scope',ds);
-  APP.timerSessions=pload('timer_sessions',[]);
-  APP.kc=pload('kc',[]);
-  APP.kcNarr=pload('kc_narr','');
-  APP.apiKey=localStorage.getItem('api_key')||'';
-  APP.apiEndpoint=localStorage.getItem('api_endpoint')||'/api/chat';
-  APP.profiles=JSON.parse(localStorage.getItem('apt_profiles')||'[]');
-  if(!APP.profiles.length){
-    APP.profiles=[{id:'default',name:'Default Engagement',created:Date.now()}];
-    localStorage.setItem('apt_profiles',JSON.stringify(APP.profiles));
-  }
+  return Promise.all([
+    pload('ck',{}), pload('notes',{}), pload('eng','New Engagement'),
+    pload('phase','pre'), pload('step','p1'), pload('findings',[]),
+    pload('scope',{targets:[],oot:[],windows:[],contacts:[],type:'Black Box',start:'',end:'',client:''}),
+    pload('timer_sessions',[]), pload('kc',[]), pload('kc_narr',''),
+    secureGet('api_key',''), secureGet('api_endpoint','/api/chat'), secureGet('apt_profiles',[])
+  ]).then(function(r){
+    APP.ck=r[0]; APP.notes=r[1]; APP.eng=r[2]; APP.phase=r[3]||'pre'; APP.step=r[4]||'p1';
+    APP.findings=r[5]; APP.scope=r[6]; APP.timerSessions=r[7]; APP.kc=r[8]; APP.kcNarr=r[9];
+    APP.apiKey=r[10]; APP.apiEndpoint=r[11]; APP.profiles=r[12];
+    if(!APP.profiles.length){
+      APP.profiles=[{id:'default',name:'Default Engagement',created:Date.now()}];
+      secureSet('apt_profiles',APP.profiles);
+    }
+  });
 }
 
 function getPhase(id){for(var i=0;i<PHASES.length;i++){if(PHASES[i].id===id)return PHASES[i];}return PHASES[0];}
@@ -838,7 +859,40 @@ var I18N = {
   ai_error_prefix:{en:'AI Error:',ar:'خطأ في الذكاء الاصطناعي:'},
   add_title_desc_first:{en:'Add a title and description first.',ar:'أضف عنواناً ووصفاً أولاً.'},
   add_title_first:{en:'Add a finding title first.',ar:'أضف عنوان الثغرة أولاً.'},
-  add_kc_stages_first:{en:'Add some kill chain stages first.',ar:'أضف بعض مراحل سلسلة الهجوم أولاً.'}
+  add_kc_stages_first:{en:'Add some kill chain stages first.',ar:'أضف بعض مراحل سلسلة الهجوم أولاً.'},
+
+  // lock screen / encryption
+  lock_app_name:{en:'PenTest Pro',ar:'بن تست برو'},
+  lock_setup_title:{en:'Protect your data',ar:'احمِ بياناتك'},
+  lock_setup_body:{en:'Set a master password to encrypt everything stored on this device — findings, scope, client names, notes. Nothing leaves your browser; nothing is recoverable if you forget it.',ar:'حدّد كلمة مرور رئيسية لتشفير كل ما يُخزَّن على هذا الجهاز — الثغرات، النطاق، أسماء العملاء، الملاحظات. لا شيء يغادر متصفحك، ولا يمكن استرجاع البيانات إن نسيت كلمة المرور.'},
+  lock_unlock_title:{en:'Enter your master password',ar:'أدخل كلمة المرور الرئيسية'},
+  lock_unlock_body:{en:'Your data on this device is encrypted.',ar:'بياناتك على هذا الجهاز مشفّرة.'},
+  lock_password_ph:{en:'Master password',ar:'كلمة المرور الرئيسية'},
+  lock_password_confirm_ph:{en:'Confirm password',ar:'تأكيد كلمة المرور'},
+  lock_set_password_btn:{en:'Set password and continue',ar:'تعيين كلمة المرور والمتابعة'},
+  lock_unlock_btn:{en:'Unlock',ar:'فتح القفل'},
+  lock_skip_btn:{en:'Skip for now',ar:'تخطّي الآن'},
+  lock_skip_note:{en:'You can turn this on anytime in Settings.',ar:'يمكنك تفعيل هذا في أي وقت من الإعدادات.'},
+  lock_mismatch_error:{en:'Passwords do not match.',ar:'كلمتا المرور غير متطابقتين.'},
+  lock_too_short_error:{en:'Use at least 8 characters.',ar:'استخدم 8 أحرف على الأقل.'},
+  lock_wrong_password:{en:'Incorrect password. Try again.',ar:'كلمة مرور غير صحيحة. حاول مجدداً.'},
+  lock_forgot_link:{en:'Forgot password? Reset all data',ar:'نسيت كلمة المرور؟ إعادة تعيين كل البيانات'},
+  lock_reset_confirm1:{en:"This permanently deletes ALL encrypted data on this device — every profile, every finding, everything. There is no recovery. Type RESET to confirm.",ar:'سيؤدي هذا لحذف كل البيانات المشفّرة على هذا الجهاز نهائياً — كل ملف، كل ثغرة، كل شيء. لا يمكن الاسترجاع. اكتب RESET للتأكيد.'},
+  lock_reset_type_confirm:{en:'RESET',ar:'RESET'},
+  lock_resetting:{en:'Resetting...',ar:'جارٍ إعادة التعيين...'},
+  lock_unlocking:{en:'Unlocking...',ar:'جارٍ فتح القفل...'},
+
+  // settings: security section
+  security_title:{en:'Security',ar:'الأمان'},
+  security_enc_on:{en:'Encryption is on',ar:'التشفير مُفعَّل'},
+  security_enc_off:{en:'Encryption is off',ar:'التشفير معطَّل'},
+  security_enc_off_body:{en:'Your findings, scope, and notes are currently stored as plain text on this device. Set a master password to encrypt them.',ar:'ثغراتك ونطاقك وملاحظاتك مخزَّنة حالياً كنص عادي على هذا الجهاز. حدّد كلمة مرور رئيسية لتشفيرها.'},
+  security_enc_on_body:{en:'Everything you save is encrypted before it touches storage. The key only ever lives in memory for this session.',ar:'كل ما تحفظه يُشفَّر قبل أن يلمس وحدة التخزين. المفتاح يعيش في الذاكرة فقط خلال هذه الجلسة.'},
+  security_setup_btn:{en:'Set up encryption',ar:'إعداد التشفير'},
+  security_no_recovery_warn:{en:'There is no password recovery. If you forget it, the only option is wiping the data and starting over — write it down somewhere safe.',ar:'لا توجد طريقة لاسترجاع كلمة المرور. إن نسيتها، الخيار الوحيد هو مسح البيانات والبدء من جديد — احتفظ بنسخة في مكان آمن.'},
+  security_reset_btn:{en:'Reset all encrypted data',ar:'إعادة تعيين كل البيانات المشفّرة'},
+  cancel_btn:{en:'Cancel',ar:'إلغاء'},
+  export_unencrypted_warn:{en:'This backup file is not encrypted — store it somewhere secure.',ar:'ملف النسخ الاحتياطي هذا غير مشفّر — احفظه في مكان آمن.'},
 };
 
 function t(key){
@@ -873,6 +927,283 @@ function setLang(lang){
   var langBtn=document.getElementById('langbtn');
   if(langBtn)langBtn.textContent=lang==='ar'?'EN':'AR';
   if(typeof setSection==='function')setSection(APP.section);
+}
+
+
+/* ── Encryption layer ─────────────────────────────────────────────────────
+   Master-password-derived AES-256-GCM encryption for everything written to
+   localStorage. Key lives in memory only (CRYPTO_KEY) for the session —
+   never persisted, never sent anywhere. PBKDF2-SHA256 with 250k iterations
+   derives the key from the password + a per-install random salt.
+
+   Storage format for an encrypted value: "ENC1:<iv-b64>:<ciphertext-b64>"
+   Legacy plaintext values (from before encryption was enabled, or while
+   it's off) are detected by the absence of the ENC1: prefix and read
+   through unchanged — and transparently re-saved as encrypted on next
+   write, so turning encryption on later never loses existing data. */
+
+var CRYPTO_KEY = null;        // in-memory CryptoKey, session-only
+var CRYPTO_ENABLED = false;   // true once a password has been set up
+var PBKDF2_ITERATIONS = 250000;
+var VERIFY_PLAINTEXT = 'PENTESTPRO_VERIFY_OK';
+
+function b64FromBytes(bytes) {
+  var bin = '';
+  for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function bytesFromB64(b64) {
+  var bin = atob(b64);
+  var bytes = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+function genSaltB64() {
+  return b64FromBytes(crypto.getRandomValues(new Uint8Array(16)));
+}
+
+function deriveKey(password, saltB64) {
+  var enc = new TextEncoder();
+  var salt = bytesFromB64(saltB64);
+  return crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey'])
+    .then(function (baseKey) {
+      return crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt: salt, iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' },
+        baseKey,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+    });
+}
+
+function encryptString(key, plaintext) {
+  var enc = new TextEncoder();
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, enc.encode(plaintext))
+    .then(function (ciphertext) {
+      return 'ENC1:' + b64FromBytes(iv) + ':' + b64FromBytes(new Uint8Array(ciphertext));
+    });
+}
+
+function decryptString(key, blob) {
+  var parts = blob.split(':');
+  if (parts.length !== 3 || parts[0] !== 'ENC1') return Promise.reject(new Error('bad blob format'));
+  var iv = bytesFromB64(parts[1]);
+  var ciphertext = bytesFromB64(parts[2]);
+  var dec = new TextDecoder();
+  return crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, ciphertext)
+    .then(function (buf) { return dec.decode(buf); });
+}
+
+function isEncryptedBlob(s) {
+  return typeof s === 'string' && s.indexOf('ENC1:') === 0;
+}
+
+/* secureSet/secureGet operate on raw (already-prefixed) localStorage keys.
+   secureSet is fire-and-forget: callers don't await it, matching the
+   existing synchronous psave() call pattern used in 20+ places. The actual
+   encrypt+write happens in the background — AES-GCM on a small JSON blob
+   completes in low single-digit milliseconds, well within one frame. */
+function secureSet(rawKey, value) {
+  var json = JSON.stringify(value);
+  if (CRYPTO_ENABLED && CRYPTO_KEY) {
+    encryptString(CRYPTO_KEY, json).then(function (enc) {
+      try { localStorage.setItem(rawKey, enc); } catch (e) {}
+    });
+  } else {
+    try { localStorage.setItem(rawKey, json); } catch (e) {}
+  }
+}
+
+function secureGet(rawKey, def) {
+  var raw;
+  try { raw = localStorage.getItem(rawKey); } catch (e) { return Promise.resolve(def); }
+  if (raw === null) return Promise.resolve(def);
+  if (isEncryptedBlob(raw)) {
+    if (!CRYPTO_KEY) return Promise.resolve(def);
+    return decryptString(CRYPTO_KEY, raw).then(function (json) {
+      try { return JSON.parse(json); } catch (e) { return def; }
+    }).catch(function () { return def; });
+  }
+  // legacy plaintext value — read it as-is, and migrate to encrypted form
+  // on the next write so enabling encryption later never loses data.
+  var val;
+  try { val = JSON.parse(raw); } catch (e) { return Promise.resolve(def); }
+  if (CRYPTO_ENABLED && CRYPTO_KEY) secureSet(rawKey, val);
+  return Promise.resolve(val);
+}
+
+
+/* ── Lock screen ──────────────────────────────────────────────────────────
+   Gates app startup. Three states:
+   - first run, no password ever set  -> setup-or-skip screen
+   - password set, locked this load   -> unlock screen
+   - unlocked / skipped                -> resolves and the normal init in
+                                          99-main.js continues
+
+   resolveLockScreen() returns a Promise that resolves once the app is
+   allowed to proceed (CRYPTO_KEY + CRYPTO_ENABLED are set correctly by then,
+   or CRYPTO_ENABLED stays false if the user skipped). */
+
+function lockEl(){return document.getElementById('lockscreen');}
+
+function resolveLockScreen(){
+  return new Promise(function(resolve){
+    var hasCheck = localStorage.getItem('apt_crypto_check') !== null;
+    var dismissed = localStorage.getItem('apt_crypto_dismissed') === '1';
+    if (hasCheck) {
+      renderUnlockScreen(resolve);
+    } else if (dismissed) {
+      resolve();
+    } else {
+      renderFirstRunScreen(resolve);
+    }
+  });
+}
+
+function lockScreenShell(inner){
+  return '<div class="lock-card">'
+    + '<div class="lock-brand">🛡 ' + esc(t('lock_app_name')) + '</div>'
+    + inner
+    + '</div>';
+}
+
+function renderFirstRunScreen(resolve){
+  var el = lockEl();
+  el.style.display = 'flex';
+  el.innerHTML = lockScreenShell(
+    '<div class="lock-title">' + t('lock_setup_title') + '</div>'
+    + '<div class="lock-body">' + t('lock_setup_body') + '</div>'
+    + '<input type="password" class="lock-input" id="lp_pw1" placeholder="' + esc(t('lock_password_ph')) + '" autocomplete="new-password">'
+    + '<input type="password" class="lock-input" id="lp_pw2" placeholder="' + esc(t('lock_password_confirm_ph')) + '" autocomplete="new-password">'
+    + '<div class="lock-error" id="lp_err"></div>'
+    + '<button class="btn primary lock-btn" id="lp_setup_btn">' + t('lock_set_password_btn') + '</button>'
+    + '<button class="btn lock-btn-secondary" id="lp_skip_btn">' + t('lock_skip_btn') + '</button>'
+    + '<div class="lock-note">' + t('lock_skip_note') + '</div>'
+  );
+  document.getElementById('lp_setup_btn').onclick = function(){ handleSetupSubmit(resolve); };
+  document.getElementById('lp_skip_btn').onclick = function(){
+    localStorage.setItem('apt_crypto_dismissed','1');
+    el.style.display='none';
+    resolve();
+  };
+  document.getElementById('lp_pw2').addEventListener('keydown', function(e){
+    if(e.key==='Enter') handleSetupSubmit(resolve);
+  });
+}
+
+function handleSetupSubmit(resolve){
+  var pw1 = document.getElementById('lp_pw1').value;
+  var pw2 = document.getElementById('lp_pw2').value;
+  var errEl = document.getElementById('lp_err');
+  errEl.textContent = '';
+  if (pw1.length < 8) { errEl.textContent = t('lock_too_short_error'); return; }
+  if (pw1 !== pw2) { errEl.textContent = t('lock_mismatch_error'); return; }
+
+  var btn = document.getElementById('lp_setup_btn');
+  btn.disabled = true;
+  var salt = genSaltB64();
+  deriveKey(pw1, salt).then(function(key){
+    return encryptString(key, VERIFY_PLAINTEXT).then(function(check){
+      localStorage.setItem('apt_crypto_salt', salt);
+      localStorage.setItem('apt_crypto_check', check);
+      localStorage.removeItem('apt_crypto_dismissed');
+      CRYPTO_KEY = key;
+      CRYPTO_ENABLED = true;
+      lockEl().style.display = 'none';
+      resolve();
+    });
+  }).catch(function(){
+    btn.disabled = false;
+    errEl.textContent = t('lock_wrong_password');
+  });
+}
+
+function renderUnlockScreen(resolve){
+  var el = lockEl();
+  el.style.display = 'flex';
+  el.innerHTML = lockScreenShell(
+    '<div class="lock-title">' + t('lock_unlock_title') + '</div>'
+    + '<div class="lock-body">' + t('lock_unlock_body') + '</div>'
+    + '<input type="password" class="lock-input" id="lp_unlock_pw" placeholder="' + esc(t('lock_password_ph')) + '" autocomplete="current-password">'
+    + '<div class="lock-error" id="lp_err"></div>'
+    + '<button class="btn primary lock-btn" id="lp_unlock_btn">' + t('lock_unlock_btn') + '</button>'
+    + '<button class="lock-forgot" id="lp_forgot_btn">' + t('lock_forgot_link') + '</button>'
+  );
+  document.getElementById('lp_unlock_btn').onclick = function(){ handleUnlockSubmit(resolve); };
+  document.getElementById('lp_unlock_pw').addEventListener('keydown', function(e){
+    if(e.key==='Enter') handleUnlockSubmit(resolve);
+  });
+  document.getElementById('lp_unlock_pw').focus();
+  document.getElementById('lp_forgot_btn').onclick = function(){ renderResetConfirm(resolve); };
+}
+
+function handleUnlockSubmit(resolve){
+  var pw = document.getElementById('lp_unlock_pw').value;
+  var errEl = document.getElementById('lp_err');
+  var btn = document.getElementById('lp_unlock_btn');
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.textContent = t('lock_unlocking');
+  var salt = localStorage.getItem('apt_crypto_salt');
+  var check = localStorage.getItem('apt_crypto_check');
+  deriveKey(pw, salt).then(function(key){
+    return decryptString(key, check).then(function(plain){
+      if (plain !== VERIFY_PLAINTEXT) throw new Error('mismatch');
+      CRYPTO_KEY = key;
+      CRYPTO_ENABLED = true;
+      lockEl().style.display = 'none';
+      resolve();
+    });
+  }).catch(function(){
+    btn.disabled = false;
+    btn.textContent = t('lock_unlock_btn');
+    errEl.textContent = t('lock_wrong_password');
+  });
+}
+
+function renderResetConfirm(resolve){
+  var el = lockEl();
+  el.innerHTML = lockScreenShell(
+    '<div class="lock-title">' + t('lock_forgot_link') + '</div>'
+    + '<div class="lock-body lock-danger">' + t('lock_reset_confirm1') + '</div>'
+    + '<input type="text" class="lock-input" id="lp_reset_confirm" placeholder="' + esc(t('lock_reset_type_confirm')) + '" autocomplete="off">'
+    + '<div class="lock-error" id="lp_err"></div>'
+    + '<button class="btn danger lock-btn" id="lp_reset_btn">' + t('security_reset_btn') + '</button>'
+    + '<button class="btn lock-btn-secondary" id="lp_cancel_reset_btn">' + t('cancel_btn') + '</button>'
+  );
+  document.getElementById('lp_cancel_reset_btn').onclick = function(){ renderUnlockScreen(resolve); };
+  document.getElementById('lp_reset_btn').onclick = function(){
+    var typed = document.getElementById('lp_reset_confirm').value;
+    if (typed !== 'RESET') {
+      document.getElementById('lp_err').textContent = t('lock_mismatch_error');
+      return;
+    }
+    document.getElementById('lp_reset_btn').textContent = t('lock_resetting');
+    wipeAllEncryptedData();
+    CRYPTO_KEY = null;
+    CRYPTO_ENABLED = false;
+    lockEl().style.display = 'none';
+    resolve();
+  };
+}
+
+// Removes every key this app has ever written to localStorage, across all
+// profiles, plus the crypto setup itself. Used by the reset/forgot-password
+// flow. Does NOT touch unrelated localStorage keys from other sites/apps
+// (impossible anyway — localStorage is already origin-scoped) but is careful
+// to only remove keys matching this app's own prefixes.
+function wipeAllEncryptedData(){
+  var toRemove = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    if (k && (k.indexOf('apt_') === 0 || k === 'api_key' || k === 'api_endpoint')) {
+      toRemove.push(k);
+    }
+  }
+  toRemove.forEach(function(k){ localStorage.removeItem(k); });
 }
 
 
@@ -2286,34 +2617,37 @@ function clearTimerLog(){
 
 function renderProfiles(el){
   var profiles=APP.profiles||[];
-  var h='<div class="sec-hdr">'
-    +'<div><div class="sec-title">&#128100; '+t('profiles_title')+'</div>'
-    +'<div class="sec-subtitle">'+t('profiles_subtitle')+'</div></div>'
-    +'<button class="btn primary" onclick="addProfile()">'+t('new_profile')+'</button></div>';
-  h+='<div class="sec-body">';
-  h+='<div class="profile-list">';
-  profiles.forEach(function(p){
-    var isOn=p.id===APP.profile;
-    var findings=JSON.parse(localStorage.getItem('apt_'+p.id+'_findings')||'[]');
-    h+='<div class="profile-item'+(isOn?' on':'')+'">'
-      +'<div style="flex:1">'
-      +'<div class="profile-name">'+esc(p.name)+'</div>'
-      +'<div class="profile-meta">'+(isOn?'&#9679; '+t('active_lbl')+' — ':'')+findings.length+' '+t('findings_count2')+' &nbsp;·&nbsp; '+t('created_lbl')+' '+fmtDate(p.created)+'</div>'
-      +'</div>'
-      +'<div style="display:flex;gap:6px">'
-      +(isOn?'':'<button class="btn sm primary" onclick="switchProfile(\''+p.id+'\')">'+t('switch_btn')+'</button>')
-      +(profiles.length>1&&!isOn?'<button class="btn sm danger" onclick="deleteProfile(\''+p.id+'\')">'+t('delete_btn')+'</button>':'')
-      +'</div>'
-      +'</div>';
+  Promise.all(profiles.map(function(p){
+    return secureGet('apt_'+p.id+'_findings',[]).then(function(f){return f.length;});
+  })).then(function(counts){
+    var h='<div class="sec-hdr">'
+      +'<div><div class="sec-title">&#128100; '+t('profiles_title')+'</div>'
+      +'<div class="sec-subtitle">'+t('profiles_subtitle')+'</div></div>'
+      +'<button class="btn primary" onclick="addProfile()">'+t('new_profile')+'</button></div>';
+    h+='<div class="sec-body">';
+    h+='<div class="profile-list">';
+    profiles.forEach(function(p,i){
+      var isOn=p.id===APP.profile;
+      h+='<div class="profile-item'+(isOn?' on':'')+'">'
+        +'<div style="flex:1">'
+        +'<div class="profile-name">'+esc(p.name)+'</div>'
+        +'<div class="profile-meta">'+(isOn?'&#9679; '+t('active_lbl')+' — ':'')+counts[i]+' '+t('findings_count2')+' &nbsp;·&nbsp; '+t('created_lbl')+' '+fmtDate(p.created)+'</div>'
+        +'</div>'
+        +'<div style="display:flex;gap:6px">'
+        +(isOn?'':'<button class="btn sm primary" onclick="switchProfile(\''+p.id+'\')">'+t('switch_btn')+'</button>')
+        +(profiles.length>1&&!isOn?'<button class="btn sm danger" onclick="deleteProfile(\''+p.id+'\')">'+t('delete_btn')+'</button>':'')
+        +'</div>'
+        +'</div>';
+    });
+    h+='</div>';
+    h+='<div class="card"><div class="card-body" style="font-size:11px;color:var(--t2);line-height:1.8">'
+      +'<strong style="color:var(--t1)">'+t('how_profiles_work')+'</strong><br>'
+      +t('profiles_desc1')+'<br>'
+      +t('profiles_desc2')
+      +'</div></div>';
+    h+='</div>';
+    el.innerHTML=h;
   });
-  h+='</div>';
-  h+='<div class="card"><div class="card-body" style="font-size:11px;color:var(--t2);line-height:1.8">'
-    +'<strong style="color:var(--t1)">'+t('how_profiles_work')+'</strong><br>'
-    +t('profiles_desc1')+'<br>'
-    +t('profiles_desc2')
-    +'</div></div>';
-  h+='</div>';
-  el.innerHTML=h;
 }
 
 function addProfile(){
@@ -2321,7 +2655,7 @@ function addProfile(){
   if(!name||!name.trim())return;
   var p={id:genId(),name:name.trim(),created:Date.now()};
   APP.profiles.push(p);
-  localStorage.setItem('apt_profiles',JSON.stringify(APP.profiles));
+  secureSet('apt_profiles',APP.profiles);
   switchProfile(p.id);
 }
 
@@ -2329,15 +2663,16 @@ function switchProfile(id){
   if(APP.timerActive)stopTimer();
   APP.profile=id;
   localStorage.setItem('apt_profile',id);
-  loadProfile();
-  renderProfiles(document.getElementById('secbody'));
-  document.getElementById('engname').textContent=APP.eng;
+  loadProfile().then(function(){
+    renderProfiles(document.getElementById('secbody'));
+    document.getElementById('engname').textContent=APP.eng;
+  });
 }
 
 function deleteProfile(id){
   if(!confirm(t('delete_profile_confirm')))return;
   APP.profiles=APP.profiles.filter(function(p){return p.id!==id;});
-  localStorage.setItem('apt_profiles',JSON.stringify(APP.profiles));
+  secureSet('apt_profiles',APP.profiles);
   renderProfiles(document.getElementById('secbody'));
 }
 
@@ -2352,6 +2687,22 @@ function renderSettings(el){
     +'<button class="btn'+(APP.lang==='en'?' primary':'')+'" onclick="setLang(\'en\')" style="flex:1;justify-content:center">English</button>'
     +'<button class="btn'+(APP.lang==='ar'?' primary':'')+'" onclick="setLang(\'ar\')" style="flex:1;justify-content:center">العربية</button>'
     +'</div></div></div>';
+
+  // Security
+  h+='<div class="card"><div class="card-hdr"><div class="card-title">&#128274; '+t('security_title')+'</div>'
+    +'<span class="api-status'+(CRYPTO_ENABLED?' ok':'')+'">'+(CRYPTO_ENABLED?'&#10003; '+t('security_enc_on'):t('security_enc_off'))+'</span>'
+    +'</div><div class="card-body">';
+  if(CRYPTO_ENABLED){
+    h+='<div style="font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:12px">'+t('security_enc_on_body')+'</div>';
+  }else{
+    h+='<div style="font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:12px">'+t('security_enc_off_body')+'</div>'
+      +'<button class="btn primary" onclick="startEncryptionSetupFromSettings()" style="width:100%;justify-content:center;margin-bottom:10px">&#128274; '+t('security_setup_btn')+'</button>';
+  }
+  h+='<div class="notebox" style="margin-bottom:10px"><span class="ni">'+t('tip_lbl')+'</span> '+t('security_no_recovery_warn')+'</div>';
+  if(CRYPTO_ENABLED){
+    h+='<button class="btn danger" onclick="resetEncryptedDataFromSettings()" style="width:100%;justify-content:center">&#8635; '+t('security_reset_btn')+'</button>';
+  }
+  h+='</div></div>';
 
   // AI Setup
   h+='<div class="card"><div class="card-hdr"><div class="card-title">&#129302; '+t('ai_features_title')+'</div>'
@@ -2394,10 +2745,25 @@ function renderSettings(el){
     +'<div style="display:flex;flex-direction:column;gap:8px">'
     +'<button class="btn danger" onclick="doReset()" style="width:100%;justify-content:center">&#8635; '+t('reset_progress_btn')+'</button>'
     +'<button class="btn" onclick="exportAllData()" style="width:100%;justify-content:center">&#128229; '+t('export_backup_btn')+'</button>'
+    +'<div style="font-size:10px;color:var(--t3);text-align:center">'+t('export_unencrypted_warn')+'</div>'
     +'</div></div></div>';
 
   h+='</div>';
   el.innerHTML=h;
+}
+
+function startEncryptionSetupFromSettings(){
+  renderFirstRunScreen(function(){
+    renderSettings(document.getElementById('secbody'));
+  });
+}
+
+function resetEncryptedDataFromSettings(){
+  renderResetConfirm(function(){
+    // after a reset triggered from inside the app, reload to restart cleanly
+    // through the normal lock-screen flow rather than trying to patch live state
+    location.reload();
+  });
 }
 
 function saveApiKey(){
@@ -2405,15 +2771,15 @@ function saveApiKey(){
   var endpoint=document.getElementById('set_endpoint').value.trim()||'/api/chat';
   APP.apiKey=key;
   APP.apiEndpoint=endpoint;
-  localStorage.setItem('api_key',key);
-  localStorage.setItem('api_endpoint',endpoint);
+  secureSet('api_key',key);
+  secureSet('api_endpoint',endpoint);
   var st=document.getElementById('ai_status');
   if(st){st.innerHTML=key?'&#10003; '+t('key_saved'):t('no_key_disabled');st.className='api-status '+(key?'ok':'');}
 }
 
 function clearApiKey(){
   APP.apiKey='';
-  localStorage.removeItem('api_key');
+  secureSet('api_key','');
   document.getElementById('set_apikey').value='';
   var st=document.getElementById('ai_status');
   if(st){st.textContent=t('no_key_disabled');st.className='api-status';}
@@ -2433,41 +2799,54 @@ function copyVercelFn(){
 }
 
 function exportAllData(){
-  var data={profiles:APP.profiles,current:APP.profile,data:{}};
-  APP.profiles.forEach(function(p){
-    var keys=['ck','notes','eng','phase','step','findings','scope','timer_sessions','kc','kc_narr'];
-    data.data[p.id]={};
-    keys.forEach(function(k){
-      var v=localStorage.getItem('apt_'+p.id+'_'+k);
-      if(v)try{data.data[p.id][k]=JSON.parse(v);}catch(e){}
+  var keys=['ck','notes','eng','phase','step','findings','scope','timer_sessions','kc','kc_narr'];
+  var profilePromises=APP.profiles.map(function(p){
+    var fieldPromises=keys.map(function(k){return secureGet('apt_'+p.id+'_'+k,null);});
+    return Promise.all(fieldPromises).then(function(vals){
+      var obj={};
+      keys.forEach(function(k,i){if(vals[i]!==null)obj[k]=vals[i];});
+      return obj;
     });
   });
-  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;a.download='pentest-pro-backup-'+(new Date().toISOString().split('T')[0])+'.json';
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  Promise.all(profilePromises).then(function(profileResults){
+    var data={profiles:APP.profiles,current:APP.profile,data:{}};
+    APP.profiles.forEach(function(p,i){data.data[p.id]=profileResults[i];});
+    var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;a.download='pentest-pro-backup-'+(new Date().toISOString().split('T')[0])+'.json';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
 }
 
 
 window.addEventListener('DOMContentLoaded',function(){
   initData();
   APP.profile=localStorage.getItem('apt_profile')||'default';
-  loadProfile();
+
+  // Language must be applied before the lock screen renders so a returning
+  // Arabic-language user sees the lock/unlock screen in Arabic too, not a
+  // flash of English followed by a switch.
+  APP.lang=localStorage.getItem('apt_lang')||'en';
   document.documentElement.setAttribute('lang',APP.lang);
   document.documentElement.setAttribute('dir',APP.lang==='ar'?'rtl':'ltr');
   document.body.classList.toggle('rtl',APP.lang==='ar');
-  var langBtn=document.getElementById('langbtn');
-  if(langBtn)langBtn.textContent=APP.lang==='ar'?'EN':'AR';
-  applyStaticTranslations();
-  setSection('framework');
-  var pnav=document.getElementById('phasenav');
-  if(pnav)pnav.style.display='';
-  var wrap=document.getElementById('wrap');
-  if(wrap)wrap.style.display='';
-  var bn=document.getElementById('bottomnav');
-  if(bn)bn.style.display='';
+
+  resolveLockScreen().then(function(){
+    return loadProfile();
+  }).then(function(){
+    var langBtn=document.getElementById('langbtn');
+    if(langBtn)langBtn.textContent=APP.lang==='ar'?'EN':'AR';
+    applyStaticTranslations();
+    setSection('framework');
+    var pnav=document.getElementById('phasenav');
+    if(pnav)pnav.style.display='';
+    var wrap=document.getElementById('wrap');
+    if(wrap)wrap.style.display='';
+    var bn=document.getElementById('bottomnav');
+    if(bn)bn.style.display='';
+  });
 });
 
 </script>
