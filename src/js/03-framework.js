@@ -13,8 +13,8 @@ function rDrawer(){
 
   var steps=ph.steps||[];
   var h='<div class="drwhdr">';
-  h+='<div class="drwphase" style="color:'+ph.color+'">'+ph.icon+' '+ph.label+'</div>';
-  h+='<div class="drwdesc">'+esc(ph.desc)+'</div></div>';
+  h+='<div class="drwphase" style="color:'+ph.color+'">'+ph.icon+' '+esc(tx(ph.label))+'</div>';
+  h+='<div class="drwdesc">'+esc(tx(ph.desc))+'</div></div>';
   var doneCount=0,total=0;
   steps.forEach(function(st){
     total+=st.checklist?st.checklist.length:0;
@@ -29,8 +29,8 @@ function rDrawer(){
     var pri=st.priority||'medium';
     var priC=pri==='critical'?'#dc2626':pri==='high'?'#ea580c':'#475569';
     h+='<button class="drwbtn'+(isOn?' on':'')+'" onclick="selectStep(\''+st.id+'\')" style="'+(isOn?'border-left-color:'+ph.color+';':'')+'">'+
-      '<div class="drwtitle"><span>'+esc(st.title)+'</span>'+
-      '<span class="badge" style="background:'+priC+';font-size:7px">'+pri.toUpperCase()+'</span></div>'+
+      '<div class="drwtitle"><span>'+esc(tx(st.title))+'</span>'+
+      '<span class="badge" style="background:'+priC+';font-size:7px">'+t('pri_'+pri).toUpperCase()+'</span></div>'+
       '<div class="pbar"><div class="pfill" style="width:'+pct+'%;background:'+ph.color+'"></div></div>'+
       '</button>';
   });
@@ -44,8 +44,8 @@ function rDrawer(){
     var pct=totPh?Math.round(donePh/totPh*100):0;
     sph+='<button class="sph-btn'+(p.id===APP.phase?' on':'')+'" onclick="selectPhase(\''+p.id+'\')">'+
       '<span class="sph-ico">'+p.icon+'</span>'+
-      '<div class="sph-info"><div class="sph-lbl" style="color:'+(p.id===APP.phase?p.color:'var(--t1)')+'">'+p.label+'</div>'+
-      '<div class="sph-pct">'+pct+'% complete</div></div>'+
+      '<div class="sph-info"><div class="sph-lbl" style="color:'+(p.id===APP.phase?p.color:'var(--t1)')+'">'+esc(tx(p.label))+'</div>'+
+      '<div class="sph-pct">'+pct+'% '+t('complete_lbl').toLowerCase()+'</div></div>'+
       ringHTML(pct,p.color,26,pct+'%')+'</button>';
   });
 
@@ -83,7 +83,7 @@ function rPhaseNav(){
     var on=p.id===APP.phase;
     h+='<button class="ptab'+(on?' on':'')+'" onclick="selectPhase(\''+p.id+'\')" style="border-bottom-color:'+(on?p.color:'transparent')+'">'
       +'<span class="pico">'+p.icon+'</span>'
-      +'<span class="plbl" style="color:'+(on?p.color:'var(--t2)')+'">'+p.short+'</span>'
+      +'<span class="plbl" style="color:'+(on?p.color:'var(--t2)')+'">'+esc(tx(p.short))+'</span>'
       +'</button>';
   });
   document.getElementById('phasenav').innerHTML=h;
@@ -100,12 +100,12 @@ function rStepHdr(){
   document.getElementById('stephdr').innerHTML=
     '<div class="sphrow">'
     +'<div style="flex:1;min-width:0">'
-    +'<div class="sphcrumb"><span style="color:'+ph.color+'">'+ph.icon+' '+ph.label+'</span><span style="color:var(--t3)">›</span><span style="color:var(--t3)">'+esc(st.title)+'</span></div>'
-    +'<div class="sphtitle">'+esc(st.title)+'</div>'
-    +'<div class="sphsumm">'+esc(st.summary||'')+'</div>'
+    +'<div class="sphcrumb"><span style="color:'+ph.color+'">'+ph.icon+' '+esc(tx(ph.label))+'</span><span style="color:var(--t3)">›</span><span style="color:var(--t3)">'+esc(tx(st.title))+'</span></div>'
+    +'<div class="sphtitle">'+esc(tx(st.title))+'</div>'
+    +'<div class="sphsumm">'+esc(tx(st.summary))+'</div>'
     +'</div>'
     +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">'
-    +'<span class="badge" style="background:'+priColors[pri]+'">'+(pri||'').toUpperCase()+'</span>'
+    +'<span class="badge" style="background:'+priColors[pri]+'">'+t('pri_'+pri).toUpperCase()+'</span>'
     +ringHTML(pct,ph.color,38,pct+'%')+'</div></div>'
     +'<div class="pbar"><div class="pfill" style="width:'+pct+'%;background:'+ph.color+'"></div></div>';
 }
@@ -113,19 +113,15 @@ function rStepHdr(){
 function rTabBar(){
   var ph=getPhase(APP.phase);
   var st=getStep(ph,APP.step);
-  var tabs=[['cmd','Commands'],['chk','Checklist'],['inf','Info'],['nts','Notes']];
-  if(APP.q)tabs=[['search','Search Results']];
-  var h='';
-  tabs.forEach(function(t){
-    h+='<button class="tbtn'+(APP.tab===t[0]?' on':'')+'" onclick="setTab(\''+t[0]+'\')">'+t[1]+'</button>';
-  });
-  if(!APP.q){
-    var cmds=st.commands||[];
-    h='<button class="tbtn'+(APP.tab==='cmd'?' on':'')+'" onclick="setTab(\'cmd\')">Commands ('+cmds.length+')</button>'
-     +'<button class="tbtn'+(APP.tab==='chk'?' on':'')+'" onclick="setTab(\'chk\')">Checklist ('+(st.checklist||[]).length+')</button>'
-     +'<button class="tbtn'+(APP.tab==='inf'?' on':'')+'" onclick="setTab(\'inf\')">Info</button>'
-     +'<button class="tbtn'+(APP.tab==='nts'?' on':'')+'" onclick="setTab(\'nts\')">Notes</button>';
+  if(APP.q){
+    document.getElementById('tabbar').innerHTML='<button class="tbtn on">'+t('tab_search_results')+'</button>';
+    return;
   }
+  var cmds=st.commands||[];
+  var h='<button class="tbtn'+(APP.tab==='cmd'?' on':'')+'" onclick="setTab(\'cmd\')">'+t('tab_commands')+' ('+cmds.length+')</button>'
+   +'<button class="tbtn'+(APP.tab==='chk'?' on':'')+'" onclick="setTab(\'chk\')">'+t('tab_checklist')+' ('+(st.checklist||[]).length+')</button>'
+   +'<button class="tbtn'+(APP.tab==='inf'?' on':'')+'" onclick="setTab(\'inf\')">'+t('tab_info')+'</button>'
+   +'<button class="tbtn'+(APP.tab==='nts'?' on':'')+'" onclick="setTab(\'nts\')">'+t('tab_notes')+'</button>';
   document.getElementById('tabbar').innerHTML=h;
 }
 
@@ -149,26 +145,26 @@ function rCmds(){
   var ph=getPhase(APP.phase);
   var st=getStep(ph,APP.step);
   var cmds=st.commands||[];
-  if(!cmds.length){document.getElementById('content').innerHTML='<div class="empty">No commands for this step</div>';return;}
+  if(!cmds.length){document.getElementById('content').innerHTML='<div class="empty">'+t('no_commands_step')+'</div>';return;}
   var h='';
   cmds.forEach(function(cmd){
     var exp=APP.exp[cmd.id];
     var cmdClean=cmd.cmd||'';
     h+='<div class="cmdcard" style="border-left-color:'+ph.color+'">'
-      +'<div class="cmdhdr"><div><div class="cmdtitle">'+esc(cmd.title)+'</div><div class="cmdpurpose">'+esc(cmd.purpose||'')+'</div></div>'
-      +'<button class="copybtn" onclick="copyById(\''+regCopy(cmdClean)+'\',this)">&#9113; Copy</button></div>'
+      +'<div class="cmdhdr"><div><div class="cmdtitle">'+esc(tx(cmd.title))+'</div><div class="cmdpurpose">'+esc(tx(cmd.purpose))+'</div></div>'
+      +'<button class="copybtn" onclick="copyById(\''+regCopy(cmdClean)+'\',this)">&#9113; '+t('copy_btn')+'</button></div>'
       +'<div class="cmdpre"><pre>'+fmtCmd(cmdClean)+'</pre></div>';
     if(cmd.example){
-      h+='<div class="cmdex"><div class="exlbl">EXAMPLE</div><pre>'+esc(cmd.example)+'</pre></div>';
+      h+='<div class="cmdex"><div class="exlbl">'+t('example_lbl')+'</div><pre>'+esc(cmd.example)+'</pre></div>';
     }
-    h+='<button class="detog" onclick="toggleExp(\''+cmd.id+'\')"><span>FLAGS & DETAILS</span><span>'+(exp?'▲':'▼')+'</span></button>';
+    h+='<button class="detog" onclick="toggleExp(\''+cmd.id+'\')"><span>'+t('flags_details')+'</span><span>'+(exp?'▲':'▼')+'</span></button>';
     if(exp){
       h+='<div class="deblk">';
       (cmd.flags||[]).forEach(function(f){
-        h+='<div class="flagrow"><span class="flagkey">'+esc(f.f)+'</span><span class="flagdesc">'+esc(f.d)+'</span></div>';
+        h+='<div class="flagrow"><span class="flagkey">'+esc(f.f)+'</span><span class="flagdesc">'+esc(tx(f.d))+'</span></div>';
       });
-      if(cmd.note)h+='<div class="notebox"><span class="ni">TIP</span> '+esc(cmd.note)+'</div>';
-      if(cmd.out)h+='<div class="outbox"><span class="oi">OUT</span> '+esc(cmd.out)+'</div>';
+      if(cmd.note)h+='<div class="notebox"><span class="ni">'+t('tip_lbl')+'</span> '+esc(tx(cmd.note))+'</div>';
+      if(cmd.out)h+='<div class="outbox"><span class="oi">'+t('out_lbl')+'</span> '+esc(tx(cmd.out))+'</div>';
       h+='</div>';
     }
     h+='</div>';
@@ -196,8 +192,8 @@ function rChk(){
   items.forEach(function(c,i){if(APP.ck[st.id+'_'+i])done++;});
   var pct=items.length?Math.round(done/items.length*100):0;
   var h='<div class="chkhdr">'
-    +'<div class="chkcount">'+done+' / '+items.length+' COMPLETE ('+pct+'%)</div>'
-    +'<button class="togallbtn" onclick="toggleAll()">'+( done===items.length?'Uncheck All':'Check All')+'</button>'
+    +'<div class="chkcount">'+done+' / '+items.length+' '+t('complete_lbl')+' ('+pct+'%)</div>'
+    +'<button class="togallbtn" onclick="toggleAll()">'+( done===items.length?t('uncheck_all'):t('check_all'))+'</button>'
     +'</div>'
     +'<div class="chklist">';
   items.forEach(function(c,i){
@@ -205,7 +201,7 @@ function rChk(){
     var chk=APP.ck[k];
     h+='<div class="chkitem'+(chk?' done':'')+'" onclick="toggleChk(\''+k+'\')">'
       +'<div class="chkbox'+(chk?' on':'')+'">'+(chk?'&#10003;':'')+'</div>'
-      +'<div class="chktxt">'+esc(c)+'</div></div>';
+      +'<div class="chktxt">'+esc(tx(c))+'</div></div>';
   });
   h+='</div>';
   document.getElementById('content').innerHTML=h;
@@ -237,17 +233,17 @@ function rInf(){
   var h='';
   if(st.tip){
     h+='<div class="tipcard"><span class="tipicon">&#9889;</span>'
-      +'<div><div class="tiplbl">ELITE TIP</div><div class="tiptxt">'+esc(st.tip)+'</div></div></div>';
+      +'<div><div class="tiplbl">'+t('elite_tip')+'</div><div class="tiptxt">'+esc(tx(st.tip))+'</div></div></div>';
   }
   if(st.deliverable){
-    h+='<div class="delivbox"><div class="delivlbl">DELIVERABLE</div><div class="delivtxt">'+esc(st.deliverable)+'</div></div>';
+    h+='<div class="delivbox"><div class="delivlbl">'+t('deliverable_lbl')+'</div><div class="delivtxt">'+esc(tx(st.deliverable))+'</div></div>';
   }
   if(st.tools&&st.tools.length){
-    h+='<div class="toolsbox" style="margin-top:9px"><div class="toolslbl">TOOLS USED</div><div class="toolswrap">';
-    st.tools.forEach(function(t){h+='<span class="toolchip">'+esc(t)+'</span>';});
+    h+='<div class="toolsbox" style="margin-top:9px"><div class="toolslbl">'+t('tools_used')+'</div><div class="toolswrap">';
+    st.tools.forEach(function(tn){h+='<span class="toolchip">'+esc(tn)+'</span>';});
     h+='</div></div>';
   }
-  if(!h)h='<div class="empty">No additional info for this step</div>';
+  if(!h)h='<div class="empty">'+t('no_info_step')+'</div>';
   document.getElementById('content').innerHTML=h;
 }
 
@@ -256,10 +252,10 @@ function rNts(){
   var st=getStep(ph,APP.step);
   var nk='note_'+st.id;
   var val=APP.notes[nk]||'';
-  var h='<div class="notelbl">ENGAGEMENT NOTES — '+esc(st.title)+'</div>'
-    +'<textarea class="notetxt" placeholder="Record your findings, observations, and evidence for this step...&#10;&#10;Use this for custom commands, discovered credentials, scope-specific notes..." '
+  var h='<div class="notelbl">'+t('engagement_notes')+' — '+esc(tx(st.title))+'</div>'
+    +'<textarea class="notetxt" placeholder="'+esc(t('notes_placeholder'))+'" '
     +'oninput="saveNote(\''+nk+'\',this.value)">'+esc(val)+'</textarea>'
-    +'<div class="notefoot">Notes auto-save per step. Export in Report section.</div>';
+    +'<div class="notefoot">'+t('notes_autosave')+'</div>';
   document.getElementById('content').innerHTML=h;
 }
 
@@ -275,19 +271,19 @@ function rSearch(){
   PHASES.forEach(function(ph){
     (ph.steps||[]).forEach(function(st){
       (st.commands||[]).forEach(function(cmd){
-        var hay=(cmd.title+' '+cmd.purpose+' '+cmd.cmd+' '+(cmd.example||'')+' '+(cmd.note||'')).toLowerCase();
+        var hay=(tx(cmd.title)+' '+tx(cmd.purpose)+' '+cmd.cmd+' '+(cmd.example||'')+' '+tx(cmd.note)).toLowerCase();
         if(hay.indexOf(q)>=0)results.push({ph:ph,st:st,cmd:cmd});
       });
     });
   });
-  var h='<div class="srchhdr">'+results.length+' results for "'+esc(APP.q)+'"</div>';
-  if(!results.length){h+='<div class="empty">No commands match your search</div>';document.getElementById('content').innerHTML=h;return;}
+  var h='<div class="srchhdr">'+results.length+' '+t('results_for')+' "'+esc(APP.q)+'"</div>';
+  if(!results.length){h+='<div class="empty">'+t('no_search_match')+'</div>';document.getElementById('content').innerHTML=h;return;}
   h+='<div class="srchres">';
   results.forEach(function(r){
     var clean=r.cmd.cmd||'';
     h+='<div class="srchitem" onclick="goCmd(\''+r.ph.id+'\',\''+r.st.id+'\')">'
-      +'<div class="srchctx">'+r.ph.icon+' '+esc(r.ph.label)+' › '+esc(r.st.title)+'</div>'
-      +'<div class="srchtitle">'+hlCmd(r.cmd.title,APP.q)+'</div>'
+      +'<div class="srchctx">'+r.ph.icon+' '+esc(tx(r.ph.label))+' › '+esc(tx(r.st.title))+'</div>'
+      +'<div class="srchtitle">'+hlCmd(tx(r.cmd.title),APP.q)+'</div>'
       +'<div class="srchcmd">'+hlCmd(clean.split('\n')[0],APP.q)+'</div>'
       +'</div>';
   });
@@ -318,17 +314,19 @@ function rStepNav(){
   var ph=getPhase(APP.phase);
   var steps=ph.steps||[];
   var si=stepIdx(ph);
-  var h='<button class="snbtn" onclick="prevStep()" '+(si===0?'disabled':'')+'>&#8592; Prev</button>';
+  var prevArrow=APP.lang==='ar'?'&#8594;':'&#8592;';
+  var nextArrow=APP.lang==='ar'?'&#8592;':'&#8594;';
+  var h='<button class="snbtn" onclick="prevStep()" '+(si===0?'disabled':'')+'>'+prevArrow+' '+t('prev_btn')+'</button>';
   h+='<div class="sdots">';
   steps.forEach(function(st,i){
     var done=0,tot=st.checklist?st.checklist.length:0;
     (st.checklist||[]).forEach(function(c,ii){if(APP.ck[st.id+'_'+ii])done++;});
     var pct=tot?done/tot:0;
     var w=i===si?18:6;
-    h+='<div class="sdot" onclick="selectStep(\''+st.id+'\')" style="width:'+w+'px;background:'+(i===si?ph.color:pct===1?'#166534':'#2e2e4e')+'" title="'+esc(st.title)+'"></div>';
+    h+='<div class="sdot" onclick="selectStep(\''+st.id+'\')" style="width:'+w+'px;background:'+(i===si?ph.color:pct===1?'#166534':'#2e2e4e')+'" title="'+esc(tx(st.title))+'"></div>';
   });
   h+='</div>';
-  h+='<button class="snbtn" onclick="nextStep()" '+(si===steps.length-1?'disabled':'')+'>Next &#8594;</button>';
+  h+='<button class="snbtn" onclick="nextStep()" '+(si===steps.length-1?'disabled':'')+'>'+t('next_btn')+' '+nextArrow+'</button>';
   document.getElementById('stepnav').innerHTML=h;
 }
 
@@ -346,7 +344,7 @@ function rBN(){
     var on=p.id===APP.phase;
     h+='<button class="bni" onclick="selectPhase(\''+p.id+'\')" style="border-top-color:'+(on?p.color:'transparent')+'">'
       +'<span style="font-size:14px">'+p.icon+'</span>'
-      +'<span style="font-size:8px;color:'+(on?p.color:'var(--t3)')+'">'+p.short+'</span>'
+      +'<span style="font-size:8px;color:'+(on?p.color:'var(--t3)')+'">'+esc(tx(p.short))+'</span>'
       +'</button>';
   });
   document.getElementById('bottomnav').innerHTML=h;
@@ -378,12 +376,12 @@ function renderAll(){
 }
 
 function startEditEng(){
-  var n=prompt('Engagement name:',APP.eng);
+  var n=prompt(t('engagement_name_prompt'),APP.eng);
   if(n!==null&&n.trim()){APP.eng=n.trim();psave('eng',APP.eng);document.getElementById('engname').textContent=APP.eng;}
 }
 
 function doReset(){
-  if(!confirm('Reset ALL progress for this profile? This cannot be undone.'))return;
+  if(!confirm(t('reset_confirm')))return;
   APP.ck={};APP.notes={};psave('ck',{});psave('notes',{});
   renderAll();
 }

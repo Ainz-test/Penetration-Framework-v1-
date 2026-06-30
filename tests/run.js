@@ -142,6 +142,28 @@ setTimeout(() => {
     check('payload with embedded quotes copies exactly (no corruption)', copiedText === quoteItem.textContent);
   }
 
+  section('Bilingual support (Arabic/English)');
+  check('default lang is en', w.APP.lang === 'en');
+  w.setLang('ar');
+  check('setLang switches APP.lang', w.APP.lang === 'ar');
+  check('html dir flips to rtl', doc.documentElement.getAttribute('dir') === 'rtl');
+  check('body gets rtl class', doc.body.classList.contains('rtl'));
+  check('lang persists to localStorage', w.localStorage.getItem('apt_lang') === 'ar');
+  check('static nav chrome translates', doc.querySelector('[data-i18n="nav_findings"]').textContent === 'النتائج');
+  w.setSection('findings');
+  check('findings section translates', doc.getElementById('secbody').innerHTML.indexOf('متتبع الثغرات') >= 0);
+  w.setSection('killchain');
+  check('killchain stage names translate', doc.getElementById('secbody').innerHTML.indexOf('الاستطلاع') >= 0);
+  check('tx() falls back gracefully on plain-string data', typeof w.tx === 'function' && w.tx('plain string') === 'plain string');
+  w.APP.reportLang = 'ar';
+  check('Arabic report generates with Arabic header', w.generateReport().indexOf('تقرير اختبار الاختراق') >= 0);
+  w.APP.reportLang = 'en';
+  check('English report still generates correctly', w.generateReport().indexOf('Penetration Test Report') >= 0);
+  w.setLang('en');
+  check('switching back to English restores dir=ltr', doc.documentElement.getAttribute('dir') === 'ltr');
+  w.setSection('findings');
+  check('switching back to English restores chrome text', doc.getElementById('secbody').innerHTML.indexOf('Findings Tracker') >= 0);
+
   section('Scope manager');
   w.setSection('scope');
   doc.getElementById('sc_in_inp').value = '192.168.1.0/24';

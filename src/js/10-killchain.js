@@ -1,17 +1,18 @@
-var KC_STAGES=['Reconnaissance','Weaponization','Delivery','Exploitation','Installation','Command & Control','Actions on Objectives'];
+var KC_STAGE_KEYS=['kc_stage_recon','kc_stage_weapon','kc_stage_delivery','kc_stage_exploit','kc_stage_install','kc_stage_c2','kc_stage_actions'];
 
 function renderKillChain(el){
   var kc=APP.kc;
-  if(!kc.length){KC_STAGES.forEach(function(s){kc.push({name:s,items:[]});});APP.kc=kc;}
+  if(!kc.length){KC_STAGE_KEYS.forEach(function(k){kc.push({nameKey:k,name:t(k),items:[]});});APP.kc=kc;}
 
   var h='<div class="sec-hdr">'
-    +'<div><div class="sec-title">&#128279; Attack Kill Chain</div>'
-    +'<div class="sec-subtitle">Map your attack steps across the cyber kill chain — link to findings</div></div>'
-    +'<button class="btn" onclick="exportKC()">&#128229; Export</button></div>';
+    +'<div><div class="sec-title">&#128279; '+t('killchain_title')+'</div>'
+    +'<div class="sec-subtitle">'+t('killchain_subtitle')+'</div></div>'
+    +'<button class="btn" onclick="exportKC()">&#128229; '+t('export_btn')+'</button></div>';
 
   h+='<div class="kc-stages">';
   kc.forEach(function(stage,si){
-    h+='<div class="kc-stage"><div class="kc-stage-lbl">'+esc(stage.name)+'</div>'
+    var stageName=stage.nameKey?t(stage.nameKey):stage.name;
+    h+='<div class="kc-stage"><div class="kc-stage-lbl">'+esc(stageName)+'</div>'
       +'<div class="kc-stage-items">';
     stage.items.forEach(function(item,ii){
       h+='<div class="kc-item">'
@@ -20,22 +21,24 @@ function renderKillChain(el){
         +'</div>';
     });
     h+='</div>'
-      +'<button class="kc-add" onclick="kcAddItem('+si+')">+ Add step</button>'
+      +'<button class="kc-add" onclick="kcAddItem('+si+')">'+t('add_step')+'</button>'
       +'</div>';
   });
   h+='</div>';
 
   h+='<div class="kc-narrative">'
-    +'<div class="kc-nar-lbl"><span>Executive Narrative</span>'
-    +'<button class="btn ai sm" onclick="aiKillChainNarrative()">&#10024; AI Generate</button></div>'
-    +'<textarea class="kc-nar-ta" id="kc_narr_ta" placeholder="Describe the full attack chain in executive language...&#10;&#10;Click \'AI Generate\' to auto-create from your kill chain stages above." oninput="APP.kcNarr=this.value;psave(\'kc_narr\',APP.kcNarr)">'+esc(APP.kcNarr||'')+'</textarea>'
-    +'<div style="font-size:10px;color:var(--t3)">This narrative will be included in your generated report.</div>'
+    +'<div class="kc-nar-lbl"><span>'+t('executive_narrative')+'</span>'
+    +'<button class="btn ai sm" onclick="aiKillChainNarrative()">&#10024; '+t('ai_generate')+'</button></div>'
+    +'<textarea class="kc-nar-ta" id="kc_narr_ta" placeholder="'+esc(t('killchain_narr_ph'))+'" oninput="APP.kcNarr=this.value;psave(\'kc_narr\',APP.kcNarr)">'+esc(APP.kcNarr||'')+'</textarea>'
+    +'<div style="font-size:10px;color:var(--t3)">'+t('killchain_narr_footer')+'</div>'
     +'</div>';
   el.innerHTML=h;
 }
 
 function kcAddItem(si){
-  var v=prompt('Add step to '+APP.kc[si].name+':');
+  var stage=APP.kc[si];
+  var stageName=stage.nameKey?t(stage.nameKey):stage.name;
+  var v=prompt(t('add_step_prompt')+' '+stageName+':');
   if(!v||!v.trim())return;
   APP.kc[si].items.push(v.trim());
   psave('kc',APP.kc);
@@ -49,15 +52,16 @@ function kcDeleteItem(si,ii){
 }
 
 function exportKC(){
-  var lines=['# Kill Chain\n'];
+  var lines=['# '+t('killchain_title')+'\n'];
   APP.kc.forEach(function(stage){
     if(stage.items.length){
-      lines.push('## '+stage.name);
+      var stageName=stage.nameKey?t(stage.nameKey):stage.name;
+      lines.push('## '+stageName);
       stage.items.forEach(function(item){lines.push('- '+item);});
       lines.push('');
     }
   });
-  if(APP.kcNarr)lines.push('## Narrative\n'+APP.kcNarr);
+  if(APP.kcNarr)lines.push('## '+t('executive_narrative')+'\n'+APP.kcNarr);
   copy(lines.join('\n'),null);
-  alert('Kill chain copied to clipboard!');
+  alert(t('kc_copied_alert'));
 }

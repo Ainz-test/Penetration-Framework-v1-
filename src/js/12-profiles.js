@@ -1,9 +1,9 @@
 function renderProfiles(el){
   var profiles=APP.profiles||[];
   var h='<div class="sec-hdr">'
-    +'<div><div class="sec-title">&#128100; Engagement Profiles</div>'
-    +'<div class="sec-subtitle">Switch between clients. Each profile has independent findings, scope, notes, and progress.</div></div>'
-    +'<button class="btn primary" onclick="addProfile()">+ New Profile</button></div>';
+    +'<div><div class="sec-title">&#128100; '+t('profiles_title')+'</div>'
+    +'<div class="sec-subtitle">'+t('profiles_subtitle')+'</div></div>'
+    +'<button class="btn primary" onclick="addProfile()">'+t('new_profile')+'</button></div>';
   h+='<div class="sec-body">';
   h+='<div class="profile-list">';
   profiles.forEach(function(p){
@@ -12,26 +12,26 @@ function renderProfiles(el){
     h+='<div class="profile-item'+(isOn?' on':'')+'">'
       +'<div style="flex:1">'
       +'<div class="profile-name">'+esc(p.name)+'</div>'
-      +'<div class="profile-meta">'+(isOn?'&#9679; Active — ':'')+findings.length+' findings &nbsp;·&nbsp; Created '+fmtDate(p.created)+'</div>'
+      +'<div class="profile-meta">'+(isOn?'&#9679; '+t('active_lbl')+' — ':'')+findings.length+' '+t('findings_count2')+' &nbsp;·&nbsp; '+t('created_lbl')+' '+fmtDate(p.created)+'</div>'
       +'</div>'
       +'<div style="display:flex;gap:6px">'
-      +(isOn?'':'<button class="btn sm primary" onclick="switchProfile(\''+p.id+'\')">Switch</button>')
-      +(profiles.length>1&&!isOn?'<button class="btn sm danger" onclick="deleteProfile(\''+p.id+'\')">Delete</button>':'')
+      +(isOn?'':'<button class="btn sm primary" onclick="switchProfile(\''+p.id+'\')">'+t('switch_btn')+'</button>')
+      +(profiles.length>1&&!isOn?'<button class="btn sm danger" onclick="deleteProfile(\''+p.id+'\')">'+t('delete_btn')+'</button>':'')
       +'</div>'
       +'</div>';
   });
   h+='</div>';
   h+='<div class="card"><div class="card-body" style="font-size:11px;color:var(--t2);line-height:1.8">'
-    +'<strong style="color:var(--t1)">How profiles work:</strong><br>'
-    +'Each profile stores its own findings, scope, notes, timer sessions, and framework progress completely independently.<br>'
-    +'Use one profile per client engagement. Switch instantly without losing any data.'
+    +'<strong style="color:var(--t1)">'+t('how_profiles_work')+'</strong><br>'
+    +t('profiles_desc1')+'<br>'
+    +t('profiles_desc2')
     +'</div></div>';
   h+='</div>';
   el.innerHTML=h;
 }
 
 function addProfile(){
-  var name=prompt('Engagement name:','');
+  var name=prompt(t('engagement_name_prompt2'),'');
   if(!name||!name.trim())return;
   var p={id:genId(),name:name.trim(),created:Date.now()};
   APP.profiles.push(p);
@@ -49,7 +49,7 @@ function switchProfile(id){
 }
 
 function deleteProfile(id){
-  if(!confirm('Delete this profile and ALL its data?'))return;
+  if(!confirm(t('delete_profile_confirm')))return;
   APP.profiles=APP.profiles.filter(function(p){return p.id!==id;});
   localStorage.setItem('apt_profiles',JSON.stringify(APP.profiles));
   renderProfiles(document.getElementById('secbody'));

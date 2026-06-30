@@ -3,7 +3,7 @@ var D={},PHASES=[],TOOLS=[],PAYLOADS=[],MITRE=[];
 window.onerror=function(m,s,l){var e=document.getElementById('err');if(e){e.style.display='block';e.textContent='JS Error: '+m+' (line '+l+')';}return false;};
 
 var APP={
-  section:'framework',profile:'default',
+  section:'framework',profile:'default',lang:'en',
   phase:'pre',step:'p1',tab:'cmd',exp:{},q:'',drawer:false,
   ck:{},notes:{},eng:'New Engagement',
   findings:[],editFinding:null,fFilter:'all',fStatus:'all',
@@ -12,7 +12,7 @@ var APP={
   timerSessions:[],timerActive:null,timerInterval:null,timerSelPhase:'recon',
   toolsCat:0,toolsSearch:'',
   apiKey:'',apiEndpoint:'/api/chat',
-  reportTester:'',reportDate:'',
+  reportTester:'',reportDate:'',reportLang:'',
   profiles:[]
 };
 
@@ -35,6 +35,7 @@ function initData(){
 }
 
 function loadProfile(){
+  APP.lang=localStorage.getItem('apt_lang')||'en';
   APP.ck=pload('ck',{});
   APP.notes=pload('notes',{});
   APP.eng=pload('eng','New Engagement');

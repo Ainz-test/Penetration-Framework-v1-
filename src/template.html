@@ -25,23 +25,24 @@
     <button id="engbtn" onclick="startEditEng()">&#128193; <span id="engname">Loading...</span></button>
     <div id="searchbox">
       <span class="srchico">&#128269;</span>
-      <input id="searchinp" type="search" placeholder="Search commands..." oninput="handleSearch(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
+      <input id="searchinp" type="search" data-i18n-ph="search_ph" placeholder="Search commands..." oninput="handleSearch(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
       <button id="clrbtn" onclick="clearSearch()">&#10005;</button>
     </div>
     <span id="totalring" style="flex-shrink:0;display:inline-flex"></span>
+    <button id="langbtn" onclick="setLang(APP.lang==='ar'?'en':'ar')" title="Switch language / تبديل اللغة">AR</button>
     <button id="resetbtn" onclick="doReset()">&#8635;</button>
   </div>
   <div id="secnav">
-    <button class="secbtn on" data-sec="framework" onclick="setSection('framework')"><span class="sico">&#128221;</span>Framework</button>
-    <button class="secbtn" data-sec="findings" onclick="setSection('findings')"><span class="sico">&#128300;</span>Findings</button>
-    <button class="secbtn" data-sec="scope" onclick="setSection('scope')"><span class="sico">&#127919;</span>Scope</button>
-    <button class="secbtn" data-sec="tools" onclick="setSection('tools')"><span class="sico">&#128295;</span>Tools</button>
-    <button class="secbtn" data-sec="payloads" onclick="setSection('payloads')"><span class="sico">&#128299;</span>Payloads</button>
-    <button class="secbtn" data-sec="report" onclick="setSection('report')"><span class="sico">&#128202;</span>Report</button>
-    <button class="secbtn" data-sec="killchain" onclick="setSection('killchain')"><span class="sico">&#128279;</span>Kill Chain</button>
-    <button class="secbtn" data-sec="timer" onclick="setSection('timer')"><span class="sico">&#9203;</span>Timer</button>
-    <button class="secbtn" data-sec="profiles" onclick="setSection('profiles')"><span class="sico">&#128100;</span>Profiles</button>
-    <button class="secbtn" data-sec="settings" onclick="setSection('settings')"><span class="sico">&#9881;</span>AI + Settings</button>
+    <button class="secbtn on" data-sec="framework" onclick="setSection('framework')"><span class="sico">&#128221;</span><span data-i18n="nav_framework">Framework</span></button>
+    <button class="secbtn" data-sec="findings" onclick="setSection('findings')"><span class="sico">&#128300;</span><span data-i18n="nav_findings">Findings</span></button>
+    <button class="secbtn" data-sec="scope" onclick="setSection('scope')"><span class="sico">&#127919;</span><span data-i18n="nav_scope">Scope</span></button>
+    <button class="secbtn" data-sec="tools" onclick="setSection('tools')"><span class="sico">&#128295;</span><span data-i18n="nav_tools">Tools</span></button>
+    <button class="secbtn" data-sec="payloads" onclick="setSection('payloads')"><span class="sico">&#128299;</span><span data-i18n="nav_payloads">Payloads</span></button>
+    <button class="secbtn" data-sec="report" onclick="setSection('report')"><span class="sico">&#128202;</span><span data-i18n="nav_report">Report</span></button>
+    <button class="secbtn" data-sec="killchain" onclick="setSection('killchain')"><span class="sico">&#128279;</span><span data-i18n="nav_killchain">Kill Chain</span></button>
+    <button class="secbtn" data-sec="timer" onclick="setSection('timer')"><span class="sico">&#9203;</span><span data-i18n="nav_timer">Timer</span></button>
+    <button class="secbtn" data-sec="profiles" onclick="setSection('profiles')"><span class="sico">&#128100;</span><span data-i18n="nav_profiles">Profiles</span></button>
+    <button class="secbtn" data-sec="settings" onclick="setSection('settings')"><span class="sico">&#9881;</span><span data-i18n="nav_settings">AI + Settings</span></button>
   </div>
   <div id="phasenav"></div>
   <div id="wrap">
@@ -63,3 +64,4 @@
 </script>
 </body>
 </html>
+

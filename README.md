@@ -76,6 +76,42 @@ Then deploy `dist/pentest-standalone.html` exactly like before: rename to
 `index.html`, put it plus `api/` in a folder, drag to vercel.com, set the
 `ANTHROPIC_API_KEY` environment variable for the AI features to work.
 
+## Bilingual support (Arabic/English)
+
+The whole app — chrome, framework content, tools, payloads, MITRE mapping,
+and the report generator — runs in English or Arabic with full RTL layout.
+Toggle via the AR/EN button in the topbar, or per-section in AI + Settings.
+
+**How it works:**
+- `src/js/00a-i18n.js` holds the UI chrome dictionary (`I18N`) and two helpers:
+  `t('key')` for interface strings, `tx(field)` for bilingual data fields.
+- Data fields that hold prose (titles, summaries, checklist items, tool
+  descriptions, payload notes, MITRE names) are stored as `{"en": "...", "ar": "..."}`
+  objects in `src/data/*.json`. `tx()` picks the active language and falls
+  back to `.en` (or returns a plain string unchanged) if a field hasn't been
+  translated yet — nothing crashes if you add new English-only content first.
+- **Executable syntax is never translated**: shell commands (`cmd`), flag
+  tokens (`flags[].f`), payload strings (`items[]`), and install commands
+  stay plain strings always. Translating `nmap -sV` would just break it.
+- `src/css/98-rtl.css` handles the handful of things that don't auto-mirror
+  under `direction:rtl` (flexbox rows mirror for free) — the drawer and
+  finding-panel slide direction, and keeping code/commands/dates LTR inside
+  RTL flow.
+- The report generator (`09-report.js`) has its own independent language
+  selector (`APP.reportLang`), separate from the UI language — a tester
+  working in Arabic can still generate an English client deliverable, or
+  vice versa.
+
+**Adding a new translated UI string**: add a `key:{en:'...',ar:'...'}` entry
+to `I18N` in `00a-i18n.js`, then call `t('key')` where you'd otherwise have
+written the literal string.
+
+**Adding new bilingual data** (a new phase, tool, payload, or finding-panel
+field): write the field as `{"en": "...", "ar": "..."}` directly in the
+JSON, and read it through `tx()` in the render function. If you only have
+the English version for now, a plain string still works — just translate it
+later.
+
 ## Adding things
 
 **A new tool to the install guide** — add an entry to `src/data/tools.json`
