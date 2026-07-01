@@ -17,7 +17,10 @@ function renderFindings(el){
   var parts=[];
   Object.keys(sevCounts).forEach(function(s){if(sevCounts[s])parts.push('<span style="color:'+SEV_COLORS[s]+'">'+sevCounts[s]+' '+t('sev_'+s.toLowerCase())+'</span>');});
   h+=parts.join(' | ')+'</div></div>';
-  h+='<button class="btn primary" onclick="openFinding(null)">'+t('add_finding')+'</button></div>';
+  h+='<button class="btn primary" onclick="openFinding(null)">'+t('add_finding')+'</button>'
+    +'<button class="btn" onclick="showTemplatePicker()">&#128203; '+t('use_template')+'</button>'
+    +'<button class="btn ai" onclick="aiBulkTranslate()" title="'+esc(t('ai_bulk_translate'))+'">↔</button>'
+    +'</div>';
 
   h+='<div style="padding:12px 20px;border-bottom:1px solid var(--bdr);flex-shrink:0;display:flex;gap:6px;flex-wrap:wrap;background:var(--s1)">';
   var sevFilters=['all','Critical','High','Medium','Low','Info'];
@@ -109,6 +112,7 @@ function renderFindingPanel(){
   var h='<div class="detail-hdr">'
     +'<div style="font-size:14px;font-weight:700;color:var(--t1)">'+(f.id&&APP.findings.find(function(x){return x.id===f.id;})?t('edit_finding'):t('new_finding'))+'</div>'
     +'<div style="display:flex;gap:8px">'
+    +'<button class="btn ai sm" id="ai_translate_btn" onclick="aiTranslateFinding()" title="'+esc(t('ai_translate'))+'">↔ '+t('ai_translate')+'</button>'
     +'<button class="btn danger sm" onclick="deleteFindingById(\''+f.id+'\')">'+t('delete_btn')+'</button>'
     +'<button class="btn success sm" onclick="saveFindingFromPanel()">'+t('save_btn')+'</button>'
     +'<button class="btn sm" onclick="closeFinding()">&#10005;</button>'

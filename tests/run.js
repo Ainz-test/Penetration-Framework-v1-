@@ -72,7 +72,7 @@ setTimeout(() => {
 
   section('Initialization');
   check('window.APP exists', typeof w.APP !== 'undefined');
-  check('PHASES loaded (9 phases)', w.PHASES && w.PHASES.length === 9);
+  check('PHASES loaded (12 phases)', w.PHASES && w.PHASES.length === 12);
   check('TOOLS loaded (7 categories)', w.TOOLS && w.TOOLS.length === 7);
   check('PAYLOADS loaded (6 categories)', w.PAYLOADS && w.PAYLOADS.length === 6);
   check('MITRE loaded (41 techniques)', w.MITRE && w.MITRE.length === 41);
@@ -176,6 +176,39 @@ setTimeout(() => {
   check('switching back to English restores dir=ltr', doc.documentElement.getAttribute('dir') === 'ltr');
   w.setSection('findings');
   check('switching back to English restores chrome text', doc.getElementById('secbody').innerHTML.indexOf('Findings Tracker') >= 0);
+
+  section('Dashboard section');
+  try {
+    w.setSection('dashboard');
+    const dbHtml = doc.getElementById('secbody').innerHTML;
+    check('dashboard renders content', dbHtml.length > 100);
+    check('dashboard has phase progress bars', dbHtml.indexOf('dash-phase-bar-row') >= 0);
+    check('dashboard has severity chips', dbHtml.indexOf('dash-sev-chip') >= 0);
+    check('dashboard has resume card', dbHtml.indexOf('dash-resume-card') >= 0);
+    check('dashboard has quick action buttons', dbHtml.indexOf('dash-action-btn') >= 0);
+  } catch (e) { check('dashboard renders without error (' + e.message + ')', false); }
+
+  section('New phases (Mobile + Wireless + AD Advanced)');
+  check('12 phases now loaded', w.PHASES.length === 12);
+  const phaseIds = w.PHASES.map(p => p.id);
+  check('mobile phase present', phaseIds.indexOf('mobile') >= 0);
+  check('wireless phase present', phaseIds.indexOf('wireless') >= 0);
+  check('adv_ad phase present', phaseIds.indexOf('adv_ad') >= 0);
+  w.setLang('ar');
+  w.selectPhase('mobile');
+  check('mobile phase label translates to Arabic', w.APP.lang === 'ar' && doc.getElementById('phasenav') && doc.getElementById('phasenav').innerHTML.indexOf('موبايل') >= 0);
+  w.setLang('en');
+  w.selectPhase('pre');
+
+  section('Finding templates');
+  check('FINDING_TEMPLATES exists with 6 entries', w.FINDING_TEMPLATES && w.FINDING_TEMPLATES.length === 6);
+  w.openFindingFromTemplate('tpl_sqli');
+  check('SQLi template opens finding panel', doc.getElementById('findingPanel').classList.contains('open'));
+  check('SQLi template pre-fills CVSS 9.8', w.APP.editFinding && parseFloat(w.APP.editFinding.cvss_score) >= 9.0);
+  check('SQLi template pre-fills MITRE T1190', w.APP.editFinding && w.APP.editFinding.mitre === 'T1190');
+  check('SQLi template has description text', w.APP.editFinding && w.APP.editFinding.description.length > 20);
+  check('SQLi template has remediation', w.APP.editFinding && w.APP.editFinding.remediation.length > 20);
+  w.closeFinding();
 
   section('Scope manager');
   w.setSection('scope');

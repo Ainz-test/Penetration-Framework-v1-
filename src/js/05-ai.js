@@ -97,3 +97,151 @@ function aiKillChainNarrative(){
     alert(t('ai_error_prefix')+' '+err);
   });
 }
+
+/* ── Enhanced Translator ─────────────────────────────────────────────── */
+
+function aiTranslateFinding(){
+  var f=APP.editFinding;
+  if(!f)return;
+  // sync current form state first
+  syncFindingFields();
+  var targetLang=APP.lang==='ar'?'en':'ar';
+  var targetLangName=targetLang==='ar'?'Arabic':'English';
+  var sourceLang=APP.lang==='ar'?'English':'Arabic';
+
+  // build the content to translate
+  var parts=[];
+  var fields=[['fp_title',t('finding_title_lbl')],['fp_desc',t('technical_desc')],
+              ['fp_impact',t('business_impact_lbl')],['fp_evidence',t('evidence_lbl')],
+              ['fp_remediaton',t('remediation_lbl')]];
+  fields.forEach(function(pair){
+    var el=document.getElementById(pair[0]);
+    if(el&&el.value.trim()){
+      parts.push('### '+pair[1]+'\n'+el.value.trim());
+    }
+  });
+  if(!parts.length){alert(t('add_title_desc_first'));return;}
+
+  var prompt='You are a professional penetration testing report translator. Translate the following security finding fields from '+sourceLang+' to '+targetLangName+'. Preserve technical terms (CVE IDs, tool names, command syntax, URLs, IP addresses, protocol names) exactly as-is. Translate prose naturally and professionally. Return ONLY the translated fields in the exact same ### Field Name structure, with no preamble or commentary.\n\n'+parts.join('\n\n');
+
+  // show loading state on all textareas
+  var allOverlays=['ai_impact_overlay','ai_remed_overlay'];
+  allOverlays.forEach(function(id){var o=document.getElementById(id);if(o)o.style.display='flex';});
+  // disable translate btn
+  var btn=document.getElementById('ai_translate_btn');
+  if(btn){btn.disabled=true;btn.textContent='⏳ '+t('ai_translating');}
+
+  aiCall(prompt,function(text){
+    // parse response back into fields
+    var lines=text.split('\n');
+    var currentField=null;
+    var currentContent=[];
+    var fieldMap={};
+    lines.forEach(function(line){
+      if(line.indexOf('### ')===0){
+        if(currentField&&currentContent.length){
+          fieldMap[currentField]=currentContent.join('\n').trim();
+        }
+        currentField=line.replace('### ','').trim();
+        currentContent=[];
+      }else{
+        currentContent.push(line);
+      }
+    });
+    if(currentField&&currentContent.length)fieldMap[currentField]=currentContent.join('\n').trim();
+
+    // apply back — match by field label in current language
+    var labelToId={};
+    fields.forEach(function(pair){labelToId[pair[1]]=pair[0];});
+    Object.keys(fieldMap).forEach(function(label){
+      var elId=labelToId[label];
+      if(elId){
+        var el=document.getElementById(elId);
+        if(el)el.value=fieldMap[label];
+      }
+    });
+
+    allOverlays.forEach(function(id){var o=document.getElementById(id);if(o)o.style.display='none';});
+    if(btn){btn.disabled=false;btn.textContent='↔ '+t('ai_translate');}
+    // flash all textareas to indicate update
+    fields.forEach(function(pair){
+      var el=document.getElementById(pair[0]);
+      if(el){
+        el.style.transition='background .4s';
+        el.style.background='rgba(59,91,219,.12)';
+        setTimeout(function(){el.style.background='';},800);
+      }
+    });
+  },function(err){
+    allOverlays.forEach(function(id){var o=document.getElementById(id);if(o)o.style.display='none';});
+    if(btn){btn.disabled=false;btn.textContent='↔ '+t('ai_translate');}
+    alert(t('ai_error_prefix')+' '+err);
+  });
+}
+
+function aiBulkTranslate(){
+  var findings=APP.findings||[];
+  if(!findings.length){alert(t('no_findings_yet'));return;}
+  var targetLang=APP.lang==='ar'?'en':'ar';
+  var targetLangName=targetLang==='ar'?'Arabic':'English';
+  var sourceLang=APP.lang==='ar'?'English':'Arabic';
+  var total=findings.length;
+  var done=0;
+  var failed=0;
+
+  // show a progress overlay
+  var sb=document.getElementById('secbody');
+  var progressEl=document.createElement('div');
+  progressEl.style.cssText='position:fixed;bottom:20px;right:20px;background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:14px 18px;z-index:9000;font-size:12px;color:var(--t1);min-width:220px;animation:fadeup .2s ease';
+  progressEl.id='bulk_translate_progress';
+  document.body.appendChild(progressEl);
+
+  function updateProgress(){
+    var el=document.getElementById('bulk_translate_progress');
+    if(!el)return;
+    el.textContent='↔ '+t('ai_translating')+': '+done+'/'+total+(failed?' ('+failed+' '+t('ai_error_prefix').toLowerCase()+')':'');
+  }
+  updateProgress();
+
+  // translate sequentially to avoid rate limiting
+  var idx=0;
+  function translateNext(){
+    if(idx>=findings.length){
+      psave('findings',APP.findings);
+      var el=document.getElementById('bulk_translate_progress');
+      if(el){
+        el.textContent='✅ '+t('ai_translate')+' '+done+'/'+total;
+        setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},3000);
+      }
+      setSection('findings');
+      return;
+    }
+    var f=findings[idx++];
+    var parts=[];
+    if(f.title)parts.push('### title\n'+f.title);
+    if(f.description)parts.push('### description\n'+f.description);
+    if(f.business_impact)parts.push('### business_impact\n'+f.business_impact);
+    if(f.remediation)parts.push('### remediation\n'+f.remediation);
+    if(!parts.length){done++;updateProgress();translateNext();return;}
+
+    var prompt='Translate these penetration testing finding fields from '+sourceLang+' to '+targetLangName+'. Preserve: CVE IDs, tool names, command syntax, URLs, IP addresses, protocol names exactly as-is. Return ONLY the translated fields in the exact same ### key structure with no preamble.\n\n'+parts.join('\n\n');
+    aiCall(prompt,function(text){
+      var lines=text.split('\n');
+      var cur=null,content=[];
+      var map={};
+      lines.forEach(function(line){
+        if(line.indexOf('### ')===0){
+          if(cur&&content.length)map[cur]=content.join('\n').trim();
+          cur=line.replace('### ','').trim();content=[];
+        }else content.push(line);
+      });
+      if(cur&&content.length)map[cur]=content.join('\n').trim();
+      if(map.title)f.title=map.title;
+      if(map.description)f.description=map.description;
+      if(map.business_impact)f.business_impact=map.business_impact;
+      if(map.remediation)f.remediation=map.remediation;
+      done++;updateProgress();translateNext();
+    },function(){failed++;done++;updateProgress();translateNext();});
+  }
+  translateNext();
+}

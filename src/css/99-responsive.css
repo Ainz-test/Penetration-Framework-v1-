@@ -37,3 +37,56 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
 }
+
+/* ── UI Quality Pass ──────────────────────────────────────────────────── */
+/* Stronger visual hierarchy in command cards */
+.cmdtitle{font-size:12.5px;font-weight:700;color:var(--t1);margin-bottom:2px;letter-spacing:-.01em}
+.cmdpurpose{font-size:10.5px;color:#8888a8}
+
+/* Better topbar engagement button */
+#engbtn{max-width:160px;font-size:11.5px;color:var(--t1);gap:5px}
+#engbtn:hover{color:#93c5fd}
+
+/* Improved step header readability */
+.sphtitle{font-size:17px;font-weight:800;color:var(--t1);letter-spacing:-.03em}
+
+/* Findings section improvement */
+.finding-title{font-size:13.5px}
+.sec-title{font-size:19px;font-weight:800;letter-spacing:-.03em}
+
+/* Better card hover state */
+.card{transition:border-color .15s}
+.card:hover{border-color:var(--bdr2)}
+
+/* Phase nav on mobile: larger touch targets */
+.ptab{padding:6px 10px 4px;min-width:62px}
+
+/* Subtle glass effect on topbar at top of scroll */
+#topbar{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:rgba(14,14,26,.92)}
+
+/* Better empty state */
+.empty{color:var(--t3);font-size:13px;text-align:center;padding:48px 24px;line-height:2;display:flex;flex-direction:column;align-items:center;gap:6px}
+
+/* Smoother checklist transitions */
+.chkitem{transition:background .1s,opacity .15s}
+.chkitem.done .chktxt{opacity:.55}
+
+/* Improve section body scrolling on iOS */
+.sec-body{-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+
+/* Better badge contrast */
+.badge{font-size:9px;padding:2px 7px;letter-spacing:.06em;border-radius:5px}
+
+/* Animate stat values on dashboard */
+.dash-stat-value{transition:color .3s}
+
+/* Better notebox */
+.notebox{border-radius:8px;line-height:1.6}
+.outbox{border-radius:8px;line-height:1.6}
+
+/* Improved finding panel on mobile */
+@media(max-width:480px){
+  .detail-panel{width:100%;left:auto;right:-100%;border-left:none;border-top:1px solid var(--bdr);top:auto;bottom:-100%;height:90vh;border-radius:14px 14px 0 0;transition:bottom .3s cubic-bezier(.4,0,.2,1)}
+  .detail-panel.open{bottom:0;right:auto}
+  .cvss-grid{grid-template-columns:repeat(2,1fr)}
+}

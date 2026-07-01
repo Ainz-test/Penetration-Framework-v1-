@@ -277,6 +277,33 @@ var I18N = {
   security_reset_btn:{en:'Reset all encrypted data',ar:'إعادة تعيين كل البيانات المشفّرة'},
   cancel_btn:{en:'Cancel',ar:'إلغاء'},
   export_unencrypted_warn:{en:'This backup file is not encrypted — store it somewhere secure.',ar:'ملف النسخ الاحتياطي هذا غير مشفّر — احفظه في مكان آمن.'},
+
+  // Dashboard
+  dash_title:{en:'Dashboard',ar:'لوحة المعلومات'},
+  dash_day:{en:'Day',ar:'اليوم'},
+  dash_of:{en:'of',ar:'من'},
+  dash_edit_scope:{en:'Edit Scope',ar:'تعديل النطاق'},
+  dash_total_findings:{en:'Findings',ar:'الثغرات'},
+  dash_time_logged:{en:'Time Logged',ar:'الوقت المُسجَّل'},
+  dash_progress:{en:'Progress',ar:'التقدم'},
+  dash_profiles:{en:'Profiles',ar:'الملفات'},
+  dash_checks:{en:'checks',ar:'مهمة'},
+  dash_active_engagement:{en:'active engagement',ar:'مهمة نشطة'},
+  dash_phase_progress:{en:'Phase Progress',ar:'تقدم المراحل'},
+  dash_continue:{en:'Continue where you left off',ar:'تابع من حيث توقفت'},
+
+  // Enhanced Translator
+  ai_translate:{en:'Translate ↔',ar:'ترجمة ↔'},
+  ai_translating:{en:'Translating...',ar:'جارٍ الترجمة...'},
+  ai_translate_finding:{en:'Translate this finding to',ar:'ترجمة هذه الثغرة إلى'},
+  ai_bulk_translate:{en:'Translate All Findings',ar:'ترجمة كل الثغرات'},
+  ai_bulk_translate_confirm:{en:'Translate all finding content to the other language using AI? This rewrites titles, descriptions, business impact, and remediation for every finding.',ar:'ترجمة محتوى كل الثغرات للغة الأخرى باستخدام الذكاء الاصطناعي؟ سيعيد كتابة العناوين والأوصاف والأثر على الأعمال والإصلاح لكل ثغرة.'},
+  ai_translate_to_arabic:{en:'→ Arabic',ar:'→ إنجليزي'},
+
+  // Finding templates
+  templates_title:{en:'Finding Templates',ar:'قوالب الثغرات'},
+  templates_note:{en:'Templates pre-fill common findings — edit to add your specific details.',ar:'القوالب تملأ الثغرات الشائعة مسبقاً — عدّلها لإضافة تفاصيلك المحددة.'},
+  use_template:{en:'Use Template',ar:'استخدام قالب'},
 };
 
 function t(key){

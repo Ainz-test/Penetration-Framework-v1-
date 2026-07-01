@@ -17,7 +17,8 @@ function setSection(s){
     sb.style.flexDirection='column';
     sb.style.overflow='hidden';
     if(srch)srch.style.display='none';
-    if(s==='findings')renderFindings(sb);
+    if(s==='dashboard')renderDashboard(sb);
+    else if(s==='findings')renderFindings(sb);
     else if(s==='scope')renderScope(sb);
     else if(s==='tools')renderTools(sb);
     else if(s==='payloads')renderPayloads(sb);
