@@ -1,96 +1,113 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   PenTest Pro — Design System v2
-   Palette: Near-black (#07070F) + Violet accent (#7B6EF6)
-   Feel: Elite SaaS — Linear × Vercel × cyber precision
+   PenTest Pro — Design System v3  "Precision"
+   True black surfaces  ·  Pure white text  ·  Electric blue accent
+   No colour tint in neutrals. Every colour earns its place.
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+*, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  margin: 0; padding: 0;
+}
 
-:root{
-  /* — Backgrounds — */
-  --bg:    #07070F;    /* page/app background */
-  --s1:    #0C0C1C;    /* card background */
-  --s2:    #101024;    /* elevated card */
-  --s3:    #14142C;    /* highest surface / hover */
-  --s4:    #1A1A36;    /* selected state */
+:root {
+  /* ── Backgrounds (pure neutral, zero tint) ── */
+  --bg:  #000000;   /* page background — absolute black */
+  --s1:  #0c0c0c;   /* card background */
+  --s2:  #141414;   /* input, nested element */
+  --s3:  #1c1c1c;   /* hover state */
+  --s4:  #242424;   /* pressed / selected */
 
-  /* — Borders — */
-  --bdr:   rgba(255,255,255,0.06);
-  --bdr2:  rgba(255,255,255,0.11);
-  --bdr3:  rgba(255,255,255,0.18);
+  /* ── Borders ── */
+  --bdr:  rgba(255,255,255,.07);   /* default — barely visible */
+  --bdr2: rgba(255,255,255,.12);   /* stronger / hover */
+  --bdr3: rgba(255,255,255,.20);   /* active / focus */
 
-  /* — Text — */
-  --t1:    #EDECF8;    /* primary */
-  --t2:    #7474A8;    /* secondary */
-  --t3:    #3A3A5A;    /* muted / placeholder */
+  /* ── Text (no blue tint — pure neutral) ── */
+  --t1: #ffffff;   /* headings, primary */
+  --t2: #999999;   /* secondary / helper */
+  --t3: #555555;   /* muted / placeholder */
 
-  /* — Accent (violet) — */
-  --accent:     #7B6EF6;
-  --accent-hi:  #9B91F8;   /* hover / lighter */
-  --accent-lo:  #5B50D6;   /* pressed / darker */
-  --accent-bg:  rgba(123,110,246,0.10);
-  --accent-bd:  rgba(123,110,246,0.30);
+  /* ── Electric blue — single interactive accent ── */
+  --accent:    #3b82f6;
+  --accent-hi: #60a5fa;
+  --accent-lo: #2563eb;
+  --accent-bg: rgba(59,130,246,.08);
+  --accent-bd: rgba(59,130,246,.28);
 
-  /* — Severity — */
-  --c-crit:   #F04438;
-  --c-high:   #FB7C3C;
-  --c-med:    #EAB308;
-  --c-low:    #22C65A;
-  --c-info:   #6B9EFF;
-  --c-crit-bg:#2A0A08;
-  --c-high-bg:#2A1008;
-  --c-med-bg: #201600;
-  --c-low-bg: #052210;
-  --c-info-bg:#0A1628;
+  /* ── Severity palette ── */
+  --c-crit:    #f04438;
+  --c-high:    #f97316;
+  --c-med:     #f59e0b;
+  --c-low:     #22c55e;
+  --c-info:    #64748b;
+  --c-crit-bg: rgba(240,68,56,.08);
+  --c-high-bg: rgba(249,115,22,.08);
+  --c-med-bg:  rgba(245,158,11,.08);
+  --c-low-bg:  rgba(34,197,94,.08);
+  --c-info-bg: rgba(100,116,139,.08);
 
-  /* — Utility — */
+  /* ── Terminal code colours ── */
+  --code-cmd: #22d3ee;   /* commands — cyan */
+  --code-var: #fbbf24;   /* {VARIABLES} — amber */
+  --code-cmt: #3f3f46;   /* # comments — dark */
+  --code-ex:  #4ade80;   /* examples — green */
+  --code-bg:  #000000;   /* code block background */
+
+  /* ── Design tokens ── */
   --radius-sm:  6px;
-  --radius:     10px;
-  --radius-lg:  14px;
-  --radius-xl:  20px;
-  --radius-pill:99px;
-  --transition: .16s cubic-bezier(.4,0,.2,1);
-  --sat: env(safe-area-inset-top,0px);
-  --sab: env(safe-area-inset-bottom,0px);
-  --sal: env(safe-area-inset-left,0px);
+  --radius:    10px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+  --radius-pill: 99px;
+  --transition: .15s cubic-bezier(.4,0,.2,1);
+
+  /* ── iPhone safe areas ── */
+  --sat: env(safe-area-inset-top,    0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left,   0px);
 }
 
-html,body{
-  height:100%;
-  overflow:hidden;
-  background:var(--bg);
-  color:var(--t1);
-  -webkit-text-size-adjust:100%;
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--t1);
+  -webkit-text-size-adjust: 100%;
 }
 
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',system-ui,sans-serif;
-  font-size:15px;
-  line-height:1.55;
-  font-feature-settings:'kern' 1,'liga' 1;
-  -webkit-font-smoothing:antialiased;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter',
+               'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'kern' 1;
 }
 
-.mono{
-  font-family:'SF Mono','JetBrains Mono','Fira Code',Menlo,'Cascadia Code',monospace;
-  font-feature-settings:'kern' 0,'liga' 0;
+.mono {
+  font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code',
+               Menlo, Consolas, monospace;
 }
 
-#root{
-  height:100dvh;
-  height:-webkit-fill-available;
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-  padding-left:var(--sal);
+#root {
+  height: 100dvh;
+  height: -webkit-fill-available;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-left: var(--sal);
 }
 
-/* error banner */
-#err{
-  position:fixed;top:0;left:0;right:0;
-  background:#4A0A08;color:#FCA5A5;
-  padding:12px 16px;font-size:12px;
-  z-index:9999;display:none;
-  font-family:monospace;
-  border-bottom:1px solid #F04438;
+#err {
+  position: fixed; top: 0; left: 0; right: 0;
+  background: rgba(240,68,56,.1);
+  color: #fca5a5;
+  padding: 12px 16px;
+  font-size: 12px;
+  z-index: 9999;
+  display: none;
+  font-family: monospace;
+  border-bottom: 1px solid rgba(240,68,56,.4);
 }

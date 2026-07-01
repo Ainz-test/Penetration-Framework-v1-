@@ -1,97 +1,116 @@
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   Responsive + Mobile navigation rules
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* ━━ SCROLLBARS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-thumb { background: var(--bdr2); border-radius: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
 
-/* Scrollbars */
-::-webkit-scrollbar{width:3px;height:3px}
-::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
-::-webkit-scrollbar-track{background:transparent}
+/* ━━ NAVIGATION VISIBILITY RULES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Mobile (<640px): secnav HIDDEN → bottom tab bar is primary navigation
+   Tablet (640px+): secnav VISIBLE → bottom tab bar hidden
+   Desktop (1024px+): sidebar for phases, top secnav for sections         */
+#secnav   { display: none; }      /* hidden on mobile by default */
+#bottomnav{ display: flex; }      /* always visible on mobile */
 
-/* ── Mobile default (<640px) ── */
-/* On mobile: top secnav is HIDDEN, bottom tab bar shows SECTIONS */
-#secnav{display:none}
-#bottomnav{display:flex}
-
-/* ── Tablet (640px+) ── */
-@media(min-width:640px){
-  #drawer{width:310px}
-  #secnav{display:flex !important}   /* top nav visible */
-  #bottomnav{display:none !important} /* bottom tab bar hidden */
-  .sec-body{padding:22px 28px}
-  .scope-grid{padding:22px 28px}
+@media (min-width: 640px) {
+  #secnav   { display: flex !important; }
+  #bottomnav{ display: none !important; }
+  #drawer   { width: 300px; }
+  .sec-body { padding: 20px 24px; }
 }
 
-/* ── Desktop (1024px+) ── */
-@media(min-width:1024px){
-  #hambtn{display:none !important}
-  #phasenav{display:none !important}
-  #bottomnav{display:none !important}
-  #mask{display:none !important}
-  #drawer{
-    position:relative !important;transform:none !important;
-    width:270px !important;transition:none !important;
-    flex-shrink:0;height:100%;display:flex;flex-direction:column;
+@media (min-width: 1024px) {
+  #hambtn        { display: none !important; }
+  #phasenav      { display: none !important; }
+  #bottomnav     { display: none !important; }
+  #mask          { display: none !important; }
+  #drawer {
+    position: relative !important; transform: none !important;
+    width: 268px !important; transition: none !important;
+    flex-shrink: 0; height: 100%;
+    display: flex; flex-direction: column;
   }
-  .sidebar-phases{display:flex !important}
-  #content{padding:24px 28px}
-  .cmdcard:hover{box-shadow:0 4px 24px rgba(0,0,0,.4)}
-  .chklist{display:grid;grid-template-columns:1fr 1fr}
-  .chkitem{border-right:1px solid rgba(255,255,255,.03)}
-  .chkitem:nth-child(2n){border-right:none}
-  .deblk{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-  .notebox,.outbox{grid-column:1/-1}
-  .detail-panel{width:540px}
+  .sidebar-phases{ display: flex !important; }
+  #content       { padding: 22px 26px; }
+  .cmdcard:hover { box-shadow: 0 6px 28px rgba(0,0,0,.6); }
+  .chklist       { display: grid; grid-template-columns: 1fr 1fr; }
+  .chkitem       { border-right: 1px solid rgba(255,255,255,.03); }
+  .chkitem:nth-child(2n) { border-right: none; }
+  .deblk         { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .notebox, .outbox { grid-column: 1/-1; }
+  .detail-panel  { width: 540px; }
 }
 
-@media(min-width:1280px){
-  #drawer{width:290px !important}
-  #content{padding:26px 32px}
+@media (min-width: 1280px) {
+  #drawer  { width: 284px !important; }
+  #content { padding: 24px 30px; }
 }
 
-/* ── iPhone Pro Max (390px+, portrait) ── */
-@media(min-width:390px) and (max-width:639px){
-  .ptab{padding:7px 16px}
-  .ptab .pico{font-size:15px}
-  .ptab .plbl{font-size:12px}
-  .bni{min-height:58px;padding:10px 4px 9px}
-  .bni-icon{font-size:24px}
-  .bni-lbl{font-size:11px}
-  #content{padding:18px}
-  .sec-body{padding:16px 18px}
-  .sphtitle{font-size:23px}
-  .sec-title{font-size:23px}
-  /* Hide decorative dots on small screens */
-  .dots{display:none}
-  /* Larger base font */
-  body{font-size:15px}
+/* ━━ IPHONE PRO MAX TUNING (390px+, portrait) ━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (min-width: 390px) and (max-width: 639px) {
+  /* Phase pills */
+  .ptab { padding: 7px 15px; }
+  .ptab .pico { font-size: 15px; }
+  .ptab .plbl { font-size: 12px; }
+  /* Bottom tabs */
+  .bni { min-height: 58px; padding: 10px 4px 8px; }
+  .bni-icon { font-size: 24px; }
+  .bni-lbl  { font-size: 11px; }
+  /* Step header */
+  .sphtitle { font-size: 20px; }
+  /* Topbar: hide decorative dots to save space */
+  .dots { display: none; }
+  /* Command code — slightly larger on Pro Max */
+  .cmdpre pre { font-size: 13.5px; }
 }
 
-/* ── Mobile finding panel — bottom sheet ── */
-@media(max-width:639px){
-  .detail-panel{
-    width:100%;left:auto !important;right:0 !important;
-    border-left:none;
-    border-top:1px solid var(--bdr2);
-    top:auto;bottom:-100%;height:94vh;
-    border-radius:22px 22px 0 0;
-    transition:bottom .32s cubic-bezier(.32,0,.67,0);
-    box-shadow:0 -24px 60px rgba(0,0,0,.6);
+/* ━━ MOBILE FINDING PANEL — slides up as bottom sheet ━━━━━━━━━━━━━━━━ */
+@media (max-width: 639px) {
+  .detail-panel {
+    width: 100% !important;
+    left: auto !important; right: 0 !important;
+    border-left: none;
+    border-top: 1px solid var(--bdr);
+    top: auto; bottom: -100%; height: 92vh;
+    border-radius: 20px 20px 0 0;
+    transition: bottom .32s cubic-bezier(.32,0,.67,0);
   }
-  .detail-panel.open{bottom:0 !important;right:0 !important}
-  .cvss-grid{grid-template-columns:repeat(2,1fr)}
-  .cvss-sel{font-size:12px;padding:6px 7px}
-  .card-body{padding:14px}
-  .sec-hdr{padding:14px 18px;gap:10px}
-  .sec-body{padding:14px 18px;gap:12px}
-  .detail-body{padding:16px}
-  #content{padding:16px}
+  .detail-panel.open { bottom: 0 !important; right: 0 !important; }
+  .cvss-grid { grid-template-columns: repeat(2,1fr); }
+  .sec-hdr  { padding: 14px 16px; }
+  .sec-body { padding: 14px 16px; gap: 12px; }
+  .card-body{ padding: 14px; }
+  #content  { padding: 16px; }
 }
 
-/* ── Accessibility ── */
-button:focus-visible,input:focus-visible,textarea:focus-visible,
-select:focus-visible,a:focus-visible{
-  outline:2px solid var(--accent);outline-offset:2px;
+/* ━━ RTL (Arabic) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+body.rtl { direction: rtl; }
+body.rtl #drawer {
+  left: auto; right: 0;
+  border-right: none; border-left: 1px solid var(--bdr);
+  transform: translateX(105%);
 }
-@media(prefers-reduced-motion:reduce){
-  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
+body.rtl #drawer.on { transform: translateX(0); }
+body.rtl .detail-panel {
+  right: auto; left: -100%;
+  border-left: none; border-right: 1px solid var(--bdr);
+  transition: left .3s cubic-bezier(.4,0,.2,1);
+}
+body.rtl .detail-panel.open { left: 0; right: auto; }
+body.rtl .sdots { flex-direction: row-reverse; }
+body.rtl .chkitem { border-right: none; border-left: 1px solid rgba(255,255,255,.03); }
+body.rtl .chkitem:nth-child(2n) { border-left: none; }
+body.rtl .cmdpre pre,
+body.rtl .cmdex pre,
+body.rtl .tool-row-cmd,
+body.rtl .payload-val,
+body.rtl .cvss-vector,
+body.rtl .code-block,
+body.rtl .report-preview { direction: ltr; text-align: left; unicode-bidi: plaintext; }
+body.rtl .badge, body.rtl .flagkey { direction: ltr; }
+body.rtl input[type="date"] { direction: ltr; }
+body.rtl #searchinp, body.rtl .field-inp, body.rtl .field-ta,
+body.rtl textarea, body.rtl .mitre-search { text-align: right; }
+
+/* ━━ REDUCED MOTION ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
