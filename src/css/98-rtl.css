@@ -1,43 +1,15 @@
-/* ── RTL support ──────────────────────────────────────────────────────────
-   Flexbox row layouts auto-mirror under direction:rtl, which covers most of
-   the app for free. What's listed here is everything that DOESN'T auto-flip:
-   absolute-positioned slide panels (drawer, finding detail) and text that
-   must always stay LTR regardless of UI language (commands, code, numbers,
-   dates, CVSS vectors — these are syntax, not prose).
-   Note: per-card accent-color stripes (cmdcard, finding-row, drwbtn) are set
-   via inline style from JS and intentionally keep their left-edge position
-   in both languages — inline styles win over stylesheet rules regardless of
-   selector specificity, so flipping them would require threading direction
-   awareness through every render function for a purely cosmetic detail. */
-
+/* ━━ RTL OVERRIDES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 body.rtl{direction:rtl}
-
-/* drawer slides in from the right in RTL instead of the left */
 body.rtl #drawer{left:auto;right:0;border-right:none;border-left:1px solid var(--bdr);transform:translateX(105%)}
 body.rtl #drawer.on{transform:translateX(0)}
-
-/* finding detail panel slides in from the left in RTL instead of the right */
 body.rtl .detail-panel{right:auto;left:-100%;border-left:none;border-right:1px solid var(--bdr);transition:left .3s cubic-bezier(.4,0,.2,1)}
 body.rtl .detail-panel.open{left:0}
-
-/* step-nav progress dots read in visual reading order */
 body.rtl .sdots{flex-direction:row-reverse}
-
-/* 2-col checklist grid: divider moves to the other side */
 body.rtl .chkitem{border-right:none;border-left:1px solid rgba(255,255,255,.03)}
 body.rtl .chkitem:nth-child(2n){border-left:none}
-
-/* commands, payload syntax, code blocks, CVSS vectors, raw reports: always LTR */
 body.rtl .tool-row-cmd,body.rtl .payload-val,body.rtl .cvss-vector,
 body.rtl .code-block,body.rtl .cmdpre pre,body.rtl .report-preview,
 body.rtl .scope-item-text{direction:ltr;text-align:left;unicode-bidi:plaintext}
-
-/* numeric/time displays stay LTR for legibility */
 body.rtl .timer-clock,body.rtl input[type="date"]{direction:ltr}
-
-/* text inputs/textareas align to the reading direction */
-body.rtl #searchinp,body.rtl .field-inp,body.rtl .field-ta,body.rtl textarea,
-body.rtl .mitre-search{text-align:right}
-
-/* short uppercase status badges (CRITICAL/HIGH/FREE/flag tokens) stay LTR-styled for legibility */
+body.rtl #searchinp,body.rtl .field-inp,body.rtl .field-ta,body.rtl textarea,body.rtl .mitre-search{text-align:right}
 body.rtl .badge,body.rtl .tool-free,body.rtl .flagkey{direction:ltr}

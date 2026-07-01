@@ -1,41 +1,79 @@
-/* ── Dashboard ─────────────────────────────────────────────────────────── */
-.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.dash-stat{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;position:relative;overflow:hidden;transition:border-color .15s}
+/* ━━ DASHBOARD ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+
+.dash-stat{
+  background:var(--s1);border:1px solid var(--bdr);
+  border-radius:var(--radius-lg);padding:16px 18px;
+  display:flex;flex-direction:column;gap:5px;
+  position:relative;overflow:hidden;
+  transition:border-color var(--transition);
+}
 .dash-stat:hover{border-color:var(--bdr2)}
-.dash-stat-accent{position:absolute;top:0;left:0;width:3px;height:100%;border-radius:10px 0 0 10px}
-.dash-stat-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em}
-.dash-stat-value{font-size:28px;font-weight:800;line-height:1;letter-spacing:-.03em}
-.dash-stat-sub{font-size:10px;color:var(--t3)}
-.dash-progress-card{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;margin-bottom:12px}
-.dash-progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.dash-progress-title{font-size:13px;font-weight:600;color:var(--t1)}
-.dash-progress-pct{font-size:13px;font-weight:700}
-.dash-phase-bars{display:flex;flex-direction:column;gap:7px}
-.dash-phase-bar-row{display:flex;align-items:center;gap:8px}
-.dash-phase-icon{font-size:13px;width:18px;text-align:center;flex-shrink:0}
-.dash-phase-name{font-size:10px;color:var(--t2);width:60px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dash-phase-track{flex:1;height:4px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.dash-stat-accent{position:absolute;top:0;left:0;width:3px;height:100%;border-radius:var(--radius-lg) 0 0 var(--radius-lg)}
+.dash-stat-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.09em;font-weight:600}
+.dash-stat-value{font-size:30px;font-weight:800;line-height:1;letter-spacing:-.04em;transition:color .3s}
+.dash-stat-sub{font-size:11px;color:var(--t3)}
+
+.dash-progress-card{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--radius-lg);padding:18px;margin-bottom:12px}
+.dash-progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.dash-progress-title{font-size:13px;font-weight:700;color:var(--t1);letter-spacing:-.01em}
+.dash-progress-pct{font-size:14px;font-weight:800;letter-spacing:-.02em}
+
+.dash-phase-bars{display:flex;flex-direction:column;gap:9px}
+.dash-phase-bar-row{display:flex;align-items:center;gap:10px;cursor:pointer;padding:3px 0;border-radius:var(--radius-sm);transition:all var(--transition)}
+.dash-phase-bar-row:hover{opacity:.8}
+.dash-phase-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0}
+.dash-phase-name{font-size:11px;color:var(--t2);width:64px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.dash-phase-track{flex:1;height:3px;background:var(--bdr);border-radius:2px;overflow:hidden}
 .dash-phase-fill{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-.dash-phase-pct{font-size:9px;color:var(--t3);width:28px;text-align:right;flex-shrink:0}
-.dash-resume-card{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;margin-bottom:12px}
-.dash-resume-card:hover{border-color:var(--bdr2);transform:translateY(-1px)}
+.dash-phase-pct{font-size:10px;color:var(--t3);width:30px;text-align:right;flex-shrink:0;font-weight:600;font-family:monospace}
+
+.dash-resume-card{
+  background:var(--s1);border:1px solid var(--bdr);border-radius:var(--radius-lg);
+  padding:16px 18px;display:flex;align-items:center;gap:14px;
+  cursor:pointer;transition:all var(--transition);margin-bottom:12px;
+}
+.dash-resume-card:hover{border-color:var(--accent-bd);background:var(--accent-bg);transform:translateY(-1px)}
 .dash-resume-info{flex:1;min-width:0}
-.dash-resume-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
-.dash-resume-step{font-size:14px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dash-resume-phase{font-size:11px;color:var(--t2);margin-top:2px}
+.dash-resume-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:4px;font-weight:600}
+.dash-resume-step{font-size:15px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em}
+.dash-resume-phase{font-size:12px;color:var(--t2);margin-top:2px;font-weight:500}
 .dash-resume-arrow{font-size:18px;color:var(--t3);flex-shrink:0}
-.dash-findings-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px}
-.dash-sev-chip{background:var(--s2);border:1px solid var(--bdr);border-radius:8px;padding:10px 8px;text-align:center;border-top:3px solid transparent;transition:border-color .15s}
-.dash-sev-chip:hover{border-color:inherit}
-.dash-sev-num{font-size:22px;font-weight:800;line-height:1}
-.dash-sev-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
-.dash-eng-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-.dash-eng-name{font-size:18px;font-weight:700;color:var(--t1);letter-spacing:-.02em}
-.dash-eng-meta{font-size:11px;color:var(--t2);margin-top:3px}
-.dash-quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.dash-action-btn{background:var(--s2);border:1px solid var(--bdr);border-radius:8px;padding:8px 14px;font-size:11px;color:var(--t2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:all .15s}
+
+.dash-findings-row{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:12px}
+.dash-sev-chip{
+  background:var(--s1);border:1px solid var(--bdr);border-radius:var(--radius-lg);
+  padding:12px 8px;text-align:center;
+  border-top:3px solid transparent;
+  transition:all var(--transition);cursor:pointer;
+}
+.dash-sev-chip:hover{transform:translateY(-2px);border-color:inherit}
+.dash-sev-num{font-size:24px;font-weight:800;line-height:1;letter-spacing:-.04em}
+.dash-sev-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-top:4px;font-weight:600}
+
+.dash-eng-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.dash-eng-name{font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-.04em}
+.dash-eng-meta{font-size:12px;color:var(--t2);margin-top:4px;font-weight:500}
+
+.dash-quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.dash-action-btn{
+  background:var(--s2);border:1px solid var(--bdr);border-radius:var(--radius-sm);
+  padding:8px 16px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;gap:7px;
+  transition:all var(--transition);letter-spacing:-.01em;
+}
 .dash-action-btn:hover{border-color:var(--bdr2);color:var(--t1)}
-.dash-timer-badge{display:inline-flex;align-items:center;gap:5px;background:#052210;border:1px solid #14532d;border-radius:6px;padding:3px 8px;font-size:11px;color:#22c55e;font-family:monospace}
-.dash-timer-badge.active{background:#1a0820;border-color:#7c3aed;color:#c4b5fd;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+
+.dash-timer-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--c-low-bg);border:1px solid rgba(34,198,90,.25);
+  border-radius:var(--radius-sm);padding:4px 10px;
+  font-size:12px;color:var(--c-low);font-family:monospace;font-weight:600;
+}
+.dash-timer-badge.active{
+  background:var(--accent-bg);border-color:var(--accent-bd);color:var(--accent-hi);
+  animation:pulse 2.5s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.65}}
+
 @media(min-width:640px){.dash-grid{grid-template-columns:repeat(4,1fr)}}

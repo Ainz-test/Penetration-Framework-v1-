@@ -1,108 +1,97 @@
-/* SCROLLBARS */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Responsive + Mobile navigation rules
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Scrollbars */
 ::-webkit-scrollbar{width:3px;height:3px}
 ::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
 ::-webkit-scrollbar-track{background:transparent}
 
-/* ── MOBILE NAVIGATION FIX ──────────────────────────────────────────────
-   On mobile (<640px): secnav HIDDEN (replaced by bottom tab bar),
-   bottomnav VISIBLE with sections.
-   On tablet (640px+): secnav VISIBLE, bottomnav HIDDEN.
-   On desktop (1024px+): secnav VISIBLE, bottomnav + phasenav HIDDEN (sidebar). */
-
-/* Mobile default: hide the top section nav, show bottom section tabs */
+/* ── Mobile default (<640px) ── */
+/* On mobile: top secnav is HIDDEN, bottom tab bar shows SECTIONS */
 #secnav{display:none}
 #bottomnav{display:flex}
 
-/* Phase nav pills: already styled in layout.css, shown/hidden by JS */
-
-/* RESPONSIVE */
-@media (min-width: 640px) {
-  #drawer{width:300px}
-  /* Tablet+: secnav visible at top, bottom tab bar hidden */
-  #secnav{display:flex !important}
-  #bottomnav{display:none !important}
-  .sec-body{padding:18px 24px}
-  .scope-grid{padding:18px 24px}
+/* ── Tablet (640px+) ── */
+@media(min-width:640px){
+  #drawer{width:310px}
+  #secnav{display:flex !important}   /* top nav visible */
+  #bottomnav{display:none !important} /* bottom tab bar hidden */
+  .sec-body{padding:22px 28px}
+  .scope-grid{padding:22px 28px}
 }
-@media (min-width: 1024px) {
+
+/* ── Desktop (1024px+) ── */
+@media(min-width:1024px){
   #hambtn{display:none !important}
   #phasenav{display:none !important}
   #bottomnav{display:none !important}
   #mask{display:none !important}
-  #drawer{position:relative !important;transform:none !important;width:260px !important;transition:none !important;flex-shrink:0;height:100%;display:flex;flex-direction:column}
+  #drawer{
+    position:relative !important;transform:none !important;
+    width:270px !important;transition:none !important;
+    flex-shrink:0;height:100%;display:flex;flex-direction:column;
+  }
   .sidebar-phases{display:flex !important}
-  #content{padding:20px 24px}
-  .cmdcard:hover{box-shadow:0 4px 20px rgba(0,0,0,.4);border-color:var(--bdr2)}
+  #content{padding:24px 28px}
+  .cmdcard:hover{box-shadow:0 4px 24px rgba(0,0,0,.4)}
   .chklist{display:grid;grid-template-columns:1fr 1fr}
   .chkitem{border-right:1px solid rgba(255,255,255,.03)}
   .chkitem:nth-child(2n){border-right:none}
-  .deblk{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .deblk{display:grid;grid-template-columns:1fr 1fr;gap:9px}
   .notebox,.outbox{grid-column:1/-1}
-  .detail-panel{width:520px}
-  .scope-grid{grid-template-columns:1fr 1fr 1fr}
-}
-@media (min-width: 1280px) {
-  #drawer{width:280px !important}
-  #content{padding:22px 28px}
+  .detail-panel{width:540px}
 }
 
-/* ACCESSIBILITY: keyboard focus + reduced motion */
-button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid #4f6ef7;outline-offset:2px}
-@media (prefers-reduced-motion: reduce){
-  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
+@media(min-width:1280px){
+  #drawer{width:290px !important}
+  #content{padding:26px 32px}
 }
 
-/* ── UI Quality Pass ──────────────────────────────────────────────────── */
-.cmdtitle{font-size:12.5px;font-weight:700;color:var(--t1);margin-bottom:2px;letter-spacing:-.01em}
-.cmdpurpose{font-size:10.5px;color:#8888a8}
-#engbtn{max-width:160px;font-size:11.5px;color:var(--t1);gap:5px}
-#engbtn:hover{color:#93c5fd}
-.sphtitle{font-size:17px;font-weight:800;color:var(--t1);letter-spacing:-.03em}
-.finding-title{font-size:13.5px}
-.sec-title{font-size:19px;font-weight:800;letter-spacing:-.03em}
-.card{transition:border-color .15s}
-.card:hover{border-color:var(--bdr2)}
-#topbar{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:rgba(14,14,26,.92)}
-.empty{color:var(--t3);font-size:13px;text-align:center;padding:48px 24px;line-height:2;display:flex;flex-direction:column;align-items:center;gap:6px}
-.chkitem{transition:background .1s,opacity .15s}
-.chkitem.done .chktxt{opacity:.55}
-.sec-body{-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
-.badge{font-size:9px;padding:2px 7px;letter-spacing:.06em;border-radius:5px}
-.dash-stat-value{transition:color .3s}
-.notebox{border-radius:8px;line-height:1.6}
-.outbox{border-radius:8px;line-height:1.6}
-
-/* ── iPhone Pro Max tuning (430px+) ─────────────────────────────────── */
-@media (min-width:390px) and (max-width:639px){
-  /* Phase pills: slightly larger for Pro Max fingers */
-  .ptab{padding:7px 15px}
+/* ── iPhone Pro Max (390px+, portrait) ── */
+@media(min-width:390px) and (max-width:639px){
+  .ptab{padding:7px 16px}
   .ptab .pico{font-size:15px}
   .ptab .plbl{font-size:12px}
-  /* Bottom tabs */
-  .bni{min-height:58px;padding:10px 4px 8px}
+  .bni{min-height:58px;padding:10px 4px 9px}
   .bni-icon{font-size:24px}
   .bni-lbl{font-size:11px}
-  /* Content padding */
-  #content{padding:16px}
-  .sec-body{padding:14px 16px}
-  /* Step header */
-  .sphtitle{font-size:18px}
-  /* Topbar: remove decorative dots on small screens to save space */
+  #content{padding:18px}
+  .sec-body{padding:16px 18px}
+  .sphtitle{font-size:23px}
+  .sec-title{font-size:23px}
+  /* Hide decorative dots on small screens */
   .dots{display:none}
+  /* Larger base font */
+  body{font-size:15px}
 }
 
-/* Finding panel slides up as bottom sheet on mobile */
+/* ── Mobile finding panel — bottom sheet ── */
 @media(max-width:639px){
-  .detail-panel{width:100%;left:auto !important;right:0 !important;border-left:none;
-    border-top:1px solid var(--bdr);top:auto;bottom:-100%;height:92vh;
-    border-radius:20px 20px 0 0;transition:bottom .32s cubic-bezier(.32,0,.67,0)}
+  .detail-panel{
+    width:100%;left:auto !important;right:0 !important;
+    border-left:none;
+    border-top:1px solid var(--bdr2);
+    top:auto;bottom:-100%;height:94vh;
+    border-radius:22px 22px 0 0;
+    transition:bottom .32s cubic-bezier(.32,0,.67,0);
+    box-shadow:0 -24px 60px rgba(0,0,0,.6);
+  }
   .detail-panel.open{bottom:0 !important;right:0 !important}
   .cvss-grid{grid-template-columns:repeat(2,1fr)}
-  .cvss-sel{font-size:12px;padding:5px 6px}
-  /* Reduce padding on mobile card bodies */
-  .card-body{padding:12px}
-  .sec-hdr{padding:12px 16px;gap:8px}
-  .sec-body{padding:12px 16px;gap:10px}
-  .detail-body{padding:14px}
+  .cvss-sel{font-size:12px;padding:6px 7px}
+  .card-body{padding:14px}
+  .sec-hdr{padding:14px 18px;gap:10px}
+  .sec-body{padding:14px 18px;gap:12px}
+  .detail-body{padding:16px}
+  #content{padding:16px}
 }
 
+/* ── Accessibility ── */
+button:focus-visible,input:focus-visible,textarea:focus-visible,
+select:focus-visible,a:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
+}
