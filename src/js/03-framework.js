@@ -81,13 +81,96 @@ function rPhaseNav(){
     });
     var pct=totPh?Math.round(donePh/totPh*100):0;
     var on=p.id===APP.phase;
-    h+='<button class="ptab'+(on?' on':'')+'" onclick="selectPhase(\''+p.id+'\')" style="border-bottom-color:'+(on?p.color:'transparent')+'">'
+    var col=on?p.color:'';
+    h+='<button class="ptab'+(on?' on':'')+'" onclick="selectPhase(\''+p.id+'\')" '
+      +'style="'+(on?'background:'+col+';box-shadow:0 2px 8px '+col+'44;':'')+'">'
       +'<span class="pico">'+p.icon+'</span>'
-      +'<span class="plbl" style="color:'+(on?p.color:'var(--t2)')+'">'+esc(tx(p.short))+'</span>'
+      +'<span class="plbl">'+esc(tx(p.short))+'</span>'
+      +(pct===100?'<span class="ptab-done"></span>':'')
       +'</button>';
   });
-  document.getElementById('phasenav').innerHTML=h;
+  var el=document.getElementById('phasenav');
+  if(el){
+    el.innerHTML=h;
+    // Scroll active phase into view
+    setTimeout(function(){
+      var activeBtn=el.querySelector('.ptab.on');
+      if(activeBtn&&activeBtn.scrollIntoView)activeBtn.scrollIntoView({inline:'nearest',block:'nearest',behavior:'smooth'});
+    },80);
+  }
 }
+
+/* ── Section tab bar — PRIMARY navigation on mobile ─────────────────── */
+var BTM_SECTIONS = [
+  {id:'dashboard',icon:'🏠'},
+  {id:'framework',icon:'📋'},
+  {id:'findings',icon:'🔍'},
+  {id:'scope',icon:'🎯'},
+  {id:'_more',icon:'⋯'},
+];
+
+function rBN(){
+  var el=document.getElementById('bottomnav');
+  if(!el)return;
+  var h='';
+  BTM_SECTIONS.forEach(function(s){
+    var isOn=APP.section===s.id;
+    var lbl='';
+    if(s.id==='dashboard') lbl=t('dash_title');
+    else if(s.id==='framework') lbl=t('nav_framework');
+    else if(s.id==='findings') lbl=t('nav_findings');
+    else if(s.id==='scope') lbl=t('nav_scope');
+    else if(s.id==='_more') lbl=t('nav_more');
+    h+='<button class="bni'+(isOn?' on':'')+'" onclick="'+(s.id==='_more'?'showMoreSheet()':'setSection(\''+s.id+'\')')+'">'
+      +'<span class="bni-icon">'+s.icon+'</span>'
+      +'<span class="bni-lbl">'+esc(lbl)+'</span>'
+      +'</button>';
+  });
+  el.innerHTML=h;
+}
+
+var MORE_SECTIONS = [
+  {id:'tools',     icon:'🔧'},
+  {id:'payloads',  icon:'⚡'},
+  {id:'report',    icon:'📊'},
+  {id:'killchain', icon:'🔗'},
+  {id:'timer',     icon:'⏱'},
+  {id:'profiles',  icon:'👤'},
+  {id:'settings',  icon:'⚙️'},
+];
+
+function showMoreSheet(){
+  var existing=document.getElementById('more_sheet');
+  if(existing){existing.remove();return;}
+  var el=document.createElement('div');
+  el.id='more_sheet';
+  el.className='';
+  el.setAttribute('style','position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)');
+  var inner='<div class="more-inner">'
+    +'<div class="more-handle"></div>'
+    +'<div class="more-title">'+t('nav_more_title')+'</div>'
+    +'<div class="more-grid">';
+  MORE_SECTIONS.forEach(function(s){
+    var isOn=APP.section===s.id;
+    var lbl='';
+    if(s.id==='tools') lbl=t('nav_tools');
+    else if(s.id==='payloads') lbl=t('nav_payloads');
+    else if(s.id==='report') lbl=t('nav_report');
+    else if(s.id==='killchain') lbl=t('nav_killchain');
+    else if(s.id==='timer') lbl=t('nav_timer');
+    else if(s.id==='profiles') lbl=t('nav_profiles');
+    else if(s.id==='settings') lbl=t('nav_settings');
+    inner+='<button class="more-btn'+(isOn?' on':'')+'" onclick="setSection(\''+s.id+'\');document.getElementById(\'more_sheet\').remove()">'
+      +'<span class="more-btn-icon">'+s.icon+'</span>'
+      +'<span class="more-btn-lbl">'+esc(lbl)+'</span>'
+      +'</button>';
+  });
+  inner+='</div></div>';
+  el.innerHTML=inner;
+  el.addEventListener('click',function(e){if(e.target===el)el.remove();});
+  document.body.appendChild(el);
+}
+
 
 function rStepHdr(){
   var ph=getPhase(APP.phase);
@@ -333,22 +416,6 @@ function rStepNav(){
 function prevStep(){var ph=getPhase(APP.phase);var si=stepIdx(ph);if(si>0){APP.step=ph.steps[si-1].id;psave('step',APP.step);renderAll();}}
 function nextStep(){var ph=getPhase(APP.phase);var steps=ph.steps;var si=stepIdx(ph);if(si<steps.length-1){APP.step=steps[si+1].id;psave('step',APP.step);renderAll();}}
 
-function rBN(){
-  var h='';
-  PHASES.forEach(function(p){
-    var totPh=0,donePh=0;
-    (p.steps||[]).forEach(function(st){
-      (st.checklist||[]).forEach(function(c,i){totPh++;if(APP.ck[st.id+'_'+i])donePh++;});
-    });
-    var pct=totPh?Math.round(donePh/totPh*100):0;
-    var on=p.id===APP.phase;
-    h+='<button class="bni" onclick="selectPhase(\''+p.id+'\')" style="border-top-color:'+(on?p.color:'transparent')+'">'
-      +'<span style="font-size:14px">'+p.icon+'</span>'
-      +'<span style="font-size:8px;color:'+(on?p.color:'var(--t3)')+'">'+esc(tx(p.short))+'</span>'
-      +'</button>';
-  });
-  document.getElementById('bottomnav').innerHTML=h;
-}
 
 function updateRing(){
   var tot=0,done=0;

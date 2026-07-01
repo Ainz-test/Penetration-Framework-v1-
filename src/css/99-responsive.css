@@ -3,10 +3,24 @@
 ::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
 ::-webkit-scrollbar-track{background:transparent}
 
+/* ── MOBILE NAVIGATION FIX ──────────────────────────────────────────────
+   On mobile (<640px): secnav HIDDEN (replaced by bottom tab bar),
+   bottomnav VISIBLE with sections.
+   On tablet (640px+): secnav VISIBLE, bottomnav HIDDEN.
+   On desktop (1024px+): secnav VISIBLE, bottomnav + phasenav HIDDEN (sidebar). */
+
+/* Mobile default: hide the top section nav, show bottom section tabs */
+#secnav{display:none}
+#bottomnav{display:flex}
+
+/* Phase nav pills: already styled in layout.css, shown/hidden by JS */
+
 /* RESPONSIVE */
 @media (min-width: 640px) {
   #drawer{width:300px}
-  #bottomnav{display:none}
+  /* Tablet+: secnav visible at top, bottom tab bar hidden */
+  #secnav{display:flex !important}
+  #bottomnav{display:none !important}
   .sec-body{padding:18px 24px}
   .scope-grid{padding:18px 24px}
 }
@@ -39,54 +53,56 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 }
 
 /* ── UI Quality Pass ──────────────────────────────────────────────────── */
-/* Stronger visual hierarchy in command cards */
 .cmdtitle{font-size:12.5px;font-weight:700;color:var(--t1);margin-bottom:2px;letter-spacing:-.01em}
 .cmdpurpose{font-size:10.5px;color:#8888a8}
-
-/* Better topbar engagement button */
 #engbtn{max-width:160px;font-size:11.5px;color:var(--t1);gap:5px}
 #engbtn:hover{color:#93c5fd}
-
-/* Improved step header readability */
 .sphtitle{font-size:17px;font-weight:800;color:var(--t1);letter-spacing:-.03em}
-
-/* Findings section improvement */
 .finding-title{font-size:13.5px}
 .sec-title{font-size:19px;font-weight:800;letter-spacing:-.03em}
-
-/* Better card hover state */
 .card{transition:border-color .15s}
 .card:hover{border-color:var(--bdr2)}
-
-/* Phase nav on mobile: larger touch targets */
-.ptab{padding:6px 10px 4px;min-width:62px}
-
-/* Subtle glass effect on topbar at top of scroll */
 #topbar{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:rgba(14,14,26,.92)}
-
-/* Better empty state */
 .empty{color:var(--t3);font-size:13px;text-align:center;padding:48px 24px;line-height:2;display:flex;flex-direction:column;align-items:center;gap:6px}
-
-/* Smoother checklist transitions */
 .chkitem{transition:background .1s,opacity .15s}
 .chkitem.done .chktxt{opacity:.55}
-
-/* Improve section body scrolling on iOS */
 .sec-body{-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
-
-/* Better badge contrast */
 .badge{font-size:9px;padding:2px 7px;letter-spacing:.06em;border-radius:5px}
-
-/* Animate stat values on dashboard */
 .dash-stat-value{transition:color .3s}
-
-/* Better notebox */
 .notebox{border-radius:8px;line-height:1.6}
 .outbox{border-radius:8px;line-height:1.6}
 
-/* Improved finding panel on mobile */
-@media(max-width:480px){
-  .detail-panel{width:100%;left:auto;right:-100%;border-left:none;border-top:1px solid var(--bdr);top:auto;bottom:-100%;height:90vh;border-radius:14px 14px 0 0;transition:bottom .3s cubic-bezier(.4,0,.2,1)}
-  .detail-panel.open{bottom:0;right:auto}
-  .cvss-grid{grid-template-columns:repeat(2,1fr)}
+/* ── iPhone Pro Max tuning (430px+) ─────────────────────────────────── */
+@media (min-width:390px) and (max-width:639px){
+  /* Phase pills: slightly larger for Pro Max fingers */
+  .ptab{padding:7px 15px}
+  .ptab .pico{font-size:15px}
+  .ptab .plbl{font-size:12px}
+  /* Bottom tabs */
+  .bni{min-height:58px;padding:10px 4px 8px}
+  .bni-icon{font-size:24px}
+  .bni-lbl{font-size:11px}
+  /* Content padding */
+  #content{padding:16px}
+  .sec-body{padding:14px 16px}
+  /* Step header */
+  .sphtitle{font-size:18px}
+  /* Topbar: remove decorative dots on small screens to save space */
+  .dots{display:none}
 }
+
+/* Finding panel slides up as bottom sheet on mobile */
+@media(max-width:639px){
+  .detail-panel{width:100%;left:auto !important;right:0 !important;border-left:none;
+    border-top:1px solid var(--bdr);top:auto;bottom:-100%;height:92vh;
+    border-radius:20px 20px 0 0;transition:bottom .32s cubic-bezier(.32,0,.67,0)}
+  .detail-panel.open{bottom:0 !important;right:0 !important}
+  .cvss-grid{grid-template-columns:repeat(2,1fr)}
+  .cvss-sel{font-size:12px;padding:5px 6px}
+  /* Reduce padding on mobile card bodies */
+  .card-body{padding:12px}
+  .sec-hdr{padding:12px 16px;gap:8px}
+  .sec-body{padding:12px 16px;gap:10px}
+  .detail-body{padding:14px}
+}
+

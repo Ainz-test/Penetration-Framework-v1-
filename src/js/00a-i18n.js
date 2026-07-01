@@ -20,6 +20,9 @@ var I18N = {
   nav_timer:{en:'Timer',ar:'المؤقت'},
   nav_profiles:{en:'Profiles',ar:'الملفات'},
   nav_settings:{en:'AI + Settings',ar:'الذكاء الاصطناعي والإعدادات'},
+  nav_more:{en:'More',ar:'المزيد'},
+  nav_more_title:{en:'More Sections',ar:'أقسام إضافية'},
+  nav_home:{en:'Home',ar:'الرئيسية'},
   loading:{en:'Loading...',ar:'جارٍ التحميل...'},
 
   // framework: tabs / step nav / commands

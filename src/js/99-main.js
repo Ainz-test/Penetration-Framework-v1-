@@ -16,12 +16,13 @@ window.addEventListener('DOMContentLoaded',function(){
     var langBtn=document.getElementById('langbtn');
     if(langBtn)langBtn.textContent=APP.lang==='ar'?'EN':'AR';
     applyStaticTranslations();
-    setSection('framework');
+    // Populate the bottom section tab bar before first section renders
+    rBN();
+    setSection('dashboard');  // start on Dashboard overview
+    // phasenav and wrap are shown/hidden by setSection when switching to framework
     var pnav=document.getElementById('phasenav');
-    if(pnav)pnav.style.display='';
+    if(pnav)pnav.style.display='none';   // hidden until Framework is selected
     var wrap=document.getElementById('wrap');
-    if(wrap)wrap.style.display='';
-    var bn=document.getElementById('bottomnav');
-    if(bn)bn.style.display='';
+    if(wrap)wrap.style.display='none';   // same
   });
 });

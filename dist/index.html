@@ -63,12 +63,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .secbtn:hover{color:var(--t1)}
 
 /* PHASE NAV (framework only) */
-#phasenav{background:var(--s1);border-bottom:1px solid var(--bdr);display:flex;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+/* PHASE NAV — horizontal scrolling pills, only visible inside Framework */
+#phasenav{background:var(--s1);border-bottom:1px solid var(--bdr);display:flex;overflow-x:auto;padding:8px 12px;gap:7px;flex-shrink:0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 #phasenav::-webkit-scrollbar{display:none}
-.ptab{background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 9px 3px;min-width:58px;transition:border-color .2s;flex-shrink:0}
-.ptab .pico{font-size:13px}
-.ptab .plbl{font-size:9px;letter-spacing:.04em;color:var(--t2)}
-.ptab.on .plbl{font-weight:700}
+.ptab{background:var(--s2);border:1px solid var(--bdr);border-radius:99px;cursor:pointer;padding:6px 13px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;font-family:inherit;transition:all .2s cubic-bezier(.4,0,.2,1);flex-shrink:0}
+.ptab:hover{border-color:var(--bdr2)}
+.ptab .pico{font-size:14px;line-height:1}
+.ptab .plbl{font-size:11px;font-weight:500;color:var(--t2)}
+.ptab.on{border-color:transparent;color:#fff;font-weight:700}
+.ptab.on .plbl{color:#fff;font-weight:700}
+.ptab-done{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);flex-shrink:0}
 
 /* WRAP + DRAWER */
 #wrap{flex:1;display:flex;overflow:hidden;position:relative}
@@ -111,9 +115,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .snbtn:disabled{opacity:.3;cursor:not-allowed}
 .sdots{display:flex;gap:4px;align-items:center}
 .sdot{height:6px;border-radius:3px;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);flex-shrink:0;min-width:6px}
-#bottomnav{background:var(--s1);border-top:1px solid var(--bdr);display:flex;overflow-x:auto;padding-bottom:calc(3px + var(--sab));flex-shrink:0;scrollbar-width:none}
-#bottomnav::-webkit-scrollbar{display:none}
-.bni{background:none;border:none;border-top:2px solid transparent;cursor:pointer;font-family:inherit;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 8px;min-width:50px;flex-shrink:0}
+/* BOTTOM TAB BAR — primary section navigation on mobile, always visible */
+#bottomnav{background:rgba(11,11,20,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:0.5px solid rgba(255,255,255,.08);display:flex;justify-content:space-around;align-items:stretch;flex-shrink:0;padding-bottom:var(--sab)}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:9px 4px 7px;background:none;border:none;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;min-height:54px}
+.bni-icon{font-size:22px;line-height:1;display:block;transition:transform .18s cubic-bezier(.4,0,.2,1)}
+.bni-lbl{font-size:10px;color:var(--t3);font-weight:500;letter-spacing:.01em;transition:color .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:58px;text-align:center}
+.bni.on .bni-icon{transform:scale(1.08)}
+.bni.on .bni-lbl{color:#4f6ef7;font-weight:700}
+/* More-sheet overlay */
+#more_sheet{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.more-inner{position:absolute;bottom:0;left:0;right:0;background:var(--s1);border-radius:22px 22px 0 0;border-top:1px solid var(--bdr);padding:10px 16px 0;padding-bottom:calc(16px + var(--sab))}
+.more-handle{width:40px;height:4px;background:var(--bdr2);border-radius:2px;margin:0 auto 18px}
+.more-title{font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.more-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:8px}
+.more-btn{background:var(--s2);border:1px solid var(--bdr);border-radius:14px;padding:14px 6px 12px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;font-family:inherit;transition:all .15s}
+.more-btn:hover,.more-btn.on{border-color:#3b5bdb;background:#1e1e3a}
+.more-btn-icon{font-size:24px;line-height:1}
+.more-btn-lbl{font-size:10px;color:var(--t2);text-align:center;line-height:1.2}
 
 /* SECTION BODY (non-framework sections) */
 #secbody{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
@@ -125,7 +143,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .si svg{width:100%;height:100%;fill:currentColor}
 
 /* Phase nav also gets a subtle underline indicator */
-.ptab.on::after{content:'';display:block;height:2px;border-radius:1px;margin-top:2px}
+/* ptab.on::after removed — pill design handles active state */
 
 /* Section nav icon sizing */
 .secbtn .sico{font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;height:20px}
@@ -496,10 +514,24 @@ body.rtl .badge,body.rtl .tool-free,body.rtl .flagkey{direction:ltr}
 ::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
 ::-webkit-scrollbar-track{background:transparent}
 
+/* ── MOBILE NAVIGATION FIX ──────────────────────────────────────────────
+   On mobile (<640px): secnav HIDDEN (replaced by bottom tab bar),
+   bottomnav VISIBLE with sections.
+   On tablet (640px+): secnav VISIBLE, bottomnav HIDDEN.
+   On desktop (1024px+): secnav VISIBLE, bottomnav + phasenav HIDDEN (sidebar). */
+
+/* Mobile default: hide the top section nav, show bottom section tabs */
+#secnav{display:none}
+#bottomnav{display:flex}
+
+/* Phase nav pills: already styled in layout.css, shown/hidden by JS */
+
 /* RESPONSIVE */
 @media (min-width: 640px) {
   #drawer{width:300px}
-  #bottomnav{display:none}
+  /* Tablet+: secnav visible at top, bottom tab bar hidden */
+  #secnav{display:flex !important}
+  #bottomnav{display:none !important}
   .sec-body{padding:18px 24px}
   .scope-grid{padding:18px 24px}
 }
@@ -532,57 +564,59 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 }
 
 /* ── UI Quality Pass ──────────────────────────────────────────────────── */
-/* Stronger visual hierarchy in command cards */
 .cmdtitle{font-size:12.5px;font-weight:700;color:var(--t1);margin-bottom:2px;letter-spacing:-.01em}
 .cmdpurpose{font-size:10.5px;color:#8888a8}
-
-/* Better topbar engagement button */
 #engbtn{max-width:160px;font-size:11.5px;color:var(--t1);gap:5px}
 #engbtn:hover{color:#93c5fd}
-
-/* Improved step header readability */
 .sphtitle{font-size:17px;font-weight:800;color:var(--t1);letter-spacing:-.03em}
-
-/* Findings section improvement */
 .finding-title{font-size:13.5px}
 .sec-title{font-size:19px;font-weight:800;letter-spacing:-.03em}
-
-/* Better card hover state */
 .card{transition:border-color .15s}
 .card:hover{border-color:var(--bdr2)}
-
-/* Phase nav on mobile: larger touch targets */
-.ptab{padding:6px 10px 4px;min-width:62px}
-
-/* Subtle glass effect on topbar at top of scroll */
 #topbar{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:rgba(14,14,26,.92)}
-
-/* Better empty state */
 .empty{color:var(--t3);font-size:13px;text-align:center;padding:48px 24px;line-height:2;display:flex;flex-direction:column;align-items:center;gap:6px}
-
-/* Smoother checklist transitions */
 .chkitem{transition:background .1s,opacity .15s}
 .chkitem.done .chktxt{opacity:.55}
-
-/* Improve section body scrolling on iOS */
 .sec-body{-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
-
-/* Better badge contrast */
 .badge{font-size:9px;padding:2px 7px;letter-spacing:.06em;border-radius:5px}
-
-/* Animate stat values on dashboard */
 .dash-stat-value{transition:color .3s}
-
-/* Better notebox */
 .notebox{border-radius:8px;line-height:1.6}
 .outbox{border-radius:8px;line-height:1.6}
 
-/* Improved finding panel on mobile */
-@media(max-width:480px){
-  .detail-panel{width:100%;left:auto;right:-100%;border-left:none;border-top:1px solid var(--bdr);top:auto;bottom:-100%;height:90vh;border-radius:14px 14px 0 0;transition:bottom .3s cubic-bezier(.4,0,.2,1)}
-  .detail-panel.open{bottom:0;right:auto}
-  .cvss-grid{grid-template-columns:repeat(2,1fr)}
+/* ── iPhone Pro Max tuning (430px+) ─────────────────────────────────── */
+@media (min-width:390px) and (max-width:639px){
+  /* Phase pills: slightly larger for Pro Max fingers */
+  .ptab{padding:7px 15px}
+  .ptab .pico{font-size:15px}
+  .ptab .plbl{font-size:12px}
+  /* Bottom tabs */
+  .bni{min-height:58px;padding:10px 4px 8px}
+  .bni-icon{font-size:24px}
+  .bni-lbl{font-size:11px}
+  /* Content padding */
+  #content{padding:16px}
+  .sec-body{padding:14px 16px}
+  /* Step header */
+  .sphtitle{font-size:18px}
+  /* Topbar: remove decorative dots on small screens to save space */
+  .dots{display:none}
 }
+
+/* Finding panel slides up as bottom sheet on mobile */
+@media(max-width:639px){
+  .detail-panel{width:100%;left:auto !important;right:0 !important;border-left:none;
+    border-top:1px solid var(--bdr);top:auto;bottom:-100%;height:92vh;
+    border-radius:20px 20px 0 0;transition:bottom .32s cubic-bezier(.32,0,.67,0)}
+  .detail-panel.open{bottom:0 !important;right:0 !important}
+  .cvss-grid{grid-template-columns:repeat(2,1fr)}
+  .cvss-sel{font-size:12px;padding:5px 6px}
+  /* Reduce padding on mobile card bodies */
+  .card-body{padding:12px}
+  .sec-hdr{padding:12px 16px;gap:8px}
+  .sec-body{padding:12px 16px;gap:10px}
+  .detail-body{padding:14px}
+}
+
 
 </style>
 </head>
@@ -748,6 +782,9 @@ var I18N = {
   nav_timer:{en:'Timer',ar:'المؤقت'},
   nav_profiles:{en:'Profiles',ar:'الملفات'},
   nav_settings:{en:'AI + Settings',ar:'الذكاء الاصطناعي والإعدادات'},
+  nav_more:{en:'More',ar:'المزيد'},
+  nav_more_title:{en:'More Sections',ar:'أقسام إضافية'},
+  nav_home:{en:'Home',ar:'الرئيسية'},
   loading:{en:'Loading...',ar:'جارٍ التحميل...'},
 
   // framework: tabs / step nav / commands
@@ -1381,12 +1418,16 @@ function ringHTML(pct,col,sz,lbl){
 
 function setSection(s){
   APP.section=s;
+  // Update desktop secnav active state (tablet/desktop)
   document.querySelectorAll('.secbtn').forEach(function(b){b.classList.toggle('on',b.dataset.sec===s);});
   var isF=s==='framework';
-  ['phasenav','wrap','bottomnav'].forEach(function(id){
+  // phasenav + wrap only visible in Framework; bottomnav ALWAYS stays visible
+  ['phasenav','wrap'].forEach(function(id){
     var el=document.getElementById(id);
     if(el)el.style.display=isF?'':'none';
   });
+  // Always update and show the section bottom tab bar
+  rBN();
   var sb=document.getElementById('secbody');
   var srch=document.getElementById('searchbox');
   if(isF){
@@ -1495,13 +1536,96 @@ function rPhaseNav(){
     });
     var pct=totPh?Math.round(donePh/totPh*100):0;
     var on=p.id===APP.phase;
-    h+='<button class="ptab'+(on?' on':'')+'" onclick="selectPhase(\''+p.id+'\')" style="border-bottom-color:'+(on?p.color:'transparent')+'">'
+    var col=on?p.color:'';
+    h+='<button class="ptab'+(on?' on':'')+'" onclick="selectPhase(\''+p.id+'\')" '
+      +'style="'+(on?'background:'+col+';box-shadow:0 2px 8px '+col+'44;':'')+'">'
       +'<span class="pico">'+p.icon+'</span>'
-      +'<span class="plbl" style="color:'+(on?p.color:'var(--t2)')+'">'+esc(tx(p.short))+'</span>'
+      +'<span class="plbl">'+esc(tx(p.short))+'</span>'
+      +(pct===100?'<span class="ptab-done"></span>':'')
       +'</button>';
   });
-  document.getElementById('phasenav').innerHTML=h;
+  var el=document.getElementById('phasenav');
+  if(el){
+    el.innerHTML=h;
+    // Scroll active phase into view
+    setTimeout(function(){
+      var activeBtn=el.querySelector('.ptab.on');
+      if(activeBtn&&activeBtn.scrollIntoView)activeBtn.scrollIntoView({inline:'nearest',block:'nearest',behavior:'smooth'});
+    },80);
+  }
 }
+
+/* ── Section tab bar — PRIMARY navigation on mobile ─────────────────── */
+var BTM_SECTIONS = [
+  {id:'dashboard',icon:'🏠'},
+  {id:'framework',icon:'📋'},
+  {id:'findings',icon:'🔍'},
+  {id:'scope',icon:'🎯'},
+  {id:'_more',icon:'⋯'},
+];
+
+function rBN(){
+  var el=document.getElementById('bottomnav');
+  if(!el)return;
+  var h='';
+  BTM_SECTIONS.forEach(function(s){
+    var isOn=APP.section===s.id;
+    var lbl='';
+    if(s.id==='dashboard') lbl=t('dash_title');
+    else if(s.id==='framework') lbl=t('nav_framework');
+    else if(s.id==='findings') lbl=t('nav_findings');
+    else if(s.id==='scope') lbl=t('nav_scope');
+    else if(s.id==='_more') lbl=t('nav_more');
+    h+='<button class="bni'+(isOn?' on':'')+'" onclick="'+(s.id==='_more'?'showMoreSheet()':'setSection(\''+s.id+'\')')+'">'
+      +'<span class="bni-icon">'+s.icon+'</span>'
+      +'<span class="bni-lbl">'+esc(lbl)+'</span>'
+      +'</button>';
+  });
+  el.innerHTML=h;
+}
+
+var MORE_SECTIONS = [
+  {id:'tools',     icon:'🔧'},
+  {id:'payloads',  icon:'⚡'},
+  {id:'report',    icon:'📊'},
+  {id:'killchain', icon:'🔗'},
+  {id:'timer',     icon:'⏱'},
+  {id:'profiles',  icon:'👤'},
+  {id:'settings',  icon:'⚙️'},
+];
+
+function showMoreSheet(){
+  var existing=document.getElementById('more_sheet');
+  if(existing){existing.remove();return;}
+  var el=document.createElement('div');
+  el.id='more_sheet';
+  el.className='';
+  el.setAttribute('style','position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)');
+  var inner='<div class="more-inner">'
+    +'<div class="more-handle"></div>'
+    +'<div class="more-title">'+t('nav_more_title')+'</div>'
+    +'<div class="more-grid">';
+  MORE_SECTIONS.forEach(function(s){
+    var isOn=APP.section===s.id;
+    var lbl='';
+    if(s.id==='tools') lbl=t('nav_tools');
+    else if(s.id==='payloads') lbl=t('nav_payloads');
+    else if(s.id==='report') lbl=t('nav_report');
+    else if(s.id==='killchain') lbl=t('nav_killchain');
+    else if(s.id==='timer') lbl=t('nav_timer');
+    else if(s.id==='profiles') lbl=t('nav_profiles');
+    else if(s.id==='settings') lbl=t('nav_settings');
+    inner+='<button class="more-btn'+(isOn?' on':'')+'" onclick="setSection(\''+s.id+'\');document.getElementById(\'more_sheet\').remove()">'
+      +'<span class="more-btn-icon">'+s.icon+'</span>'
+      +'<span class="more-btn-lbl">'+esc(lbl)+'</span>'
+      +'</button>';
+  });
+  inner+='</div></div>';
+  el.innerHTML=inner;
+  el.addEventListener('click',function(e){if(e.target===el)el.remove();});
+  document.body.appendChild(el);
+}
+
 
 function rStepHdr(){
   var ph=getPhase(APP.phase);
@@ -1747,22 +1871,6 @@ function rStepNav(){
 function prevStep(){var ph=getPhase(APP.phase);var si=stepIdx(ph);if(si>0){APP.step=ph.steps[si-1].id;psave('step',APP.step);renderAll();}}
 function nextStep(){var ph=getPhase(APP.phase);var steps=ph.steps;var si=stepIdx(ph);if(si<steps.length-1){APP.step=steps[si+1].id;psave('step',APP.step);renderAll();}}
 
-function rBN(){
-  var h='';
-  PHASES.forEach(function(p){
-    var totPh=0,donePh=0;
-    (p.steps||[]).forEach(function(st){
-      (st.checklist||[]).forEach(function(c,i){totPh++;if(APP.ck[st.id+'_'+i])donePh++;});
-    });
-    var pct=totPh?Math.round(donePh/totPh*100):0;
-    var on=p.id===APP.phase;
-    h+='<button class="bni" onclick="selectPhase(\''+p.id+'\')" style="border-top-color:'+(on?p.color:'transparent')+'">'
-      +'<span style="font-size:14px">'+p.icon+'</span>'
-      +'<span style="font-size:8px;color:'+(on?p.color:'var(--t3)')+'">'+esc(tx(p.short))+'</span>'
-      +'</button>';
-  });
-  document.getElementById('bottomnav').innerHTML=h;
-}
 
 function updateRing(){
   var tot=0,done=0;
@@ -3455,13 +3563,14 @@ window.addEventListener('DOMContentLoaded',function(){
     var langBtn=document.getElementById('langbtn');
     if(langBtn)langBtn.textContent=APP.lang==='ar'?'EN':'AR';
     applyStaticTranslations();
-    setSection('framework');
+    // Populate the bottom section tab bar before first section renders
+    rBN();
+    setSection('dashboard');  // start on Dashboard overview
+    // phasenav and wrap are shown/hidden by setSection when switching to framework
     var pnav=document.getElementById('phasenav');
-    if(pnav)pnav.style.display='';
+    if(pnav)pnav.style.display='none';   // hidden until Framework is selected
     var wrap=document.getElementById('wrap');
-    if(wrap)wrap.style.display='';
-    var bn=document.getElementById('bottomnav');
-    if(bn)bn.style.display='';
+    if(wrap)wrap.style.display='none';   // same
   });
 });
 

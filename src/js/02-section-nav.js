@@ -1,11 +1,15 @@
 function setSection(s){
   APP.section=s;
+  // Update desktop secnav active state (tablet/desktop)
   document.querySelectorAll('.secbtn').forEach(function(b){b.classList.toggle('on',b.dataset.sec===s);});
   var isF=s==='framework';
-  ['phasenav','wrap','bottomnav'].forEach(function(id){
+  // phasenav + wrap only visible in Framework; bottomnav ALWAYS stays visible
+  ['phasenav','wrap'].forEach(function(id){
     var el=document.getElementById(id);
     if(el)el.style.display=isF?'':'none';
   });
+  // Always update and show the section bottom tab bar
+  rBN();
   var sb=document.getElementById('secbody');
   var srch=document.getElementById('searchbox');
   if(isF){
